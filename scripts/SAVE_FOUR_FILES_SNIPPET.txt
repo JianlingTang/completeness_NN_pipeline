@@ -1,0 +1,41 @@
+# Add this block after training both best_model_phys and best_model_phot.
+# Requires: import joblib, from pathlib import Path (at top of script).
+
+# ==========================
+# SAVE FOUR FILES (for completeness_nn_api / deploy-completeness)
+# ==========================
+OUTNAME = "model0"
+SAVE_DIR = Path("checkpoints")
+SAVE_DIR.mkdir(parents=True, exist_ok=True)
+
+# 1) Save phys model (.pt with model_state_dict + model_config)
+torch.save(
+    {
+        "model_state_dict": best_model_phys.state_dict(),
+        "model_config": {
+            "input_dim": input_dim_phys,
+            "hidden_dim": best_cfg_phys_sweep["hidden_dim"],
+            "n_hidden": best_cfg_phys_sweep["n_hidden"],
+        },
+    },
+    SAVE_DIR / f"best_model_phys_{OUTNAME}.pt",
+)
+
+# 2) Save phot model
+torch.save(
+    {
+        "model_state_dict": best_model_phot.state_dict(),
+        "model_config": {
+            "input_dim": input_dim_phot,
+            "hidden_dim": best_cfg_phot_sweep["hidden_dim"],
+            "n_hidden": best_cfg_phot_sweep["n_hidden"],
+        },
+    },
+    SAVE_DIR / f"best_model_phot_{OUTNAME}.pt",
+)
+
+# 3) Save scalers (.pkl)
+joblib.dump(scaler_phys, SAVE_DIR / f"scaler_phys_{OUTNAME}.pkl")
+joblib.dump(scaler_photo, SAVE_DIR / f"scaler_phot_{OUTNAME}.pkl")
+
+print("Saved 4 files to", SAVE_DIR.resolve(), ":", [p.name for p in SAVE_DIR.glob("*")])

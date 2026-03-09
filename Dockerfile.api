@@ -1,0 +1,21 @@
+# API image: install package with [api]; checkpoints are inside completeness_nn_api/checkpoints/.
+# Put the four files in completeness_nn_api/checkpoints/ then:
+#   docker build -t cluster-completeness-api -f Dockerfile.api .
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY pyproject.toml ./
+COPY completeness_nn_api/ completeness_nn_api/
+COPY cluster_pipeline/ cluster_pipeline/
+COPY scripts/ scripts/
+
+RUN pip install --no-cache-dir -e ".[api]"
+
+ENV COMPLETENESS_OUTNAME=model0 \
+    PORT=8000
+
+EXPOSE 8000
+
+CMD uvicorn completeness_nn_api.serve:app --host 0.0.0.0 --port ${PORT:-8000}

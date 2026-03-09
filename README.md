@@ -21,7 +21,7 @@ git clone <your-repo-url>
 cd cluster-completeness-pipeline
 python -m venv .venv
 source .venv/bin/activate   # or .venv\Scripts\activate on Windows
-pip install numpy scipy pandas pyarrow matplotlib pytest torch scikit-learn joblib
+pip install -e ".[api]"
 ```
 
 For the full pipeline you also need IRAF/PyRAF, SExtractor, and BAOlab; see your institution’s setup or `docs/DEPLOY_FOR_PAPER.md`.
@@ -71,11 +71,35 @@ python scripts/perform_ml_to_learn_completeness.py \
 
 Outputs: best model, scalers, and plots under `--out-dir`. Dependencies: `torch`, `numpy`, `scikit-learn`, `joblib`, `matplotlib` (no IRAF/BAOlab needed for this step).
 
+### 4. Deploy as Python package + API (no ML run)
+
+If you have the four checkpoint files (or put them on GitHub), you can skip training and run the API directly:
+
+1. **Put the four files** in one directory (e.g. repo `checkpoints/`):
+   - `best_model_phys_model0.pt`, `best_model_phot_model0.pt`
+   - `scaler_phys_model0.pkl`, `scaler_phot_model0.pkl`  
+   See `checkpoints/README.md`. You can commit these to GitHub so others don’t need to run ML.
+
+2. **Install and start API** (from repo root):
+   ```bash
+   pip install -e ".[api]"
+   deploy-completeness
+   ```
+   Or use a custom directory and one-shot install:
+   ```bash
+   python scripts/deploy.py --model-dir /path/to/your/checkpoints --install
+   ```
+
+   - API docs: http://localhost:8000/docs  
+   - Health: http://localhost:8000/health  
+
 ## Repository layout (code only)
 
 | Path | Description |
 |------|-------------|
-| **`scripts/`** | All runnable scripts; see **`scripts/README.md`** and **`docs/SCRIPTS.md`**. Entry points: `run_pipeline.py`, `generate_white_clusters.py`, `perform_photometry_ci_cut_on_5filters.py`, `perform_ml_to_learn_completeness.py`, `nn_utils.py`, `inject_clusters_to_5filters.py`, `build_ml_inputs.py`, `plot_completeness_mag_mass_age.py`, `extract_white.py`, etc. |
+| **`scripts/`** | All runnable scripts; see **`scripts/README.md`** and **`docs/SCRIPTS.md`**. Entry points: `run_pipeline`, `deploy-completeness`, `serve-completeness-api`, and scripts: `run_pipeline.py`, `deploy.py`, `generate_white_clusters.py`, … |
+| **`completeness_nn_api/`** | Completeness NN API: `from completeness_nn_api import ngc628_completeness_predict`, HTTP server, deploy. |
+| **`checkpoints/`** | Optional: put the four NN checkpoint files here and run `deploy-completeness` (see `checkpoints/README.md`). |
 | **`cluster_pipeline/`** | Config, data loaders, detection, matching, pipeline, photometry, catalogue, utils |
 | **`docs/`** | RUNNING, PIPELINE_FILES, SCRIPTS (script index + inputs/outputs), FILES_FOR_GIT, DEPLOY, ARCHITECTURE, INSTALL_IRAF, COMPLETENESS_FIGURE |
 | **`tests/`** | Unit, integration, and E2E tests |
@@ -101,6 +125,7 @@ CI runs on push/PR: `ruff check` and `pytest` (see `.github/workflows/ci.yml`).
 - **`docs/SCRIPTS.md`** – Script index with inputs/outputs and locations.
 - **`docs/DEPLOY_FOR_PAPER.md`** – What to include for paper/GitHub: pipeline modules, ML step, optional reference script, exclude list.
 - **`docs/FILES_FOR_GIT.md`** – Explicit list of files to commit for a pipeline-only push.
+- **`docs/PUBLISH.md`** – Publish the package to PyPI and host the API (Docker, Railway, Render, etc.).
 - **`docs/ARCHITECTURE.md`** – Pipeline architecture and refactor design.
 - **`docs/INSTALL_IRAF.md`** – Local IRAF install for 5-filter photometry.
 - **`docs/COMPLETENESS_FIGURE.md`** – Completeness workflow, scripts, and assumptions.

@@ -4,6 +4,44 @@ version = "0.1.0"
 description = "Synthetic cluster injection, detection, matching, photometry, and NN completeness pipeline"
 readme = "README.md"
 requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "numpy>=1.20",
+    "scipy>=1.7",
+    "pandas>=1.3",
+    "pyarrow>=6.0",
+    "matplotlib>=3.4",
+    "astropy>=5.0",
+    "torch>=1.10",
+    "scikit-learn>=1.0",
+    "joblib>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/YOUR_USERNAME/cluster-completeness-pipeline"
+Repository = "https://github.com/YOUR_USERNAME/cluster-completeness-pipeline"
+Documentation = "https://github.com/YOUR_USERNAME/cluster-completeness-pipeline#readme"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "ruff>=0.15"]
+api = ["fastapi>=0.100", "uvicorn[standard]>=0.22"]
+all = ["pytest>=7.0", "ruff>=0.15", "fastapi>=0.100", "uvicorn[standard]>=0.22"]
+
+[project.scripts]
+run_pipeline = "scripts.run_pipeline:main"
+serve-completeness-api = "completeness_nn_api.serve:main"
+deploy-completeness = "scripts.deploy:main"
+
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["cluster_pipeline*", "completeness_nn_api*", "scripts*"]
+
+[tool.setuptools.package-data]
+completeness_nn_api = ["checkpoints/*.pt", "checkpoints/*.pkl"]
 
 [tool.ruff]
 target-version = "py310"
