@@ -1,0 +1,1809 @@
+#K IRAF       = CommunityIRAFV2.18.1    version    %-23s     
+#K USER       = janett                  name       %-23s     
+#K HOST       = MacBook-Air-5.local     computer   %-23s     
+#K DATE       = 2026-03-08              yyyy-mm-dd %-23s     
+#K TIME       = 20:40:07                hh:mm:ss   %-23s     
+#K PACKAGE    = apphot                  name       %-23s     
+#K TASK       = phot                    name       %-23s     
+#
+#K SCALE      = 1.                      units      %-23.7g   
+#K FWHMPSF    = 2.                      scaleunit  %-23.7g   
+#K EMISSION   = yes                     switch     %-23b     
+#K DATAMIN    = INDEF                   counts     %-23.7g   
+#K DATAMAX    = INDEF                   counts     %-23.7g   
+#K EXPOSURE   = ""                      keyword    %-23s     
+#K AIRMASS    = ""                      keyword    %-23s     
+#K FILTER     = ""                      keyword    %-23s     
+#K OBSTIME    = ""                      keyword    %-23s     
+#
+#K NOISE      = poisson                 model      %-23s     
+#K SIGMA      = 0.01                    counts     %-23.7g   
+#K GAIN       = ""                      keyword    %-23s     
+#K EPADU      = 1.                      e-/adu     %-23.7g   
+#K CCDREAD    = ""                      keyword    %-23s     
+#K READNOISE  = 5.                      e-         %-23.7g   
+#
+#K CALGORITHM = centroid                algorithm  %-23s     
+#K CBOXWIDTH  = 1.                      scaleunit  %-23.7g   
+#K CTHRESHOLD = 0.                      sigma      %-23.7g   
+#K MINSNRATIO = 1.                      number     %-23.7g   
+#K CMAXITER   = 3                       number     %-23d     
+#K MAXSHIFT   = 1.                      scaleunit  %-23.7g   
+#K CLEAN      = no                      switch     %-23b     
+#K RCLEAN     = 1.                      scaleunit  %-23.7g   
+#K RCLIP      = 2.                      scaleunit  %-23.7g   
+#K KCLEAN     = 3.                      sigma      %-23.7g   
+#
+#K SALGORITHM = mode                    algorithm  %-23s     
+#K ANNULUS    = 7.                      scaleunit  %-23.7g   
+#K DANNULUS   = 1.                      scaleunit  %-23.7g   
+#K SKYVALUE   = 0.                      counts     %-23.7g   
+#K KHIST      = 3.                      sigma      %-23.7g   
+#K BINSIZE    = 0.1                     sigma      %-23.7g   
+#K SMOOTH     = no                      switch     %-23b     
+#K SMAXITER   = 10                      number     %-23d     
+#K SLOCLIP    = 0.                      percent    %-23.7g   
+#K SHICLIP    = 0.                      percent    %-23.7g   
+#K SNREJECT   = 50                      number     %-23d     
+#K SLOREJECT  = 3.                      sigma      %-23.7g   
+#K SHIREJECT  = 3.                      sigma      %-23.7g   
+#K RGROW      = 0.                      scaleunit  %-23.7g   
+#
+#K WEIGHTING  = constant                model      %-23s     
+#K APERTURES  = 1.00,3.00               scaleunit  %-23s     
+#K ZMAG       = 25.731                  zeropoint  %-23.7g   
+#
+#N IMAGE               XINIT     YINIT     ID    COORDS                 LID    \
+#U imagename           pixels    pixels    ##    filename               ##     \
+#F %-23s               %-10.3f   %-10.3f   %-6d  %-23s                  %-6d    
+#
+#N XCENTER    YCENTER    XSHIFT  YSHIFT  XERR    YERR            CIER CERROR   \
+#U pixels     pixels     pixels  pixels  pixels  pixels          ##   cerrors  \
+#F %-14.3f    %-11.3f    %-8.3f  %-8.3f  %-8.3f  %-15.3f         %-5d %-9s      
+#
+#N MSKY           STDEV          SSKEW          NSKY   NSREJ     SIER SERROR   \
+#U counts         counts         counts         npix   npix      ##   serrors  \
+#F %-18.7g        %-15.7g        %-15.7g        %-7d   %-9d      %-5d %-9s      
+#
+#N ITIME          XAIRMASS       IFILTER                OTIME                  \
+#U timeunit       number         name                   timeunit               \
+#F %-18.7g        %-15.7g        %-23s                  %-23s                   
+#
+#N RAPERT   SUM           AREA       FLUX          MAG    MERR   PIER PERROR   \
+#U scale    counts        pixels     counts        mag    mag    ##   perrors  \
+#F %-12.2f  %-14.7g       %-11.7g    %-14.7g       %-7.3f %-6.3f %-5d %-9s      
+#
+ngc628-c_acsff555w_fram1986.420  4451.540  1     matched_frame1_test_ref1      \
+   1985.263   4452.000   -1.157  0.460   0.097   0.000          107  BigShift  \
+   0.1078357      0.01360264     -0.01106055    40     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     34.15519      3.447625   33.78342      21.909 0.187 0    NoError  *\
+   3.00     158.1755      28.58426   155.0931      20.255 0.087 0    NoError  * 
+ngc628-c_acsff555w_fram3787.490  2831.520  2     matched_frame1_test_ref2      \
+   3786.000   2832.507   -1.490  0.987   0.000   0.217          107  BigShift  \
+   0.03870662     0.01203215     0.005996134    34     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     10.68626      3.527787   10.54971      23.173 0.334 0    NoError  *\
+   3.00     23.90407      28.83261   22.78806      22.337 0.227 0    NoError  * 
+ngc628-c_acsff555w_fram4212.490  4864.560  3     matched_frame1_test_ref3      \
+   4212.604   4865.000   0.114   0.440   0.196   0.000          0    NoError   \
+   0.006419695    0.008470112    -0.005421523   43     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     20.51476      3.512385   20.49221      22.452 0.240 0    NoError  *\
+   3.00     80.8198       28.69816   80.63556      20.965 0.121 0    NoError  * 
+ngc628-c_acsff555w_fram5470.440  2524.530  4     matched_frame1_test_ref4      \
+   5470.636   2525.272   0.196   0.742   0.074   0.068          0    NoError   \
+   -0.01572812    0.006212528    -0.004633711   33     14       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     85.23474      3.391365   85.28808      20.904 0.118 0    NoError  *\
+   3.00     330.4012      28.48852   330.8492      19.432 0.060 0    NoError  * 
+ngc628-c_acsff555w_fram2787.490  4476.540  5     matched_frame1_test_ref5      \
+   2788.000   4477.000   0.510   0.460   0.000   0.000          0    NoError   \
+   0.184384       0.01936996     -0.009399883   27     21       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     180.7496      3.343146   180.1332      20.092 0.081 0    NoError  *\
+   3.00     898.3794      28.38807   893.1451      18.354 0.036 0    NoError  * 
+ngc628-c_acsff555w_fram1898.450  1041.570  6     matched_frame1_test_ref6      \
+   1898.875   1042.286   0.425   0.716   0.057   0.083          0    NoError   \
+   0.             1.053671E-8    6.126126E-6    35     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     59.01396      3.439806   59.01396      21.304 0.141 0    NoError  *\
+   3.00     254.8601      28.61872   254.8601      19.715 0.068 0    NoError  * 
+ngc628-c_acsff555w_fram4946.290  1024.430  7     matched_frame1_test_ref7      \
+   4945.000   1023.000   -1.290  -1.430  0.000   0.000          103  LowSnr    \
+   -0.01981337    0.007326413    -0.003650486   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     -0.05116626   3.343146   0.01507274    30.286 8.900 0    NoError  *\
+   3.00     -0.5059505    28.38807   0.0565129     28.851 4.666 0    NoError  * 
+ngc628-c_acsff555w_fram5724.440  2220.570  8     matched_frame1_test_ref8      \
+   5724.000   2220.000   -0.440  -0.570  0.000   0.000          0    NoError   \
+   0.             4.562530E-9    1.449331E-6    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.9324       3.343146   21.9324       22.378 0.232 0    NoError  *\
+   3.00     96.12651      28.38807   96.1265       20.774 0.111 0    NoError  * 
+ngc628-c_acsff555w_fram1062.420  4336.590  9     matched_frame1_test_ref9      \
+   1063.799   4338.000   1.379   1.410   0.105   0.000          107  BigShift  \
+   0.02729888     0.009229434    0.006485216    41     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     19.36478      3.400353   19.27195      22.519 0.247 0    NoError  *\
+   3.00     81.98575      28.4593    81.20885      20.957 0.120 0    NoError  * 
+ngc628-c_acsff555w_fram2027.450  4102.550  10    matched_frame1_test_ref10     \
+   2028.000   4103.000   0.550   0.450   0.000   0.000          0    NoError   \
+   0.1413221      0.01275577     0.008850721    36     12       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     53.67926      3.343146   53.2068       21.416 0.149 0    NoError  *\
+   3.00     241.8225      28.38807   237.8106      19.790 0.070 0    NoError  * 
+ngc628-c_acsff555w_fram5196.520  2165.550  11    matched_frame1_test_ref11     \
+   5196.000   2166.000   -0.520  0.450   0.000   0.000          0    NoError   \
+   -0.01688104    0.008000522    -0.003214911   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.90744       3.343146   1.963876      24.998 0.775 0    NoError  *\
+   3.00     2.277587      28.38807   2.756807      24.630 0.654 0    NoError  * 
+ngc628-c_acsff555w_fram3979.460  5156.570  12    matched_frame1_test_ref12     \
+   3978.575   5157.313   -0.885  0.743   0.243   0.116          0    NoError   \
+   0.01603239     0.008510889    -0.006284918   40     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     17.27511      3.341528   17.22153      22.641 0.262 0    NoError  *\
+   3.00     85.89023      28.45312   85.43406      20.902 0.117 0    NoError  * 
+ngc628-c_acsff555w_fram5008.450  1957.460  13    matched_frame1_test_ref13     \
+   5007.996   1957.000   -0.454  -0.460  0.754   0.000          0    NoError   \
+   -0.01074144    0.006236027    -0.004885915   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.915783      3.34312    1.951693      25.005 0.777 0    NoError  *\
+   3.00     9.356992      28.38805   9.661921      23.268 0.349 0    NoError  * 
+ngc628-c_acsff555w_fram6649.480  2391.590  14    matched_frame1_test_ref14     \
+   6650.000   2391.500   0.520   -0.090  0.000   0.086          0    NoError   \
+   0.             0.             0.             30     12       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     70.91118      3.527864   70.91118      21.104 0.129 0    NoError  *\
+   3.00     293.1644      28.84149   293.1644      19.563 0.063 0    NoError  * 
+ngc628-c_acsff555w_fram4486.460  5609.580  15    matched_frame1_test_ref15     \
+   4486.495   5610.000   0.035   0.419   0.134   0.003          0    NoError   \
+   -8.202157E-4   0.005098265    -0.003935596   31     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     50.96359      3.527822   50.96648      21.463 0.152 0    NoError  *\
+   3.00     290.8312      28.83499   290.8548      19.572 0.064 0    NoError  * 
+ngc628-c_acsff555w_fram3036.440  3619.590  16    matched_frame1_test_ref16     \
+   3037.667   3620.167   1.227   0.577   0.090   0.069          107  BigShift  \
+   0.06485669     0.01447682     0.005235601    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     41.39358      3.446896   41.17002      21.695 0.169 0    NoError  *\
+   3.00     135.8738      28.60082   134.0188      20.413 0.094 0    NoError  * 
+ngc628-c_acsff555w_fram3122.420  3070.580  17    matched_frame1_test_ref17     \
+   3122.000   3071.000   -0.420  0.420   0.000   0.000          0    NoError   \
+   0.03122775     0.008055304    -0.003786631   44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     9.087792      3.343146   8.983393      23.347 0.362 0    NoError  *\
+   3.00     36.16889      28.38807   35.28239      21.862 0.183 0    NoError  * 
+ngc628-c_acsff555w_fram5905.550  3172.490  18    matched_frame1_test_ref18     \
+   5907.000   3172.000   1.450   -0.490  0.000   0.000          107  BigShift  \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.96065       3.343146   1.96065       25.000 0.775 0    NoError  *\
+   3.00     1.96065       28.38807   1.96065       25.000 0.775 0    NoError  * 
+ngc628-c_acsff555w_fram3802.480  4696.590  19    matched_frame1_test_ref19     \
+   3802.876   4696.915   0.396   0.325   0.086   0.071          0    NoError   \
+   0.03291059     0.008249708    -0.00646208    46     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     20.61954      3.366678   20.50874      22.451 0.240 0    NoError  *\
+   3.00     91.409        28.4365    90.47314      20.840 0.114 0    NoError  * 
+ngc628-c_acsff555w_fram5708.490  3148.560  20    matched_frame1_test_ref20     \
+   5709.000   3148.000   0.510   -0.560  0.000   0.000          0    NoError   \
+   -0.01442049    0.006688804    0.003633093    43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     14.33741      3.343146   14.38562      22.836 0.286 0    NoError  *\
+   3.00     57.22363      28.38807   57.633        21.329 0.143 0    NoError  * 
+ngc628-c_acsff555w_fram6890.500  2089.570  21    matched_frame1_test_ref21     \
+   6891.500   2089.500   1.000   -0.070  0.268   0.268          0    NoError   \
+   0.             0.             0.             52     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.218343      3.171573   6.218343      23.747 0.435 0    NoError  *\
+   3.00     15.8225       28.28012   15.8225       22.733 0.273 0    NoError  * 
+ngc628-c_acsff555w_fram2575.540  2444.600  22    matched_frame1_test_ref22     \
+   2576.000   2446.000   0.460   1.400   0.000   0.000          107  BigShift  \
+   0.02727813     0.01066745     -0.005029951   45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.030047      3.343146   1.938852      25.012 0.780 0    NoError  *\
+   3.00     2.687338      28.38807   1.912964      25.027 0.786 0    NoError  * 
+ngc628-c_acsff555w_fram2810.450  2851.560  23    matched_frame1_test_ref23     \
+   2811.000   2851.006   0.550   -0.554  0.000   0.027          0    NoError   \
+   0.02257573     0.01212284     -0.007039022   38     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     37.93184      3.343087   37.85636      21.786 0.176 0    NoError  *\
+   3.00     197.6178      28.38802   196.9769      19.995 0.077 0    NoError  * 
+ngc628-c_acsff555w_fram4782.420  2687.570  24    matched_frame1_test_ref24     \
+   4782.000   2687.123   -0.420  -0.448  0.000   0.092          0    NoError   \
+   -0.00867309    0.007001843    0.003743189    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     22.06387      3.324281   22.0927       22.370 0.231 0    NoError  *\
+   3.00     95.26261      28.36825   95.50864      20.781 0.111 0    NoError  * 
+ngc628-c_acsff555w_fram2025.450  2250.570  25    matched_frame1_test_ref25     \
+   2026.000   2251.400   0.550   0.830   0.000   0.038          0    NoError   \
+   3.47718        2.108436       1.006338       42     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     535.1814      3.513525   522.9642      18.935 0.048 0    NoError  *\
+   3.00     2592.729      28.70421   2492.919      17.239 0.023 0    NoError  * 
+ngc628-c_acsff555w_fram5834.510  3292.550  26    matched_frame1_test_ref26     \
+   5836.000   3293.000   1.490   0.450   0.000   0.000          107  BigShift  \
+   -0.01441322    0.006126255    0.003925944    45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.894795      3.343146   3.942981      24.241 0.547 0    NoError  *\
+   3.00     6.288587      28.38807   6.697751      23.666 0.420 0    NoError  * 
+ngc628-c_acsff555w_fram4801.470  1277.580  27    matched_frame1_test_ref27     \
+   4801.800   1278.508   0.330   0.928   0.191   0.259          0    NoError   \
+   -0.01892686    0.006199754    -0.0049423     44     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.67563       3.4359     6.740661      23.659 0.418 0    NoError  *\
+   3.00     17.13284      28.52365   17.67271      22.613 0.258 0    NoError  * 
+ngc628-c_acsff555w_fram4353.430  4998.600  28    matched_frame1_test_ref28     \
+   4354.000   4999.264   0.570   0.664   0.000   0.083          0    NoError   \
+   0.0126303      0.01044373     0.007180956    37     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     61.72388      3.447955   61.68033      21.256 0.138 0    NoError  *\
+   3.00     278.9089      28.58519   278.5479      19.619 0.065 0    NoError  * 
+ngc628-c_acsff555w_fram2947.380  3199.600  29    matched_frame1_test_ref29     \
+   2948.000   3200.000   0.620   0.400   0.000   0.000          0    NoError   \
+   1.592691       1.515153       1.102723       42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     324.267       3.343146   318.9424      19.472 0.062 0    NoError  *\
+   3.00     1557.977      28.38807   1512.764      17.782 0.029 0    NoError  * 
+ngc628-c_acsff555w_fram3527.430  5647.530  30    matched_frame1_test_ref30     \
+   3526.495   5647.000   -0.935  -0.530  0.218   0.000          0    NoError   \
+   0.01219285     0.008754767    -0.004129359   40     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     8.598438      3.527823   8.555424      23.400 0.371 0    NoError  *\
+   3.00     30.85363      28.835     30.50205      22.020 0.197 0    NoError  * 
+ngc628-c_acsff555w_fram1878.420  1976.460  31    matched_frame1_test_ref31     \
+   1879.000   1977.000   0.580   0.540   0.000   0.000          0    NoError   \
+   -7.583806E-4   0.006457573    -0.004177016   45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.334654      3.343146   2.337189      24.809 0.710 0    NoError  *\
+   3.00     8.08361       28.38807   8.105139      23.459 0.381 0    NoError  * 
+ngc628-c_acsff555w_fram4374.520  1568.490  32    matched_frame1_test_ref32     \
+   4375.000   1568.693   0.480   0.203   0.000   0.059          0    NoError   \
+   -0.01426691    0.005766107    -0.003055022   22     22       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     116.9995      3.474432   117.0491      20.560 0.100 0    NoError  *\
+   3.00     540.3457      28.63651   540.7543      18.899 0.047 0    NoError  * 
+ngc628-c_acsff555w_fram5532.440  2901.600  33    matched_frame1_test_ref33     \
+   5533.000   2902.000   0.560   0.400   0.000   0.000          0    NoError   \
+   -0.02619324    0.9463094      0.7731973      38     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     163.6696      3.343146   163.7571      20.196 0.086 0    NoError  *\
+   3.00     727.162       28.38807   727.9055      18.576 0.041 0    NoError  * 
+ngc628-c_acsff555w_fram3977.470  5356.570  34    matched_frame1_test_ref34     \
+   3977.778   5357.000   0.308   0.431   0.072   0.003          0    NoError   \
+   0.006886906    0.01047032     0.007786736    35     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     63.72123      3.417252   63.69769      21.221 0.136 0    NoError  *\
+   3.00     306.3001      28.50217   306.1038      19.516 0.062 0    NoError  * 
+ngc628-c_acsff555w_fram3657.420  2126.640  35    matched_frame1_test_ref35     \
+   3658.000   2126.000   0.580   -0.640  0.000   0.000          0    NoError   \
+   -1.790122E-4   0.007788399    -0.003474837   43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.970918      3.343146   1.971516      24.994 0.773 0    NoError  *\
+   3.00     2.71394       28.38807   2.719021      24.645 0.659 0    NoError  * 
+ngc628-c_acsff555w_fram2303.600  1624.540  36    matched_frame1_test_ref36     \
+   2304.000   1625.000   0.400   0.460   0.000   0.000          0    NoError   \
+   8.888100E-4    0.008581324    0.007049709    35     13       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     29.66482      3.343146   29.66185      22.051 0.199 0    NoError  *\
+   3.00     161.6926      28.38807   161.6674      20.209 0.085 0    NoError  * 
+ngc628-c_acsff555w_fram6073.480  3759.550  37    matched_frame1_test_ref37     \
+   6073.000   3760.000   -0.480  0.450   0.000   0.000          0    NoError   \
+   0.             0.             0.             45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.96065       3.343146   1.96065       25.000 0.775 0    NoError  *\
+   3.00     4.257694      28.38807   4.257694      24.158 0.526 0    NoError  * 
+ngc628-c_acsff555w_fram3611.460  3681.530  38    matched_frame1_test_ref38     \
+   3610.498   3682.000   -0.962  0.470   0.267   0.000          0    NoError   \
+   0.03215887     0.008457754    0.006313721    30     12       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.513051      3.527859   5.399599      23.900 0.467 0    NoError  *\
+   3.00     26.38821      28.83914   25.46078      22.216 0.215 0    NoError  * 
+ngc628-c_acsff555w_fram2814.460  1914.640  39    matched_frame1_test_ref39     \
+   2813.003   1916.000   -1.457  1.360   0.287   0.000          103  LowSnr    \
+   -0.005431317   0.006850853    -0.002710176   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.006270847   3.343134   0.02442846    29.761 6.970 0    NoError  *\
+   3.00     -0.0712371    28.38806   0.08294745    28.434 3.818 0    NoError  * 
+ngc628-c_acsff555w_fram5515.460  3451.550  40    matched_frame1_test_ref40     \
+   5515.000   3451.000   -0.460  -0.550  0.000   0.000          0    NoError   \
+   -0.008218647   0.007052387    0.003840869    43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.539803      3.343146   6.567279      23.688 0.424 0    NoError  *\
+   3.00     41.71406      28.38807   41.94737      21.674 0.168 0    NoError  * 
+ngc628-c_acsff555w_fram5122.410  5194.570  41    matched_frame1_test_ref41     \
+   5122.752   5196.000   0.342   1.430   0.096   0.000          107  BigShift  \
+   0.003849174    0.008956226    0.004606312    37     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     35.34989      3.437045   35.33666      21.860 0.183 0    NoError  *\
+   3.00     169.5899      28.55479   169.48        20.158 0.083 0    NoError  * 
+ngc628-c_acsff555w_fram5550.470  4201.550  42    matched_frame1_test_ref42     \
+   5551.000   4201.000   0.530   -0.549  0.000   0.003          0    NoError   \
+   -0.001896603   0.0069349      0.003534091    33     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     52.57615      3.343145   52.58249      21.429 0.150 0    NoError  *\
+   3.00     248.176       28.38807   248.2298      19.744 0.069 0    NoError  * 
+ngc628-c_acsff555w_fram2775.520  1870.500  43    matched_frame1_test_ref43     \
+   2776.506   1871.500   0.986   1.000   0.266   0.266          0    NoError   \
+   -0.001134889   0.007260641    -0.00336134    51     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.225523      3.171528   6.229122      23.745 0.435 0    NoError  *\
+   3.00     7.846519      28.28007   7.878614      23.490 0.387 0    NoError  * 
+ngc628-c_acsff555w_fram5397.510  3872.560  44    matched_frame1_test_ref44     \
+   5398.000   3873.000   0.490   0.440   0.000   0.000          0    NoError   \
+   -0.002434012   0.006915094    -0.001927884   45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.961195      3.343146   1.969332      24.995 0.774 0    NoError  *\
+   3.00     8.541863      28.38807   8.61096       23.393 0.370 0    NoError  * 
+ngc628-c_acsff555w_fram3746.510  3558.600  45    matched_frame1_test_ref45     \
+   3747.000   3559.345   0.490   0.745   0.000   0.076          0    NoError   \
+   1.21727        1.136252       0.7704492      41     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     173.6275      3.493471   169.375       20.159 0.085 0    NoError  *\
+   3.00     876.4024      28.63185   841.5497      18.418 0.039 0    NoError  * 
+ngc628-c_acsff555w_fram2102.680  1719.570  46    matched_frame1_test_ref46     \
+   2103.070   1720.154   0.390   0.584   0.052   0.070          0    NoError   \
+   -7.044516E-4   0.00780546     0.002691621    40     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     47.96474      3.367945   47.96711      21.529 0.157 0    NoError  *\
+   3.00     259.4165      28.4486    259.4365      19.696 0.067 0    NoError  * 
+ngc628-c_acsff555w_fram4699.510  1943.680  47    matched_frame1_test_ref47     \
+   4700.000   1944.000   0.490   0.320   0.000   0.000          0    NoError   \
+   1.373981       1.516015       1.245967       41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     279.768       3.343146   275.1745      19.632 0.066 0    NoError  *\
+   3.00     1312.198      28.38807   1273.193      17.969 0.032 0    NoError  * 
+ngc628-c_acsff555w_fram6109.490  3249.520  48    matched_frame1_test_ref48     \
+   6110.000   3250.000   0.510   0.480   0.000   0.000          0    NoError   \
+   0.             0.             0.             45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     10.81243      3.343146   10.81243      23.146 0.330 0    NoError  *\
+   3.00     38.89482      28.38807   38.89482      21.756 0.174 0    NoError  * 
+ngc628-c_acsff555w_fram1688.420  2178.600  49    matched_frame1_test_ref49     \
+   1688.667   2179.668   0.247   1.068   0.137   0.137          107  BigShift  \
+   0.005694235    0.007417672    0.002403873    43     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     19.29515      3.337077   19.27615      22.518 0.247 0    NoError  *\
+   3.00     65.66735      28.46777   65.50525      21.190 0.134 0    NoError  * 
+ngc628-c_acsff555w_fram2927.480  4601.520  50    matched_frame1_test_ref50     \
+   2927.000   4602.000   -0.480  0.480   0.000   0.000          0    NoError   \
+   0.07788378     0.007397555    0.002982608    41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.198747      3.343146   3.93837       24.243 0.547 0    NoError  *\
+   3.00     10.93101      28.38807   8.720037      23.380 0.368 0    NoError  * 
+ngc628-c_acsff555w_fram1435.460  3003.570  51    matched_frame1_test_ref51     \
+   1435.833   3004.000   0.373   0.430   0.084   0.000          0    NoError   \
+   0.04325734     0.01798839     0.01688515     25     25       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     36.91958      3.369422   36.77383      21.817 0.179 0    NoError  *\
+   3.00     185.6352      28.41573   184.4061      20.067 0.080 0    NoError  * 
+ngc628-c_acsff555w_fram2990.440  499.550   52    matched_frame1_test_ref52     \
+   2991.000   500.000    0.560   0.450   0.001   0.000          0    NoError   \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.128847      3.343146   2.128847      24.911 0.744 0    NoError  *\
+   3.00     5.881949      28.38807   5.881949      23.807 0.448 0    NoError  * 
+ngc628-c_acsff555w_fram3545.560  527.490   53    matched_frame1_test_ref53     \
+   3545.560   528.000    0.000   0.510   INDEF   0.000          0    NoError   \
+   0.             0.             0.             42     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.921299      3.522702   3.921299      24.247 0.548 0    NoError  *\
+   3.00     13.77076      28.76323   13.77076      22.884 0.293 0    NoError  * 
+ngc628-c_acsff555w_fram6058.450  2688.580  54    matched_frame1_test_ref54     \
+   6057.000   2688.500   -1.450  -0.080  0.000   0.210          107  BigShift  \
+   0.             4.562530E-9    -2.167707E-6   37     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     17.46905      3.527864   17.46906      22.625 0.260 0    NoError  *\
+   3.00     76.07277      28.84149   76.07277      21.028 0.124 0    NoError  * 
+ngc628-c_acsff555w_fram6157.380  1959.610  55    matched_frame1_test_ref55     \
+   6158.000   1960.000   0.620   0.390   0.000   0.297          0    NoError   \
+   0.             0.             0.             45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     11.62456      3.343146   11.62456      23.068 0.318 0    NoError  *\
+   3.00     59.84385      28.38807   59.84385      21.288 0.140 0    NoError  * 
+ngc628-c_acsff555w_fram3227.500  4096.560  56    matched_frame1_test_ref56     \
+   3227.000   4098.000   -0.500  1.440   0.000   0.000          107  BigShift  \
+   0.07305079     0.01140339     0.002414889    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.197417      3.343146   1.953198      25.004 0.777 0    NoError  *\
+   3.00     4.520322      28.38807   2.446551      24.760 0.695 0    NoError  * 
+ngc628-c_acsff555w_fram2590.380  4990.500  57    matched_frame1_test_ref57     \
+   2590.869   4991.000   0.490   0.500   0.036   0.001          0    NoError   \
+   2.892637       2.054456       -0.89584       47     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     359.2694      3.332857   349.6286      19.372 0.059 0    NoError  *\
+   3.00     1984.181      28.37031   1902.116      17.533 0.026 0    NoError  * 
+ngc628-c_acsff555w_fram2682.430  793.560   58    matched_frame1_test_ref58     \
+   2681.000   794.000    -1.430  0.440   0.000   0.000          107  BigShift  \
+   0.             1.613098E-9    3.041502E-6    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     15.37766      3.343146   15.37766      22.764 0.277 0    NoError  *\
+   3.00     57.91661      28.38807   57.91661      21.324 0.143 0    NoError  * 
+ngc628-c_acsff555w_fram3804.450  3845.570  59    matched_frame1_test_ref59     \
+   3805.000   3845.994   0.550   0.424   0.000   0.019          0    NoError   \
+   0.01882589     0.007350502    0.004414282    37     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     23.17064      3.343082   23.1077       22.322 0.226 0    NoError  *\
+   3.00     104.1278      28.38802   103.5934      20.693 0.107 0    NoError  * 
+ngc628-c_acsff555w_fram3650.470  3030.600  60    matched_frame1_test_ref60     \
+   3650.227   3031.000   -0.243  0.400   0.084   0.000          0    NoError   \
+   0.0316962      0.01732311     0.01450334     38     12       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     61.94763      3.42129    61.83919      21.253 0.138 0    NoError  *\
+   3.00     284.5568      28.51267   283.6531      19.599 0.064 0    NoError  * 
+ngc628-c_acsff555w_fram3255.500  4681.460  61    matched_frame1_test_ref61     \
+   3255.000   4680.000   -0.500  -1.460  0.000   0.000          103  LowSnr    \
+   0.06721526     0.008810141    -0.004818862   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.2505782     3.343146   0.0258678     29.699 6.787 0    NoError  *\
+   3.00     1.877915      28.38807   -0.03019686   INDEF  INDEF 0    NoError  * 
+ngc628-c_acsff555w_fram1553.480  2494.510  62    matched_frame1_test_ref62     \
+   1553.501   2495.000   0.021   0.490   0.181   0.000          0    NoError   \
+   0.009765135    0.007616783    -0.005458345   40     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     9.646686      3.527864   9.612236      23.274 0.350 0    NoError  *\
+   3.00     32.97361      28.84076   32.69198      21.945 0.190 0    NoError  * 
+ngc628-c_acsff555w_fram6117.460  3591.570  63    matched_frame1_test_ref63     \
+   6117.500   3592.500   0.040   0.930   0.214   0.214          0    NoError   \
+   0.             0.             0.             49     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     9.327515      3.171573   9.327515      23.307 0.355 0    NoError  *\
+   3.00     37.3328       28.28012   37.33281      21.801 0.178 0    NoError  * 
+ngc628-c_acsff555w_fram3464.450  5177.580  64    matched_frame1_test_ref64     \
+   3464.699   5177.000   0.249   -0.580  0.079   0.000          0    NoError   \
+   0.03949162     0.007576116    -0.003569952   23     21       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     107.8097      3.471213   107.6726      20.651 0.105 0    NoError  *\
+   3.00     529.9974      28.63678   528.8665      18.923 0.047 0    NoError  * 
+ngc628-c_acsff555w_fram5418.540  2994.530  65    matched_frame1_test_ref65     \
+   5417.000   2995.083   -1.540  0.553   0.000   2.017          103  LowSnr    \
+   -0.01418224    0.005109658    -0.001768408   44     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.01060465    3.33125    0.05784923    28.825 4.518 0    NoError  *\
+   3.00     -0.2245545    28.37887   0.1779215     27.605 2.583 0    NoError  * 
+ngc628-c_acsff555w_fram1997.460  1944.590  66    matched_frame1_test_ref66     \
+   1998.000   1945.928   0.540   1.338   0.000   0.065          107  BigShift  \
+   3.382205E-4    0.007400731    0.003342587    40     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     54.04224      3.334234   54.04111      21.399 0.148 0    NoError  *\
+   3.00     275.2477      28.38118   275.2381      19.632 0.065 0    NoError  * 
+ngc628-c_acsff555w_fram4379.510  3383.450  67    matched_frame1_test_ref67     \
+   4379.000   3383.000   -0.510  -0.450  0.000   0.000          0    NoError   \
+   0.0108922      0.00704373     0.004972397    45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.997585      3.343146   1.961171      25.000 0.775 0    NoError  *\
+   3.00     4.237519      28.38807   3.92831       24.245 0.548 0    NoError  * 
+ngc628-c_acsff555w_fram5333.470  3231.600  68    matched_frame1_test_ref68     \
+   5334.714   3232.385   1.244   0.785   0.130   0.133          107  BigShift  \
+   -0.01282689    0.005070535    0.00242801     37     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     33.31278      3.386417   33.35622      21.923 0.188 0    NoError  *\
+   3.00     139.6042      28.48565   139.9696      20.366 0.092 0    NoError  * 
+ngc628-c_acsff555w_fram3370.560  3451.460  69    matched_frame1_test_ref69     \
+   3371.000   3452.000   0.440   0.540   0.000   0.000          0    NoError   \
+   0.03771945     0.01044876     -0.005291393   45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.171249      3.343146   5.045147      23.974 0.483 0    NoError  *\
+   3.00     21.56013      28.38807   20.48935      22.452 0.240 0    NoError  * 
+ngc628-c_acsff555w_fram1492.490  3181.550  70    matched_frame1_test_ref70     \
+   1493.000   3182.415   0.510   0.865   0.000   0.055          0    NoError   \
+   0.05032868     0.0117867      0.006831589    26     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     139.0049      3.517475   138.8279      20.375 0.092 0    NoError  *\
+   3.00     589.6918      28.7268    588.246       18.807 0.045 0    NoError  * 
+ngc628-c_acsff555w_fram5797.630  1920.600  71    matched_frame1_test_ref71     \
+   5799.000   1920.034   1.370   -0.566  0.000   0.025          107  BigShift  \
+   0.             0.9702699      0.6412525      42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     101.5372      3.341123   101.5372      20.714 0.110 0    NoError  *\
+   3.00     473.6894      28.38651   473.6894      19.042 0.052 0    NoError  * 
+ngc628-c_acsff555w_fram6477.450  1861.570  72    matched_frame1_test_ref72     \
+   6477.000   1863.500   -0.450  1.930   0.000   0.260          107  BigShift  \
+   0.             0.             0.             41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.63085       3.527864   6.63085       23.677 0.422 0    NoError  *\
+   3.00     18.83109      28.84149   18.83109      22.544 0.250 0    NoError  * 
+ngc628-c_acsff555w_fram2646.470  2038.530  73    matched_frame1_test_ref73     \
+   2645.797   2038.000   -0.673  -0.530  0.192   0.000          0    NoError   \
+   -7.392454E-5   0.009857123    -0.004665452   48     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.314108      3.401807   6.31436       23.730 0.432 0    NoError  *\
+   3.00     23.21612      28.46292   23.21822      22.316 0.225 0    NoError  * 
+ngc628-c_acsff555w_fram1310.460  3223.590  74    matched_frame1_test_ref74     \
+   1310.001   3224.000   -0.459  0.410   0.008   0.000          0    NoError   \
+   0.02816082     0.00986172     0.005503582    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     14.64953      3.343145   14.55538      22.823 0.285 0    NoError  *\
+   3.00     49.51878      28.38807   48.71935      21.512 0.156 0    NoError  * 
+ngc628-c_acsff555w_fram4039.590  2240.650  75    matched_frame1_test_ref75     \
+   4040.154   2241.000   0.564   0.350   0.039   0.000          0    NoError   \
+   2.91773        2.134972       0.6480057      47     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     396.6842      3.356527   386.8907      19.262 0.056 0    NoError  *\
+   3.00     2001.22       28.39961   1918.358      17.524 0.026 0    NoError  * 
+ngc628-c_acsff555w_fram3341.500  4727.370  76    matched_frame1_test_ref76     \
+   3342.000   4728.000   0.500   0.630   0.000   0.000          103  LowSnr    \
+   0.06065172     0.01501029     0.009741679    42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.2586987     3.343146   0.05593115    28.862 4.624 0    NoError  *\
+   3.00     1.858605      28.38807   0.1368192     27.891 3.048 0    NoError  * 
+ngc628-c_acsff555w_fram4731.490  3814.500  77    matched_frame1_test_ref77     \
+   4731.498   3816.000   0.007   1.500   0.378   0.000          107  BigShift  \
+   0.0308422      0.007251299    -0.00414908    39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.97856       3.527856   3.869753      24.262 0.552 0    NoError  *\
+   3.00     9.48799       28.83855   8.598546      23.395 0.370 0    NoError  * 
+ngc628-c_acsff555w_fram2220.450  1930.560  78    matched_frame1_test_ref78     \
+   2220.006   1931.401   -0.444  0.841   0.017   0.107          0    NoError   \
+   0.00300128     0.008095677    -0.006021845   38     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     25.12262      3.513928   25.11208      22.231 0.217 0    NoError  *\
+   3.00     116.0457      28.7066    115.9596      20.570 0.101 0    NoError  * 
+ngc628-c_acsff555w_fram5667.490  2831.590  79    matched_frame1_test_ref79     \
+   5667.800   2831.384   0.310   -0.206  0.093   0.111          0    NoError   \
+   -0.01543664    0.006855933    -0.004888887   38     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     35.01663      3.448272   35.06985      21.869 0.183 0    NoError  *\
+   3.00     128.8157      28.54096   129.2562      20.452 0.095 0    NoError  * 
+ngc628-c_acsff555w_fram6533.480  1996.500  80    matched_frame1_test_ref80     \
+   6534.000   1997.000   0.520   0.500   0.001   0.000          0    NoError   \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.921299      3.343146   3.921299      24.247 0.548 0    NoError  *\
+   3.00     5.881949      28.38807   5.881949      23.807 0.448 0    NoError  * 
+ngc628-c_acsff555w_fram3400.450  2675.510  81    matched_frame1_test_ref81     \
+   3401.000   2676.000   0.550   0.490   0.000   0.000          0    NoError   \
+   0.03929982     0.008574354    -0.004289059   39     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     35.53618      3.343146   35.40479      21.858 0.182 0    NoError  *\
+   3.00     153.4038      28.38807   152.2882      20.274 0.088 0    NoError  * 
+ngc628-c_acsff555w_fram3547.440  3268.540  82    matched_frame1_test_ref82     \
+   3548.000   3268.000   0.560   -0.540  0.000   0.000          0    NoError   \
+   0.02150838     0.007016389    0.005129605    45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     26.63888      3.343146   26.56697      22.170 0.211 0    NoError  *\
+   3.00     140.6403      28.38807   140.0297      20.365 0.092 0    NoError  * 
+ngc628-c_acsff555w_fram3948.470  2992.590  83    matched_frame1_test_ref83     \
+   3948.795   2993.000   0.325   0.410   0.136   0.000          0    NoError   \
+   0.0482647      0.01194959     -0.00883709    45     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.41865      3.403664   21.25438      22.412 0.236 0    NoError  *\
+   3.00     91.73225      28.46757   90.35828      20.841 0.114 0    NoError  * 
+ngc628-c_acsff555w_fram2308.580  883.500   84    matched_frame1_test_ref84     \
+   2308.580   883.500    0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.             0.             0.             54     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.            3.162461   0.            INDEF  INDEF 0    NoError  *\
+   3.00     0.            28.34146   0.            INDEF  INDEF 0    NoError  * 
+ngc628-c_acsff555w_fram5342.450  4810.550  85    matched_frame1_test_ref85     \
+   5343.000   4811.000   0.550   0.450   0.000   0.000          0    NoError   \
+   -0.007033702   0.005516273    0.002626738    42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     37.48543      3.343146   37.50895      21.796 0.177 0    NoError  *\
+   3.00     155.2157      28.38807   155.4154      20.252 0.087 0    NoError  * 
+ngc628-c_acsff555w_fram1847.460  2455.600  86    matched_frame1_test_ref86     \
+   1848.000   2456.005   0.540   0.405   0.000   0.022          0    NoError   \
+   0.008043018    0.006095429    0.003226565    37     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     29.96933      3.343096   29.94245      22.040 0.198 0    NoError  *\
+   3.00     130.6998      28.38803   130.4715      20.442 0.095 0    NoError  * 
+ngc628-c_acsff555w_fram3332.510  1351.560  87    matched_frame1_test_ref87     \
+   3333.000   1352.000   0.490   0.440   0.000   0.000          0    NoError   \
+   -0.007634658   0.006597767    0.00328936     45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     7.996274      3.343146   8.021798      23.470 0.383 0    NoError  *\
+   3.00     25.69042      28.38807   25.90716      22.197 0.213 0    NoError  * 
+ngc628-c_acsff555w_fram2898.490  3378.600  88    matched_frame1_test_ref88     \
+   2899.000   3379.000   0.510   0.400   0.000   0.000          0    NoError   \
+   0.06657182     0.01455353     -0.006767055   39     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     18.68778      3.343146   18.46522      22.565 0.253 0    NoError  *\
+   3.00     68.82559      28.38807   66.93574      21.167 0.133 0    NoError  * 
+ngc628-c_acsff555w_fram4693.670  3754.590  89    matched_frame1_test_ref89     \
+   4693.000   3755.520   -0.670  0.930   0.000   1.951          103  LowSnr    \
+   0.03785626     0.0174926      0.008969148    36     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.1655105     3.527305   0.03197989    29.469 6.183 0    NoError  *\
+   3.00     7.518349      28.81709   6.427442      23.711 0.429 0    NoError  * 
+ngc628-c_acsff555w_fram4075.440  1906.650  90    matched_frame1_test_ref90     \
+   4075.000   1906.000   -0.440  -0.650  0.000   0.000          0    NoError   \
+   -0.009857631   0.005585061    0.001574116    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.894384      3.343146   3.927339      24.246 0.548 0    NoError  *\
+   3.00     11.55436      28.38807   11.8342       23.048 0.316 0    NoError  * 
+ngc628-c_acsff555w_fram4995.460  4329.570  91    matched_frame1_test_ref91     \
+   4994.500   4330.000   -0.960  0.430   0.213   0.000          0    NoError   \
+   0.003285977    0.00724187     -0.004455518   39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     9.36959       3.527864   9.357997      23.303 0.355 0    NoError  *\
+   3.00     33.68634      28.8409    33.59157      21.915 0.187 0    NoError  * 
+ngc628-c_acsff555w_fram942.400   3449.550  92    matched_frame1_test_ref92     \
+   943.000    3450.000   0.600   0.450   0.000   0.000          0    NoError   \
+   0.008374183    0.01040938     0.007756042    39     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     76.12892      3.343146   76.10092      21.028 0.124 0    NoError  *\
+   3.00     311.0021      28.38807   310.7644      19.500 0.062 0    NoError  * 
+ngc628-c_acsff555w_fram4623.470  2188.440  93    matched_frame1_test_ref93     \
+   4623.000   2187.234   -0.470  -1.206  0.000   2.313          103  LowSnr    \
+   -0.01052978    0.007180648    -0.002747535   47     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     -0.006472881  3.426372   0.02960606    29.553 6.330 0    NoError  *\
+   3.00     3.957518      28.52605   4.257891      24.158 0.526 0    NoError  * 
+ngc628-c_acsff555w_fram1349.460  1986.530  94    matched_frame1_test_ref94     \
+   1349.750   1987.664   0.290   1.134   0.114   0.127          107  BigShift  \
+   1.968730E-4    0.0101203      0.004700018    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     36.43091      3.398001   36.43024      21.827 0.180 0    NoError  *\
+   3.00     143.9591      28.49271   143.9535      20.335 0.090 0    NoError  * 
+ngc628-c_acsff555w_fram5932.490  3398.490  95    matched_frame1_test_ref95     \
+   5933.000   3398.000   0.510   -0.490  0.001   0.000          0    NoError   \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.109172      3.343146   3.109172      24.499 0.616 0    NoError  *\
+   3.00     6.862274      28.38807   6.862274      23.640 0.414 0    NoError  * 
+ngc628-c_acsff555w_fram5609.480  2743.530  96    matched_frame1_test_ref96     \
+   5609.921   2744.000   0.441   0.470   0.016   0.000          0    NoError   \
+   4.297826       3.043443       1.190404       47     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     720.2519      3.3326     705.929       18.609 0.042 0    NoError  *\
+   3.00     3531.988      28.37992   3410.016      16.899 0.020 0    NoError  * 
+ngc628-c_acsff555w_fram4529.450  2761.590  97    matched_frame1_test_ref97     \
+   4530.000   2762.000   0.550   0.410   0.000   0.000          0    NoError   \
+   0.01368253     0.0104535      0.002792926    24     24       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     156.8067      3.343146   156.761       20.243 0.087 0    NoError  *\
+   3.00     841.8191      28.38807   841.4307      18.418 0.037 0    NoError  * 
+ngc628-c_acsff555w_fram5091.480  2225.550  98    matched_frame1_test_ref98     \
+   5091.862   2226.050   0.382   0.500   0.060   0.039          0    NoError   \
+   -0.01623381    0.008043311    0.005046648    39     12       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     51.97079      3.354695   52.02525      21.440 0.151 0    NoError  *\
+   3.00     232.654       28.40792   233.1152      19.812 0.071 0    NoError  * 
+ngc628-c_acsff555w_fram5168.440  2130.580  99    matched_frame1_test_ref99     \
+   5169.007   2132.000   0.567   1.420   0.020   0.000          107  BigShift  \
+   -0.01768121    0.008199164    -0.001996974   42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     23.35108      3.343066   23.41018      22.307 0.224 0    NoError  *\
+   3.00     95.38129      28.38801   95.88322      20.777 0.111 0    NoError  * 
+ngc628-c_acsff555w_fram4981.450  1044.570  100   matched_frame1_test_ref100    \
+   4981.750   1044.000   0.300   -0.570  0.082   0.000          0    NoError   \
+   0.             0.             0.             40     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     54.23443      3.438447   54.23443      21.395 0.147 0    NoError  *\
+   3.00     307.643       28.55863   307.643       19.511 0.062 0    NoError  * 
+ngc628-c_acsff555w_fram3374.480  2166.550  101   matched_frame1_test_ref101    \
+   3374.801   2167.000   0.321   0.450   0.082   0.000          0    NoError   \
+   -0.003523077   0.006263256    -0.002690412   37     13       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     67.07336      3.398472   67.08533      21.164 0.133 0    NoError  *\
+   3.00     317.6347      28.45462   317.735       19.476 0.061 0    NoError  * 
+ngc628-c_acsff555w_fram4573.490  1177.530  102   matched_frame1_test_ref102    \
+   4572.000   1179.479   -1.490  1.948   0.000   2.698          103  LowSnr    \
+   -0.01387142    0.006903149    -0.003189391   40     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.01179581    3.527203   0.06072312    28.773 4.413 0    NoError  *\
+   3.00     -0.2046108    28.81491   0.1950929     27.505 2.473 0    NoError  * 
+ngc628-c_acsff555w_fram2732.500  1152.700  103   matched_frame1_test_ref103    \
+   2734.000   1154.000   1.500   1.300   0.000   0.000          107  BigShift  \
+   -0.00442247    0.007115851    0.004318865    41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.914689      3.343146   1.929474      25.017 0.782 0    NoError  *\
+   3.00     1.640301      28.38807   1.765846      25.114 0.818 0    NoError  * 
+ngc628-c_acsff555w_fram4411.450  915.570   104   matched_frame1_test_ref104    \
+   4412.000   916.000    0.550   0.430   0.000   0.000          0    NoError   \
+   3.782651       2.062635       1.044999       46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     545.7679      3.343146   533.1219      18.914 0.048 0    NoError  *\
+   3.00     2566.257      28.38807   2458.875      17.254 0.023 0    NoError  * 
+ngc628-c_acsff555w_fram2179.500  1162.480  105   matched_frame1_test_ref105    \
+   2179.500   1162.480   0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.             0.             0.             52     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.            3.171006   0.            INDEF  INDEF 0    NoError  *\
+   3.00     1.825083      28.27953   1.825083      25.078 0.804 0    NoError  * 
+ngc628-c_acsff555w_fram4737.510  3941.530  106   matched_frame1_test_ref106    \
+   4738.000   3942.000   0.490   0.470   0.000   0.000          0    NoError   \
+   3.698437       2.017078       0.9404605      46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     441.9101      3.343146   429.5457      19.148 0.053 0    NoError  *\
+   3.00     2215.107      28.38807   2110.116      17.420 0.025 0    NoError  * 
+ngc628-c_acsff555w_fram1594.400  1828.420  107   matched_frame1_test_ref107    \
+   1594.411   1829.000   0.011   0.580   2.480   0.000          103  LowSnr    \
+   -0.002323864   0.008196388    -0.006501675   43     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.02496433    3.516531   0.03313627    29.430 5.987 0    NoError  *\
+   3.00     0.08221656    28.72113   0.1489606     27.798 2.843 0    NoError  * 
+ngc628-c_acsff555w_fram6028.450  3009.540  108   matched_frame1_test_ref108    \
+   6029.000   3009.500   0.550   -0.040  0.000   0.181          0    NoError   \
+   0.             2.634178E-9    -1.216706E-6   39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     12.62206      3.527864   12.62206      22.978 0.306 0    NoError  *\
+   3.00     55.97692      28.84149   55.97692      21.361 0.145 0    NoError  * 
+ngc628-c_acsff555w_fram4698.490  4138.600  109   matched_frame1_test_ref109    \
+   4698.946   4139.489   0.456   0.889   0.019   0.040          0    NoError   \
+   3.156228       2.182878       0.5890738      38     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     364.9866      3.52278    353.8679      19.359 0.059 0    NoError  *\
+   3.00     1686.089      28.74973   1595.348      17.724 0.029 0    NoError  * 
+ngc628-c_acsff555w_fram648.480   3545.540  110   matched_frame1_test_ref110    \
+   648.501    3547.508   0.021   1.968   0.377   0.376          107  BigShift  \
+   0.01759253     0.009262143    -0.003971226   47     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.143851      3.171473   3.088057      24.507 0.618 0    NoError  *\
+   3.00     6.201894      28.28001   5.704377      23.840 0.455 0    NoError  * 
+ngc628-c_acsff555w_fram5457.440  2483.460  111   matched_frame1_test_ref111    \
+   5457.187   2484.000   -0.253  0.540   2.551   0.000          103  LowSnr    \
+   -0.02151229    0.008137655    0.002644297    46     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     -0.03903288   3.38777    0.03384581    29.407 5.922 0    NoError  *\
+   3.00     7.555062      28.43891   8.166847      23.451 0.380 0    NoError  * 
+ngc628-c_acsff555w_fram3153.470  1691.360  112   matched_frame1_test_ref112    \
+   3152.000   1691.000   -1.470  -0.360  0.000   0.000          107  BigShift  \
+   -0.005328885   0.007573991    0.001405391    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.922119      3.343146   1.939935      25.012 0.780 0    NoError  *\
+   3.00     3.087473      28.38807   3.238749      24.455 0.604 0    NoError  * 
+ngc628-c_acsff555w_fram5170.560  2165.410  113   matched_frame1_test_ref113    \
+   5172.000   2163.157   1.440   -2.253  0.000   1.758          103  LowSnr    \
+   -0.01658574    0.003906939    -0.001261827   41     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     -0.004330828  3.359409   0.05138744    28.954 4.792 0    NoError  *\
+   3.00     -0.2599995    28.40321   0.2110885     27.420 2.367 0    NoError  * 
+ngc628-c_acsff555w_fram1734.490  2409.530  114   matched_frame1_test_ref114    \
+   1734.998   2411.000   0.508   1.470   0.008   0.000          107  BigShift  \
+   0.01551933     0.007854751    -0.004228798   41     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     33.70335      3.343141   33.65146      21.913 0.187 0    NoError  *\
+   3.00     144.7227      28.38807   144.2821      20.333 0.090 0    NoError  * 
+ngc628-c_acsff555w_fram6287.520  1611.580  115   matched_frame1_test_ref115    \
+   6287.000   1613.000   -0.520  1.420   0.000   0.000          107  BigShift  \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.96065       3.343146   1.96065       25.000 0.775 0    NoError  *\
+   3.00     4.257694      28.38807   4.257694      24.158 0.526 0    NoError  * 
+ngc628-c_acsff555w_fram1892.450  2873.580  116   matched_frame1_test_ref116    \
+   1892.000   2874.000   -0.450  0.420   0.000   0.000          0    NoError   \
+   0.03608347     0.007924778    -0.00474726    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     37.70634      3.343146   37.58571      21.793 0.177 0    NoError  *\
+   3.00     133.6545      28.38807   132.6302      20.424 0.094 0    NoError  * 
+ngc628-c_acsff555w_fram3286.500  506.540   117   matched_frame1_test_ref117    \
+   3286.000   507.000    -0.500  0.460   0.000   0.000          0    NoError   \
+   0.             1.613098E-9    3.041502E-6    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     7.366865      3.343146   7.366865      23.563 0.400 0    NoError  *\
+   3.00     26.16882      28.38807   26.16883      22.187 0.212 0    NoError  * 
+ngc628-c_acsff555w_fram2597.470  510.560   118   matched_frame1_test_ref118    \
+   2597.000   511.000    -0.470  0.440   0.000   0.000          0    NoError   \
+   0.             1.613098E-9    -2.054083E-6   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     20.95207      3.343146   20.95207      22.428 0.237 0    NoError  *\
+   3.00     96.8327       28.38807   96.8327       20.766 0.110 0    NoError  * 
+ngc628-c_acsff555w_fram4844.520  1611.530  119   matched_frame1_test_ref119    \
+   4844.998   1612.493   0.478   0.963   0.754   0.376          0    NoError   \
+   -0.0140591     0.005654612    0.002776774    35     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.483153      3.527792   1.532751      25.267 0.877 0    NoError  *\
+   3.00     5.528244      28.83349   5.933618      23.798 0.446 0    NoError  * 
+ngc628-c_acsff555w_fram5597.350  2215.640  120   matched_frame1_test_ref120    \
+   5597.350   2215.640   0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.             0.             0.             49     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.            3.317499   0.            INDEF  INDEF 0    NoError  *\
+   3.00     1.618989      28.45396   1.618989      25.208 0.853 0    NoError  * 
+ngc628-c_acsff555w_fram2993.540  3694.490  121   matched_frame1_test_ref121    \
+   2994.000   3694.634   0.460   0.144   0.000   0.048          0    NoError   \
+   0.04412369     0.9624527      0.6629381      31     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     239.259       3.502342   239.1045      19.785 0.071 0    NoError  *\
+   3.00     1058.784      28.65072   1057.52       18.170 0.034 0    NoError  * 
+ngc628-c_acsff555w_fram3202.530  3598.650  122   matched_frame1_test_ref122    \
+   3203.511   3599.000   0.981   0.350   0.032   0.000          0    NoError   \
+   3.08975        1.906895       -1.300448      37     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     808.1361      3.527683   797.2364      18.477 0.039 0    NoError  *\
+   3.00     3734.124      28.8278    3645.053      16.827 0.018 0    NoError  * 
+ngc628-c_acsff555w_fram5027.510  1075.620  123   matched_frame1_test_ref123    \
+   5027.000   1075.620   -0.510  0.000   0.000   INDEF          0    NoError   \
+   0.             1.862645E-9    -1.707832E-6   45     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.195918      3.507258   2.195918      24.877 0.733 0    NoError  *\
+   3.00     8.775923      28.67284   8.775924      23.373 0.366 0    NoError  * 
+ngc628-c_acsff555w_fram2935.630  4271.610  124   matched_frame1_test_ref124    \
+   2935.000   4273.976   -0.630  2.366   0.000   0.094          107  BigShift  \
+   0.1316616      0.01573997     0.011248       46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.674824      3.342128   2.234794      24.858 0.726 0    NoError  *\
+   3.00     14.92583      28.38728   11.18831      23.109 0.325 0    NoError  * 
+ngc628-c_acsff555w_fram5525.390  2814.490  125   matched_frame1_test_ref125    \
+   5526.000   2813.501   0.610   -0.989  0.000   0.267          0    NoError   \
+   -0.01526841    0.005063483    0.002274688    39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.379266      3.527862   5.433131      23.893 0.466 0    NoError  *\
+   3.00     19.00846      28.84002   19.4488       22.509 0.246 0    NoError  * 
+ngc628-c_acsff555w_fram3262.480  2992.500  126   matched_frame1_test_ref126    \
+   3262.603   2992.000   0.123   -0.500  0.381   0.000          0    NoError   \
+   0.02139791     0.008796411    0.004885139    38     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.658236      3.512674   5.583073      23.864 0.459 0    NoError  *\
+   3.00     19.47757      28.69968   18.86346      22.542 0.250 0    NoError  * 
+ngc628-c_acsff555w_fram6071.410  2511.510  127   matched_frame1_test_ref127    \
+   6071.000   2513.000   -0.410  1.490   0.000   0.000          107  BigShift  \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.96065       3.343146   1.96065       25.000 0.775 0    NoError  *\
+   3.00     2.622805      28.38807   2.622805      24.684 0.670 0    NoError  * 
+ngc628-c_acsff555w_fram4847.470  2783.580  128   matched_frame1_test_ref128    \
+   4847.198   2783.800   -0.272  0.219   0.103   0.103          0    NoError   \
+   -0.01344683    0.005800049    0.002721851    39     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     37.0968       3.401821   37.14254      21.806 0.178 0    NoError  *\
+   3.00     149.0066      28.61403   149.3914      20.295 0.089 0    NoError  * 
+ngc628-c_acsff555w_fram3126.500  4338.490  129   matched_frame1_test_ref129    \
+   3128.000   4337.000   1.500   -1.490  0.000   0.000          103  LowSnr    \
+   0.07477541     0.01061443     -0.005429483   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.30774       3.343146   0.05775495    28.827 4.533 0    NoError  *\
+   3.00     2.287662      28.38807   0.1649328     27.688 2.715 0    NoError  * 
+ngc628-c_acsff555w_fram4879.460  1135.590  130   matched_frame1_test_ref130    \
+   4879.363   1136.499   -0.097  0.909   0.115   0.118          0    NoError   \
+   -0.0141347     0.00654335     0.003772217    39     13       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     50.41027      3.241333   50.45609      21.474 0.153 0    NoError  *\
+   3.00     224.507       28.40338   224.9085      19.851 0.072 0    NoError  * 
+ngc628-c_acsff555w_fram4775.360  3039.500  131   matched_frame1_test_ref131    \
+   4775.902   3040.000   0.542   0.500   0.027   0.000          0    NoError   \
+   1.496936       1.39191        0.9972064      43     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     276.6273      3.326713   271.6474      19.646 0.067 0    NoError  *\
+   3.00     1277.874      28.37536   1235.398      18.001 0.032 0    NoError  * 
+ngc628-c_acsff555w_fram4192.480  5440.550  132   matched_frame1_test_ref132    \
+   4193.000   5441.000   0.520   0.450   0.000   0.000          0    NoError   \
+   0.003175755    0.009121493    0.006982469    32     16       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     106.2169      3.343146   106.2063      20.666 0.105 0    NoError  *\
+   3.00     408.9664      28.38807   408.8763      19.202 0.054 0    NoError  * 
+ngc628-c_acsff555w_fram3592.500  2963.590  133   matched_frame1_test_ref133    \
+   3593.000   2963.666   0.500   0.076   0.000   0.107          0    NoError   \
+   0.02973294     0.01010371     -0.0055874     41     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     27.46492      3.488424   27.3612       22.138 0.208 0    NoError  *\
+   3.00     85.63005      28.63371   84.77869      20.910 0.118 0    NoError  * 
+ngc628-c_acsff555w_fram5301.680  3332.380  134   matched_frame1_test_ref134    \
+   5303.000   3332.000   1.320   -0.380  0.000   0.000          107  BigShift  \
+   -0.01413069    0.006319433    0.002842566    45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.87243       3.343146   3.919671      24.248 0.548 0    NoError  *\
+   3.00     8.157468      28.38807   8.558611      23.400 0.371 0    NoError  * 
+ngc628-c_acsff555w_fram1473.420  2954.550  135   matched_frame1_test_ref135    \
+   1473.826   2955.000   0.406   0.450   0.067   0.000          0    NoError   \
+   0.01675157     0.009270133    0.004529414    36     14       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     72.70227      3.376306   72.64571      21.078 0.127 0    NoError  *\
+   3.00     359.2836      28.42439   358.8075      19.344 0.057 0    NoError  * 
+ngc628-c_acsff555w_fram2487.470  60.500    136   matched_frame1_test_ref136    \
+   2488.000   62.000     0.530   1.500   0.000   0.000          107  BigShift  \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.96065       3.343146   1.96065       25.000 0.775 0    NoError  *\
+   3.00     1.96065       28.38807   1.96065       25.000 0.775 0    NoError  * 
+ngc628-c_acsff555w_fram4963.830  5592.750  137   matched_frame1_test_ref137    \
+   4963.830   5592.750   0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.             0.             0.             47     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.            3.397852   0.            INDEF  INDEF 0    NoError  *\
+   3.00     0.3383339     28.59651   0.3383338     26.908 1.867 0    NoError  * 
+ngc628-c_acsff555w_fram2518.450  3240.560  138   matched_frame1_test_ref138    \
+   2518.637   3241.000   0.187   0.440   0.115   0.000          0    NoError   \
+   0.05155865     0.01239056     -0.01116735    40     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.54716      3.500924   21.36666      22.407 0.235 0    NoError  *\
+   3.00     104.1329      28.64463   102.6561      20.703 0.107 0    NoError  * 
+ngc628-c_acsff555w_fram2974.390  2799.690  139   matched_frame1_test_ref139    \
+   2976.000   2800.615   1.610   0.925   0.000   0.117          107  BigShift  \
+   0.0346997      0.008845679    0.004977916    37     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     24.69588      3.509102   24.57412      22.255 0.219 0    NoError  *\
+   3.00     102.8195      28.68164   101.8243      20.711 0.108 0    NoError  * 
+ngc628-c_acsff555w_fram4275.490  4956.550  140   matched_frame1_test_ref140    \
+   4275.503   4957.488   0.013   0.938   0.181   0.181          0    NoError   \
+   0.004109718    0.007074797    0.003052742    47     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     15.59602      3.171346   15.58298      22.749 0.275 0    NoError  *\
+   3.00     96.59063      28.27988   96.4744       20.770 0.111 0    NoError  * 
+ngc628-c_acsff555w_fram1057.450  3688.580  141   matched_frame1_test_ref141    \
+   1057.987   3690.000   0.537   1.420   0.052   0.000          107  BigShift  \
+   0.02128837     0.007100212    0.003125558    39     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     7.500499      3.342865   7.429335      23.554 0.398 0    NoError  *\
+   3.00     34.76569      28.38785   34.16136      21.897 0.186 0    NoError  * 
+ngc628-c_acsff555w_fram6339.470  3157.570  142   matched_frame1_test_ref142    \
+   6339.000   3158.000   -0.470  0.430   0.000   0.000          0    NoError   \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.089496      3.343146   4.089497      24.202 0.537 0    NoError  *\
+   3.00     9.159318      28.38807   9.159318      23.326 0.359 0    NoError  * 
+ngc628-c_acsff555w_fram3969.390  2884.580  143   matched_frame1_test_ref143    \
+   3967.354   2887.000   -2.036  2.420   1.206   0.000          103  LowSnr    \
+   0.02648512     0.0105256      0.006802625    39     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.5392261     3.497464   0.4465954     26.606 1.625 0    NoError  *\
+   3.00     2.374252      28.63025   1.615976      25.210 0.856 0    NoError  * 
+ngc628-c_acsff555w_fram2746.460  5165.550  144   matched_frame1_test_ref144    \
+   2747.000   5166.000   0.540   0.450   0.000   0.000          0    NoError   \
+   0.04763985     0.00734931     -0.003823202   39     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     29.30288      3.343146   29.14361      22.070 0.201 0    NoError  *\
+   3.00     126.8016      28.38807   125.4492      20.485 0.097 0    NoError  * 
+ngc628-c_acsff555w_fram3559.550  4201.600  145   matched_frame1_test_ref145    \
+   3559.291   4201.000   -0.259  -0.600  2.394   0.000          103  LowSnr    \
+   0.05782461     0.009022457    -0.00373042    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.6432868     3.465225   0.4429115     26.615 1.632 0    NoError  *\
+   3.00     3.847789      28.63603   2.191922      24.879 0.734 0    NoError  * 
+ngc628-c_acsff555w_fram4091.310  1655.390  146   matched_frame1_test_ref146    \
+   4091.597   1656.000   0.287   0.610   0.048   0.000          0    NoError   \
+   1.472897       1.468432       1.107863       37     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     212.7962      3.514352   207.6199      19.938 0.077 0    NoError  *\
+   3.00     1092.687      28.70871   1050.402      18.178 0.035 0    NoError  * 
+ngc628-c_acsff555w_fram3148.500  835.580   147   matched_frame1_test_ref147    \
+   3150.000   835.497    1.500   -0.083  0.000   0.266          107  BigShift  \
+   -0.01102427    0.005824124    0.003883099    33     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.381329      3.527852   5.420221      23.896 0.466 0    NoError  *\
+   3.00     18.93851      28.83796   19.25643      22.520 0.247 0    NoError  * 
+ngc628-c_acsff555w_fram4085.410  2958.470  148   matched_frame1_test_ref148    \
+   4086.000   2959.000   0.590   0.530   0.000   0.000          103  LowSnr    \
+   0.02583717     0.009481878    0.002936938    43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.119471      3.343146   1.033094      25.696 1.068 0    NoError  *\
+   3.00     2.949965      28.38807   2.216497      24.867 0.730 0    NoError  * 
+ngc628-c_acsff555w_fram2614.470  370.580   149   matched_frame1_test_ref149    \
+   2614.000   371.500    -0.470  0.920   0.000   0.219          0    NoError   \
+   0.             0.             0.             41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     14.29666      3.527864   14.29666      22.843 0.287 0    NoError  *\
+   3.00     52.19964      28.84149   52.19964      21.437 0.150 0    NoError  * 
+ngc628-c_acsff555w_fram3619.490  5323.540  150   matched_frame1_test_ref150    \
+   3619.689   5324.258   0.199   0.718   0.082   0.074          0    NoError   \
+   0.01921706     0.01172097     0.007994709    29     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     71.21532      3.380629   71.15035      21.101 0.129 0    NoError  *\
+   3.00     292.5775      28.48587   292.0301      19.567 0.064 0    NoError  * 
+ngc628-c_acsff555w_fram4711.430  4013.580  151   matched_frame1_test_ref151    \
+   4712.000   4014.491   0.570   0.911   0.000   0.378          0    NoError   \
+   0.01725157     0.009499824    0.005917566    30     12       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.764233      3.527753   4.703373      24.050 0.501 0    NoError  *\
+   3.00     10.78953      28.83081   10.29216      23.200 0.339 0    NoError  * 
+ngc628-c_acsff555w_fram4820.500  1392.560  152   matched_frame1_test_ref152    \
+   4821.000   1394.000   0.500   1.440   0.000   0.000          107  BigShift  \
+   -0.01367986    0.007855084    -0.004495903   37     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     52.6178       3.343146   52.66354      21.427 0.150 0    NoError  *\
+   3.00     230.3007      28.38807   230.689       19.823 0.071 0    NoError  * 
+ngc628-c_acsff555w_fram2362.510  2335.580  153   matched_frame1_test_ref153    \
+   2363.000   2336.000   0.490   0.420   0.000   0.000          0    NoError   \
+   0.01618045     0.007717437    0.003512342    31     17       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     91.30913      3.343146   91.25504      20.830 0.114 0    NoError  *\
+   3.00     441.8609      28.38807   441.4015      19.119 0.052 0    NoError  * 
+ngc628-c_acsff555w_fram2048.460  4140.580  154   matched_frame1_test_ref154    \
+   2047.990   4140.491   -0.470  -0.089  0.037   0.186          0    NoError   \
+   0.1696242      0.01807826     -0.0096701     38     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     11.49236      3.527586   10.894        23.138 0.329 0    NoError  *\
+   3.00     47.8995       28.82518   43.01006      21.647 0.166 0    NoError  * 
+ngc628-c_acsff555w_fram3033.380  3714.630  155   matched_frame1_test_ref155    \
+   3034.000   3714.000   0.620   -0.630  0.000   0.000          103  LowSnr    \
+   0.06235345     0.01273612     0.006082323    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.2334369     3.343146   0.02498022    29.737 6.949 0    NoError  *\
+   3.00     5.202114      28.38807   3.43202       24.392 0.587 0    NoError  * 
+ngc628-c_acsff555w_fram2679.410  2002.530  156   matched_frame1_test_ref156    \
+   2679.715   2003.004   0.305   0.474   0.159   0.367          0    NoError   \
+   -0.001647402   0.007342076    9.246947E-4    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     10.396        3.461793   10.4017       23.188 0.337 0    NoError  *\
+   3.00     58.40293      28.62566   58.45009      21.314 0.142 0    NoError  * 
+ngc628-c_acsff555w_fram2320.400  1618.570  157   matched_frame1_test_ref157    \
+   2320.741   1618.311   0.342   -0.259  0.056   0.061          0    NoError   \
+   0.004894454    0.008225647    -0.005974492   29     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     97.70393      3.38033    97.68739      20.756 0.110 0    NoError  *\
+   3.00     518.9837      28.48591   518.8443      18.943 0.048 0    NoError  * 
+ngc628-c_acsff555w_fram4854.470  1598.520  158   matched_frame1_test_ref158    \
+   4855.000   1599.000   0.530   0.480   0.000   0.000          0    NoError   \
+   -0.015068      0.008043949    -0.005431304   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.886954      3.343146   1.937329      25.013 0.780 0    NoError  *\
+   3.00     3.446687      28.38807   3.874438      24.260 0.552 0    NoError  * 
+ngc628-c_acsff555w_fram2453.480  1469.580  159   matched_frame1_test_ref159    \
+   2454.000   1470.000   0.520   0.420   0.000   0.000          0    NoError   \
+   0.004200607    0.007506722    -0.004289273   41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     10.00479      3.343146   9.990746      23.232 0.343 0    NoError  *\
+   3.00     26.91306      28.38807   26.79381      22.161 0.210 0    NoError  * 
+ngc628-c_acsff555w_fram4858.470  5348.510  160   matched_frame1_test_ref160    \
+   4857.000   5348.000   -1.470  -0.510  0.000   0.000          107  BigShift  \
+   -6.310720E-4   0.006820307    0.004234072    43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.030978      3.343146   5.033088      23.976 0.484 0    NoError  *\
+   3.00     8.988226      28.38807   9.006142      23.345 0.362 0    NoError  * 
+ngc628-c_acsff555w_fram139.450   4411.550  161   matched_frame1_test_ref161    \
+   140.000    4412.333   0.550   0.784   0.000   0.213          0    NoError   \
+   0.             0.             0.             42     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     26.26298      3.488192   26.26298      22.183 0.212 0    NoError  *\
+   3.00     119.4547      28.63378   119.4547      20.538 0.099 0    NoError  * 
+ngc628-c_acsff555w_fram6154.440  3170.600  162   matched_frame1_test_ref162    \
+   6154.532   3171.000   0.092   0.400   0.039   0.000          0    NoError   \
+   1.797262       1.488531       0.7732514      36     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     302.7882      3.526423   296.4503      19.551 0.064 0    NoError  *\
+   3.00     1390.904      28.80167   1339.14       17.914 0.031 0    NoError  * 
+ngc628-c_acsff555w_fram3178.490  4325.560  163   matched_frame1_test_ref163    \
+   3178.503   4325.000   0.013   -0.560  0.218   0.000          0    NoError   \
+   0.07224057     0.01089705     -0.006960232   39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.617521      3.527854   5.362667      23.908 0.469 0    NoError  *\
+   3.00     28.53497      28.83825   26.45168      22.175 0.211 0    NoError  * 
+ngc628-c_acsff555w_fram5698.470  2565.550  164   matched_frame1_test_ref164    \
+   5698.167   2566.444   -0.304  0.894   0.067   0.086          0    NoError   \
+   0.             0.             0.             36     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     64.55642      3.479395   64.55642      21.206 0.135 0    NoError  *\
+   3.00     259.2869      28.55241   259.2869      19.697 0.067 0    NoError  * 
+ngc628-c_acsff555w_fram2665.390  4093.590  165   matched_frame1_test_ref165    \
+   2664.000   4095.000   -1.390  1.410   0.000   0.000          107  BigShift  \
+   0.3207211      0.02326301     -0.01465243    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.06695       3.343146   1.994732      24.981 0.769 0    NoError  *\
+   3.00     11.43567      28.38807   2.331022      24.812 0.715 0    NoError  * 
+ngc628-c_acsff555w_fram5093.450  3533.620  166   matched_frame1_test_ref166    \
+   5092.783   3533.000   -0.667  -0.620  0.694   0.000          0    NoError   \
+   0.001822572    0.005437011    -0.003402524   49     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.39753       3.413139   2.391309      24.784 0.702 0    NoError  *\
+   3.00     6.050964      28.49158   5.999036      23.786 0.443 0    NoError  * 
+ngc628-c_acsff555w_fram4158.530  2748.640  167   matched_frame1_test_ref167    \
+   4159.908   2749.802   1.378   1.162   0.069   0.099          107  BigShift  \
+   0.01287697     0.00852691     0.005021332    42     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.28765      3.386073   21.24405      22.413 0.236 0    NoError  *\
+   3.00     78.30343      28.51831   77.9362       21.002 0.123 0    NoError  * 
+ngc628-c_acsff555w_fram5001.450  3474.580  168   matched_frame1_test_ref168    \
+   5001.631   3475.347   0.181   0.767   0.062   0.061          0    NoError   \
+   0.006397932    0.009401966    0.007118118    27     22       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     124.4919      3.318922   124.4707      20.493 0.097 0    NoError  *\
+   3.00     498.4002      28.45168   498.2181      18.987 0.049 0    NoError  * 
+ngc628-c_acsff555w_fram6113.400  3394.510  169   matched_frame1_test_ref169    \
+   6113.000   3395.500   -0.400  0.990   0.000   0.379          0    NoError   \
+   0.             0.             0.             41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.921299      3.527864   3.921299      24.247 0.548 0    NoError  *\
+   3.00     9.803248      28.84149   9.803248      23.253 0.347 0    NoError  * 
+ngc628-c_acsff555w_fram4417.470  4766.550  170   matched_frame1_test_ref170    \
+   4417.504   4767.000   0.034   0.450   0.267   0.000          0    NoError   \
+   0.007706257    0.01020973     0.004116206    39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.453265      3.527842   5.426078      23.895 0.466 0    NoError  *\
+   3.00     22.02254      28.83678   21.80031      22.385 0.233 0    NoError  * 
+ngc628-c_acsff555w_fram2377.400  4652.500  171   matched_frame1_test_ref171    \
+   2377.684   4653.000   0.284   0.500   0.038   0.000          0    NoError   \
+   2.120368       1.183402       0.1696002      33     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     371.9142      3.479631   364.5361      19.327 0.057 0    NoError  *\
+   3.00     1889.555      28.63581   1828.837      17.576 0.026 0    NoError  * 
+ngc628-c_acsff555w_fram4550.460  2433.510  172   matched_frame1_test_ref172    \
+   4551.000   2433.000   0.540   -0.510  0.000   0.000          0    NoError   \
+   -0.01329205    0.005014794    0.002876497    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.73586      3.343146   21.7803       22.386 0.233 0    NoError  *\
+   3.00     104.8423      28.38807   105.2196      20.676 0.106 0    NoError  * 
+ngc628-c_acsff555w_fram3829.530  3679.650  173   matched_frame1_test_ref173    \
+   3830.000   3680.696   0.470   1.046   0.000   0.063          107  BigShift  \
+   0.01323996     0.9758274      0.5327119      37     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     177.6641      3.473005   177.6181      20.107 0.082 0    NoError  *\
+   3.00     909.4409      28.63664   909.0617      18.335 0.037 0    NoError  * 
+ngc628-c_acsff555w_fram2376.480  1278.640  174   matched_frame1_test_ref174    \
+   2376.000   1280.000   -0.480  1.360   0.000   0.000          107  BigShift  \
+   -0.00681995    0.007382877    0.004766922    42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.955998      3.343146   1.978799      24.990 0.772 0    NoError  *\
+   3.00     4.470512      28.38807   4.664117      24.059 0.503 0    NoError  * 
+ngc628-c_acsff555w_fram2314.460  563.570   175   matched_frame1_test_ref175    \
+   2314.714   564.000    0.254   0.430   0.183   0.000          0    NoError   \
+   0.             1.613098E-9    3.041502E-6    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     11.2366       3.462119   11.2366       23.104 0.324 0    NoError  *\
+   3.00     36.07265      28.6266    36.07265      21.838 0.181 0    NoError  * 
+ngc628-c_acsff555w_fram3909.440  3456.540  176   matched_frame1_test_ref176    \
+   3909.899   3457.000   0.459   0.460   0.023   0.000          0    NoError   \
+   3.735501       2.171472       1.298964       46     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     423.4754      3.325886   411.0515      19.196 0.055 0    NoError  *\
+   3.00     2108.448      28.37472   2002.454      17.477 0.026 0    NoError  * 
+ngc628-c_acsff555w_fram5390.890  4550.180  177   matched_frame1_test_ref177    \
+   5391.000   4550.180   0.110   0.000   0.000   INDEF          103  LowSnr    \
+   -0.01073487    0.006885098    -0.003680116   49     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.01340175    3.381593   0.0497027     28.990 4.878 0    NoError  *\
+   3.00     9.791651      28.43107   10.09686      23.221 0.342 0    NoError  * 
+ngc628-c_acsff555w_fram1710.470  1812.550  178   matched_frame1_test_ref178    \
+   1711.000   1812.000   0.530   -0.550  0.000   0.000          0    NoError   \
+   0.00324458     0.007222042    0.002161964    44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.882005      3.343146   5.871158      23.809 0.448 0    NoError  *\
+   3.00     10.77399      28.38807   10.68188      23.159 0.332 0    NoError  * 
+ngc628-c_acsff555w_fram3034.450  4343.570  179   matched_frame1_test_ref179    \
+   3034.000   4344.572   -0.450  1.002   0.000   0.078          107  BigShift  \
+   0.09261636     0.01528286     0.01238977     33     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     66.74411      3.520491   66.41806      21.175 0.133 0    NoError  *\
+   3.00     315.4283      28.74652   312.7659      19.493 0.061 0    NoError  * 
+ngc628-c_acsff555w_fram5604.470  1965.530  180   matched_frame1_test_ref180    \
+   5605.000   1966.500   0.530   0.970   0.420   0.210          0    NoError   \
+   0.             0.             0.             41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.916905      3.527864   6.916905      23.631 0.413 0    NoError  *\
+   3.00     36.08437      28.84149   36.08437      21.838 0.181 0    NoError  * 
+ngc628-c_acsff555w_fram5246.360  3706.520  181   matched_frame1_test_ref181    \
+   5247.000   3706.000   0.640   -0.520  0.000   0.000          0    NoError   \
+   -0.001792215   0.009843676    -0.005588014   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.929661      3.343146   1.935653      25.014 0.780 0    NoError  *\
+   3.00     1.765461      28.38807   1.816338      25.083 0.807 0    NoError  * 
+ngc628-c_acsff555w_fram5805.450  2989.590  182   matched_frame1_test_ref182    \
+   5805.435   2990.154   -0.016  0.564   0.081   0.058          0    NoError   \
+   0.             0.             0.             42     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     52.43385      3.484416   52.43385      21.432 0.150 0    NoError  *\
+   3.00     181.0259      28.57028   181.0259      20.087 0.081 0    NoError  * 
+ngc628-c_acsff555w_fram5863.440  1771.540  183   matched_frame1_test_ref183    \
+   5863.767   1772.444   0.327   0.904   0.046   0.059          0    NoError   \
+   1.787651       1.455428       0.7603133      34     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     252.0948      3.43558    245.9531      19.754 0.070 0    NoError  *\
+   3.00     1250.397      28.50327   1199.443      18.034 0.033 0    NoError  * 
+ngc628-c_acsff555w_fram2262.440  1080.550  184   matched_frame1_test_ref184    \
+   2262.482   1081.000   0.042   0.450   0.049   0.000          0    NoError   \
+   0.             1.417227       1.225589       34     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     296.3827      3.527397   296.3827      19.551 0.064 0    NoError  *\
+   3.00     1345.528      28.81925   1345.528      17.909 0.031 0    NoError  * 
+ngc628-c_acsff555w_fram1648.460  3595.590  185   matched_frame1_test_ref185    \
+   1648.325   3596.000   -0.135  0.410   0.067   0.000          0    NoError   \
+   0.03257485     0.9591683      0.7115571      35     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     155.9681      3.484199   155.8546      20.249 0.088 0    NoError  *\
+   3.00     754.4903      28.63488   753.5576      18.538 0.041 0    NoError  * 
+ngc628-c_acsff555w_fram2270.590  3964.590  186   matched_frame1_test_ref186    \
+   2271.000   3965.000   0.410   0.410   0.000   0.000          0    NoError   \
+   0.2124354      0.01744878     0.008480241    42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     9.854058      3.343146   9.143855      23.328 0.359 0    NoError  *\
+   3.00     39.97423      28.38807   33.9436       21.904 0.186 0    NoError  * 
+ngc628-c_acsff555w_fram6870.420  1947.590  187   matched_frame1_test_ref187    \
+   6870.824   1948.000   0.404   0.410   0.050   0.000          0    NoError   \
+   0.             0.             0.             42     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     107.7894      3.378003   107.7894      20.650 0.105 0    NoError  *\
+   3.00     457.7502      28.42654   457.7502      19.079 0.051 0    NoError  * 
+ngc628-c_acsff555w_fram5136.450  3042.410  188   matched_frame1_test_ref188    \
+   5137.000   3042.000   0.550   -0.410  0.001   0.000          0    NoError   \
+   -0.008396654   0.007152056    0.002040486    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.933001      3.343146   1.961072      25.000 0.775 0    NoError  *\
+   3.00     2.436958      28.38807   2.675323      24.663 0.664 0    NoError  * 
+ngc628-c_acsff555w_fram3864.500  5105.530  189   matched_frame1_test_ref189    \
+   3864.092   5106.000   -0.408  0.470   0.050   0.000          0    NoError   \
+   -0.005178985   0.9710847      0.6186533      39     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     190.128       3.328616   190.1452      20.033 0.079 0    NoError  *\
+   3.00     938.3975      28.37683   938.5444      18.300 0.036 0    NoError  * 
+ngc628-c_acsff555w_fram5218.510  1415.620  190   matched_frame1_test_ref190    \
+   5219.000   1416.500   0.490   0.880   0.000   0.268          0    NoError   \
+   0.             0.             0.             41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.63085       3.527864   6.63085       23.677 0.422 0    NoError  *\
+   3.00     18.47374      28.84149   18.47374      22.565 0.253 0    NoError  * 
+ngc628-c_acsff555w_fram4770.460  1931.560  191   matched_frame1_test_ref191    \
+   4771.000   1932.000   0.540   0.440   0.003   0.003          0    NoError   \
+   -0.01420367    0.005342795    -0.003689169   35     13       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     74.77384      3.343145   74.82132      21.046 0.126 0    NoError  *\
+   3.00     389.1654      28.38807   389.5687      19.255 0.055 0    NoError  * 
+ngc628-c_acsff555w_fram2992.470  4038.590  192   matched_frame1_test_ref192    \
+   2993.000   4038.504   0.530   -0.086  0.000   0.184          0    NoError   \
+   0.1138284      0.0141022      -0.007303782   36     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     11.93191      3.52784    11.53034      23.076 0.320 0    NoError  *\
+   3.00     53.0952       28.83648   49.81279      21.488 0.154 0    NoError  * 
+ngc628-c_acsff555w_fram6348.480  2860.500  193   matched_frame1_test_ref193    \
+   6349.000   2861.000   0.520   0.500   0.001   0.000          0    NoError   \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.257694      3.343146   4.257694      24.158 0.526 0    NoError  *\
+   3.00     15.04127      28.38807   15.04127      22.788 0.280 0    NoError  * 
+ngc628-c_acsff555w_fram4087.430  3310.720  194   matched_frame1_test_ref194    \
+   4087.430   3310.720   0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.02816442     0.008560224    0.002276823    43     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.1307878     3.386249   0.03541607    29.358 5.791 0    NoError  *\
+   3.00     6.400257      28.47173   5.598367      23.861 0.459 0    NoError  * 
+ngc628-c_acsff555w_fram5377.430  1965.570  195   matched_frame1_test_ref195    \
+   5376.000   1966.750   -1.430  1.180   0.000   0.114          107  BigShift  \
+   0.             0.             0.             41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.87628      3.438447   21.87628      22.381 0.232 0    NoError  *\
+   3.00     60.33901      28.55863   60.33901      21.280 0.140 0    NoError  * 
+ngc628-c_acsff555w_fram3585.590  2536.350  196   matched_frame1_test_ref196    \
+   3585.384   2536.000   -0.206  -0.350  2.685   0.000          103  LowSnr    \
+   0.03060692     0.01028197     0.007525921    33     13       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.1449179     3.508619   0.03752992    29.295 5.635 0    NoError  *\
+   3.00     8.425644      28.6793    7.547859      23.536 0.395 0    NoError  * 
+ngc628-c_acsff555w_fram3453.460  762.480   197   matched_frame1_test_ref197    \
+   3453.841   761.000    0.381   -1.480  2.791   0.000          103  LowSnr    \
+   -0.009396253   0.007270171    -0.003288795   48     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.006537234   3.361317   0.03812102    29.278 5.575 0    NoError  *\
+   3.00     2.815864      28.40559   3.08277       24.509 0.619 0    NoError  * 
+ngc628-c_acsff555w_fram5661.450  4620.570  198   matched_frame1_test_ref198    \
+   5661.554   4622.404   0.104   1.834   2.175   2.099          103  LowSnr    \
+   -9.264702E-4   0.005759525    -0.003313866   49     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     -0.005934511  3.181065   -0.002987349  INDEF  INDEF 0    NoError  *\
+   3.00     -0.2365397    28.37469   -0.2102514    INDEF  INDEF 0    NoError  * 
+ngc628-c_acsff555w_fram891.500   3767.490  199   matched_frame1_test_ref199    \
+   892.000    3766.000   0.500   -1.490  0.000   0.000          107  BigShift  \
+   0.01703594     0.008265222    0.004782301    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.986244      3.343146   1.929291      25.018 0.782 0    NoError  *\
+   3.00     2.319473      28.38807   1.835855      25.071 0.802 0    NoError  * 
+ngc628-c_acsff555w_fram5962.360  2490.700  200   matched_frame1_test_ref200    \
+   5963.000   2490.000   0.640   -0.700  0.000   0.000          0    NoError   \
+   0.             1.613098E-9    3.041502E-6    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     21.09141      3.343146   21.09141      22.421 0.236 0    NoError  *\
+   3.00     78.81705      28.38807   78.81705      20.989 0.122 0    NoError  * 
+ngc628-c_acsff555w_fram915.400   2958.400  201   matched_frame1_test_ref201    \
+   914.973    2958.510   -0.427  0.110   0.748   0.374          0    NoError   \
+   0.01590167     0.007478084    0.004241186    39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.556159      3.526543   1.500081      25.291 0.887 0    NoError  *\
+   3.00     8.677197      28.79758   8.219268      23.444 0.379 0    NoError  * 
+ngc628-c_acsff555w_fram1279.490  3856.580  202   matched_frame1_test_ref202    \
+   1278.987   3857.204   -0.503  0.624   0.518   0.192          0    NoError   \
+   0.04710832     0.008460605    0.001390479    44     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.794137      3.402178   4.633866      24.066 0.504 0    NoError  *\
+   3.00     36.19177      28.4723    34.85049      21.875 0.184 0    NoError  * 
+ngc628-c_acsff555w_fram5503.460  2242.580  203   matched_frame1_test_ref203    \
+   5503.263   2243.000   -0.197  0.420   0.093   0.000          0    NoError   \
+   0.             0.             0.             40     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     46.07897      3.447625   46.07897      21.572 0.160 0    NoError  *\
+   3.00     193.6036      28.58426   193.6036      20.014 0.078 0    NoError  * 
+ngc628-c_acsff555w_fram5058.500  2622.540  204   matched_frame1_test_ref204    \
+   5058.500   2623.000   -0.000  0.460   0.077   0.000          0    NoError   \
+   -0.01774248    0.008353471    0.004102665    21     21       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     107.9737      3.527864   108.0363      20.647 0.104 0    NoError  *\
+   3.00     479.5621      28.8409    480.0739      19.028 0.050 0    NoError  * 
+ngc628-c_acsff555w_fram4955.430  3815.560  205   matched_frame1_test_ref205    \
+   4956.000   3815.714   0.570   0.154   0.000   0.106          0    NoError   \
+   0.008320522    0.01109603     -0.004689794   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     28.6516       3.462418   28.6228       22.089 0.203 0    NoError  *\
+   3.00     87.8843       28.6275    87.6461       20.874 0.116 0    NoError  * 
+ngc628-c_acsff555w_fram2200.430  4100.590  206   matched_frame1_test_ref206    \
+   2200.000   4101.000   -0.430  0.410   0.000   0.000          0    NoError   \
+   0.1463503      0.0118667      0.00903579     34     14       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.594506      3.343146   5.105236      23.961 0.481 0    NoError  *\
+   3.00     35.86358      28.38807   31.70898      21.978 0.193 0    NoError  * 
+ngc628-c_acsff555w_fram3714.460  564.580   207   matched_frame1_test_ref207    \
+   3714.800   565.000    0.340   0.420   0.087   0.000          0    NoError   \
+   -0.004965327   0.00759007     0.00523733     36     14       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     40.85515      3.399101   40.87202      21.702 0.170 0    NoError  *\
+   3.00     213.0845      28.45618   213.2258      19.909 0.074 0    NoError  * 
+ngc628-c_acsff555w_fram6246.440  2340.610  208   matched_frame1_test_ref208    \
+   6246.800   2341.355   0.360   0.745   0.037   0.045          0    NoError   \
+   0.             0.             0.             28     19       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     180.941       3.43818    180.941       20.087 0.081 0    NoError  *\
+   3.00     858.9119      28.55594   858.9119      18.396 0.037 0    NoError  * 
+ngc628-c_acsff555w_fram6286.520  1959.630  209   matched_frame1_test_ref209    \
+   6287.000   1960.500   0.480   0.870   0.000   0.379          0    NoError   \
+   0.             0.             0.             42     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.921299      3.527864   3.921299      24.247 0.548 0    NoError  *\
+   3.00     9.803248      28.84149   9.803248      23.253 0.347 0    NoError  * 
+ngc628-c_acsff555w_fram5997.500  2224.520  210   matched_frame1_test_ref210    \
+   5998.000   2225.163   0.500   0.643   0.000   0.027          0    NoError   \
+   3.547842       2.699503       -1.067803      42     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     753.4313      3.365805   741.49        18.556 0.041 0    NoError  *\
+   3.00     3529.672      28.4112    3428.873      16.893 0.019 0    NoError  * 
+ngc628-c_acsff555w_fram5725.650  4103.470  211   matched_frame1_test_ref211    \
+   5725.000   4103.470   -0.650  0.000   0.000   INDEF          103  LowSnr    \
+   -0.004083296   0.004958058    0.002550408    37     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     -0.02596865   3.526595   -0.01156852   INDEF  INDEF 0    NoError  *\
+   3.00     2.705859      28.80422   2.823475      24.604 0.646 0    NoError  * 
+ngc628-c_acsff555w_fram3775.450  3368.530  212   matched_frame1_test_ref212    \
+   3775.499   3367.000   0.049   -1.530  0.375   0.000          107  BigShift  \
+   0.02622305     0.008064663    0.006017682    41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.006433      3.527863   3.913921      24.249 0.549 0    NoError  *\
+   3.00     7.162628      28.84032   6.406347      23.714 0.429 0    NoError  * 
+ngc628-c_acsff555w_fram5585.490  3007.480  213   matched_frame1_test_ref213    \
+   5585.000   3007.000   -0.490  -0.480  0.000   0.000          0    NoError   \
+   -0.01442563    0.007101412    0.002683262    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.94065       3.343146   1.988877      24.984 0.770 0    NoError  *\
+   3.00     5.611186      28.38807   6.020701      23.782 0.443 0    NoError  * 
+ngc628-c_acsff555w_fram4967.370  3796.570  214   matched_frame1_test_ref214    \
+   4967.001   3796.007   -0.369  -0.563  0.017   0.040          0    NoError   \
+   0.003695456    0.007724464    -0.005516569   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.100119      3.343051   6.087765      23.770 0.440 0    NoError  *\
+   3.00     15.84752      28.388     15.74261      22.738 0.274 0    NoError  * 
+ngc628-c_acsff555w_fram3736.490  1394.510  215   matched_frame1_test_ref215    \
+   3736.000   1394.010   -0.490  -0.500  0.000   0.087          0    NoError   \
+   -0.01009163    0.007000172    -0.00374812    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.891079      3.342979   2.924815      24.566 0.635 0    NoError  *\
+   3.00     7.512365      28.38794   7.798845      23.501 0.389 0    NoError  * 
+ngc628-c_acsff555w_fram3334.520  2401.320  216   matched_frame1_test_ref216    \
+   3335.000   2401.083   0.480   -0.237  0.000   0.593          103  LowSnr    \
+   0.02961247     0.008483009    -0.003435293   47     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.5568059     3.33125    0.4581593     26.578 1.604 0    NoError  *\
+   3.00     4.981654      28.37887   4.141286      24.188 0.534 0    NoError  * 
+ngc628-c_acsff555w_fram4715.430  3159.530  217   matched_frame1_test_ref217    \
+   4715.796   3159.204   0.366   -0.326  0.140   0.140          0    NoError   \
+   -5.608157E-4   0.006512247    -0.003854134   42     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     11.39893      3.401835   11.40084      23.089 0.322 0    NoError  *\
+   3.00     37.24114      28.60908   37.25719      21.803 0.178 0    NoError  * 
+ngc628-c_acsff555w_fram4899.390  2401.620  218   matched_frame1_test_ref218    \
+   4899.011   2401.976   -0.379  0.356   0.752   0.752          0    NoError   \
+   -0.01201537    0.00765861     -0.003568098   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.3114431     3.341952   0.3515979     26.866 1.832 0    NoError  *\
+   3.00     5.563667      28.38715   5.904749      23.803 0.447 0    NoError  * 
+ngc628-c_acsff555w_fram1760.400  5251.450  219   matched_frame1_test_ref219    \
+   1760.212   5251.000   -0.188  -0.450  2.764   0.000          103  LowSnr    \
+   0.02821433     0.008980869    -0.001095798   47     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.1406261     3.408952   0.04444479    29.111 5.167 0    NoError  *\
+   3.00     0.9768389     28.4809    0.1732693     27.634 2.636 0    NoError  * 
+ngc628-c_acsff555w_fram4996.460  6043.570  220   matched_frame1_test_ref220    \
+   4996.000   6043.000   -0.460  -0.570  0.000   0.000          0    NoError   \
+   0.             0.             0.             48     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.901624      3.343146   4.901624      24.005 0.490 0    NoError  *\
+   3.00     11.7639       28.38807   11.7639       23.055 0.317 0    NoError  * 
+ngc628-c_acsff555w_fram4552.540  2203.530  221   matched_frame1_test_ref221    \
+   4553.501   2204.501   0.961   0.971   0.377   0.377          0    NoError   \
+   -0.01168212    0.006547595    -0.002153642   51     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.064757      3.171567   3.101807      24.502 0.616 0    NoError  *\
+   3.00     5.303177      28.28011   5.633549      23.854 0.458 0    NoError  * 
+ngc628-c_acsff555w_fram2819.470  4195.580  222   matched_frame1_test_ref222    \
+   2819.698   4196.000   0.228   0.420   0.044   0.000          0    NoError   \
+   1.14898        0.9764697      -0.0495536     40     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     181.7155      3.471768   177.7265      20.107 0.082 0    NoError  *\
+   3.00     939.228       28.63674   906.325       18.338 0.037 0    NoError  * 
+ngc628-c_acsff555w_fram4132.440  741.560   223   matched_frame1_test_ref223    \
+   4130.913   742.000    -1.527  0.440   0.201   0.000          107  BigShift  \
+   -0.01153814    0.005584689    8.019184E-4    48     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.019811      3.330112   3.058234      24.517 0.621 0    NoError  *\
+   3.00     9.076831      28.37799   9.404261      23.298 0.354 0    NoError  * 
+ngc628-c_acsff555w_fram3995.470  3371.470  224   matched_frame1_test_ref224    \
+   3995.500   3371.500   0.030   0.030   0.101   0.094          0    NoError   \
+   0.01534911     0.01023779     0.008454268    42     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     37.36003      3.171573   37.31134      21.801 0.178 0    NoError  *\
+   3.00     166.8595      28.28012   166.4254      20.178 0.084 0    NoError  * 
+ngc628-c_acsff555w_fram4140.460  1241.540  225   matched_frame1_test_ref225    \
+   4139.994   1242.003   -0.466  0.463   0.749   0.749          0    NoError   \
+   -0.01200108    0.008790259    -0.005073546   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.3092959     3.343069   0.3494164     26.873 1.837 0    NoError  *\
+   3.00     18.62485      28.38801   18.96554      22.536 0.249 0    NoError  * 
+ngc628-c_acsff555w_fram2491.410  900.580   226   matched_frame1_test_ref226    \
+   2491.858   901.000    0.448   0.420   0.029   0.000          0    NoError   \
+   1.96065        1.258127       -2.739825E-5   34     16       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     449.713       3.344508   443.1555      19.115 0.052 0    NoError  *\
+   3.00     2262.544      28.38469   2206.892      17.372 0.024 0    NoError  * 
+ngc628-c_acsff555w_fram5451.470  2178.440  227   matched_frame1_test_ref227    \
+   5451.000   2179.000   -0.470  0.560   0.000   0.001          0    NoError   \
+   0.             1.613098E-9    -2.054083E-6   47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.297044      3.343146   2.297044      24.828 0.716 0    NoError  *\
+   3.00     7.524429      28.38807   7.524429      23.540 0.396 0    NoError  * 
+ngc628-c_acsff555w_fram2672.480  2146.480  228   matched_frame1_test_ref228    \
+   2671.569   2147.000   -0.911  0.520   1.854   0.000          103  LowSnr    \
+   -0.003929073   0.006812909    0.003682684    37     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.1006509     3.520984   0.1144851     28.084 3.211 0    NoError  *\
+   3.00     0.275643      28.75004   0.388604      26.757 1.747 0    NoError  * 
+ngc628-c_acsff555w_fram2784.380  4102.460  229   matched_frame1_test_ref229    \
+   2782.541   4101.412   -1.839  -1.048  1.182   1.183          103  LowSnr    \
+   0.1628553      0.02114877     -0.0152074     50     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.6276176     3.173341   0.1108222     28.119 3.283 0    NoError  *\
+   3.00     4.991597      28.36112   0.3728376     26.802 1.825 0    NoError  * 
+ngc628-c_acsff555w_fram3637.410  5141.460  230   matched_frame1_test_ref230    \
+   3636.000   5140.498   -1.410  -0.962  0.000   0.375          107  BigShift  \
+   0.02921012     0.009294852    -0.004363536   40     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.999778      3.527856   3.896729      24.254 0.550 0    NoError  *\
+   3.00     8.331173      28.83855   7.488796      23.545 0.397 0    NoError  * 
+ngc628-c_acsff555w_fram5571.450  3545.540  231   matched_frame1_test_ref231    \
+   5571.609   3546.000   0.159   0.460   0.315   0.000          0    NoError   \
+   -0.007597178   0.006462397    -0.003558106   45     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.205889      3.510744   6.232561      23.744 0.435 0    NoError  *\
+   3.00     32.06811      28.68975   32.28607      21.958 0.191 0    NoError  * 
+ngc628-c_acsff555w_fram775.500   3248.560  232   matched_frame1_test_ref232    \
+   776.878    3250.000   1.378   1.440   0.124   0.000          107  BigShift  \
+   0.02042897     0.009322972    0.005500763    38     10       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     11.76641      3.323295   11.69852      23.061 0.317 0    NoError  *\
+   3.00     35.98524      28.36855   35.4057       21.858 0.182 0    NoError  * 
+ngc628-c_acsff555w_fram3928.470  3752.550  233   matched_frame1_test_ref233    \
+   3928.500   3753.000   0.030   0.450   0.141   0.000          0    NoError   \
+   0.02257604     0.008804876    0.004730318    34     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     19.03298      3.527864   18.95334      22.537 0.249 0    NoError  *\
+   3.00     106.5189      28.8412    105.8678      20.669 0.106 0    NoError  * 
+ngc628-c_acsff555w_fram4946.740  4521.390  234   matched_frame1_test_ref234    \
+   4946.500   4522.000   -0.241  0.610   0.219   0.000          0    NoError   \
+   0.005995956    0.01001806     -0.004834297   39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     5.470815      3.527864   5.449663      23.890 0.465 0    NoError  *\
+   3.00     43.04982      28.8409    42.87689      21.650 0.166 0    NoError  * 
+ngc628-c_acsff555w_fram3254.470  2247.430  235   matched_frame1_test_ref235    \
+   3254.011   2247.508   -0.459  0.078   0.750   0.375          0    NoError   \
+   0.01063267     0.004620062    0.002817325    37     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.547672      3.527574   1.510165      25.283 0.884 0    NoError  *\
+   3.00     7.69395       28.82361   7.387478      23.560 0.399 0    NoError  * 
+ngc628-c_acsff555w_fram2824.380  1983.620  236   matched_frame1_test_ref236    \
+   2824.380   1983.827   0.000   0.207   INDEF   2.165          103  LowSnr    \
+   -4.653013E-4   0.007508657    0.002906902    45     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.02098361    3.461912   0.02259444    29.846 7.256 0    NoError  *\
+   3.00     0.0413377     28.57398   0.05463321    28.887 4.756 0    NoError  * 
+ngc628-c_acsff555w_fram2969.480  1626.550  237   matched_frame1_test_ref237    \
+   2970.000   1626.000   0.520   -0.550  0.000   0.000          0    NoError   \
+   -0.006327481   0.008017834    0.004903564    41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     34.35915      3.343146   34.3803       21.890 0.185 0    NoError  *\
+   3.00     172.5779      28.38807   172.7575      20.137 0.083 0    NoError  * 
+ngc628-c_acsff555w_fram4027.410  4581.600  238   matched_frame1_test_ref238    \
+   4027.594   4582.305   0.184   0.705   0.063   0.061          0    NoError   \
+   1.286588       1.209189       0.9048218      39     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     184.0428      3.366409   179.7116      20.095 0.082 0    NoError  *\
+   3.00     853.2439      28.47152   816.6127      18.451 0.040 0    NoError  * 
+ngc628-c_acsff555w_fram1637.470  4032.540  239   matched_frame1_test_ref239    \
+   1637.297   4033.725   -0.173  1.185   0.113   0.111          107  BigShift  \
+   0.05103488     0.01114473     -0.006479092   36     13       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     38.67601      3.375043   38.50377      21.767 0.175 0    NoError  *\
+   3.00     181.0355      28.48726   179.5817      20.095 0.081 0    NoError  * 
+ngc628-c_acsff555w_fram1405.550  2217.550  240   matched_frame1_test_ref240    \
+   1406.000   2219.000   0.450   1.450   0.000   0.000          107  BigShift  \
+   -9.432503E-4   0.008993249    0.006517931    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.966545      3.343146   1.969698      24.995 0.774 0    NoError  *\
+   3.00     4.049742      28.38807   4.076519      24.205 0.538 0    NoError  * 
+ngc628-c_acsff555w_fram899.470   3061.580  241   matched_frame1_test_ref241    \
+   899.022    3061.990   -0.448  0.410   0.090   0.060          0    NoError   \
+   0.01394835     0.00748909     -0.00333948    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.03252       3.342131   3.985903      24.230 0.544 0    NoError  *\
+   3.00     11.28731      28.38729   10.89136      23.138 0.329 0    NoError  * 
+ngc628-c_acsff555w_fram4787.480  4818.610  242   matched_frame1_test_ref242    \
+   4788.000   4819.568   0.520   0.958   0.000   0.059          0    NoError   \
+   0.007577365    0.01012677     0.006073539    27     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     128.545       3.521177   128.5183      20.459 0.096 0    NoError  *\
+   3.00     548.114       28.75144   547.8962      18.884 0.046 0    NoError  * 
+ngc628-c_acsff555w_fram2152.460  4089.550  243   matched_frame1_test_ref243    \
+   2151.000   4090.000   -1.460  0.450   0.000   0.000          107  BigShift  \
+   0.1688128      0.02367331     -0.01064308    43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.598097      3.343146   6.033731      23.780 0.442 0    NoError  *\
+   3.00     25.56054      28.38807   20.76827      22.437 0.238 0    NoError  * 
+ngc628-c_acsff555w_fram2783.500  2292.560  244   matched_frame1_test_ref244    \
+   2783.406   2293.058   -0.094  0.498   0.200   0.054          0    NoError   \
+   0.001131326    0.009486652    0.005946825    33     11       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     40.05493      3.510027   40.05096      21.724 0.172 0    NoError  *\
+   3.00     178.8281      28.70803   178.7956      20.100 0.081 0    NoError  * 
+ngc628-c_acsff555w_fram5130.520  4014.580  245   matched_frame1_test_ref245    \
+   5131.000   4014.994   0.480   0.414   0.000   0.022          0    NoError   \
+   -0.003404516   0.008317281    0.006328774    39     9        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     18.4828       3.343082   18.49418      22.563 0.252 0    NoError  *\
+   3.00     61.69635      28.38802   61.793        21.254 0.138 0    NoError  * 
+ngc628-c_acsff555w_fram5688.650  3289.450  246   matched_frame1_test_ref246    \
+   5691.000   3291.000   2.350   1.550   0.000   0.000          107  BigShift  \
+   -0.01171374    0.007064619    0.002266437    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.916575      3.343146   1.955736      25.003 0.776 0    NoError  *\
+   3.00     1.548228      28.38807   1.880758      25.045 0.792 0    NoError  * 
+ngc628-c_acsff555w_fram5344.470  1768.490  247   matched_frame1_test_ref247    \
+   5344.000   1766.000   -0.470  -2.490  0.000   0.000          107  BigShift  \
+   0.             1.613098E-9    3.041502E-6    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.901624      3.343146   4.901624      24.005 0.490 0    NoError  *\
+   3.00     8.504754      28.38807   8.504753      23.407 0.372 0    NoError  * 
+ngc628-c_acsff555w_fram4334.450  2162.520  248   matched_frame1_test_ref248    \
+   4333.876   2162.126   -0.574  -0.394  0.092   0.093          0    NoError   \
+   -0.01140011    0.005699724    -0.0029995     45     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     16.55267      3.380642   16.59121      22.681 0.267 0    NoError  *\
+   3.00     63.29976      28.48257   63.62446      21.222 0.136 0    NoError  * 
+ngc628-c_acsff555w_fram3972.440  3296.510  249   matched_frame1_test_ref249    \
+   3972.000   3297.000   -0.440  0.490   0.000   0.000          0    NoError   \
+   0.01631531     0.008466908    0.003132032    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.993105      3.343146   1.93856       25.012 0.780 0    NoError  *\
+   3.00     6.101339      28.38807   5.638179      23.853 0.457 0    NoError  * 
+ngc628-c_acsff555w_fram887.500   3219.460  250   matched_frame1_test_ref250    \
+   888.480    3217.971   0.980   -1.489  2.465   0.858          103  LowSnr    \
+   0.01433793     0.008109004    -0.005000843   41     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.1559271     3.525896   0.105373      28.174 3.349 0    NoError  *\
+   3.00     2.856724      28.79255   2.443898      24.761 0.695 0    NoError  * 
+ngc628-c_acsff555w_fram4352.650  4842.390  251   matched_frame1_test_ref251    \
+   4353.000   4842.000   0.350   -0.390  0.000   0.000          0    NoError   \
+   0.003603191    0.005839597    6.443206E-4    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.959872      3.343146   1.947826      25.007 0.778 0    NoError  *\
+   3.00     1.977586      28.38807   1.875298      25.048 0.793 0    NoError  * 
+ngc628-c_acsff555w_fram2364.500  3228.600  252   matched_frame1_test_ref252    \
+   2365.541   3229.000   1.041   0.400   0.072   0.000          107  BigShift  \
+   0.03603409     0.9774157      0.470065       36     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     134.94        3.525514   134.813       20.407 0.095 0    NoError  *\
+   3.00     654.696       28.79004   653.6586      18.693 0.044 0    NoError  * 
+ngc628-c_acsff555w_fram3460.430  3590.590  253   matched_frame1_test_ref253    \
+   3461.286   3591.800   0.856   1.210   0.113   0.098          107  BigShift  \
+   0.0431954      0.0107885      -0.004107108   34     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     22.91003      3.405612   22.76292      22.338 0.228 0    NoError  *\
+   3.00     97.80895      28.54959   96.57574      20.769 0.110 0    NoError  * 
+ngc628-c_acsff555w_fram6516.460  1563.540  254   matched_frame1_test_ref254    \
+   6517.000   1564.500   0.540   0.960   0.000   0.163          0    NoError   \
+   0.             2.634178E-9    -1.216706E-6   39     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     15.97125      3.527864   15.97125      22.723 0.272 0    NoError  *\
+   3.00     64.52067      28.84149   64.52067      21.207 0.135 0    NoError  * 
+ngc628-c_acsff555w_fram3978.540  2215.610  255   matched_frame1_test_ref255    \
+   3979.000   2216.345   0.460   0.735   0.000   0.071          0    NoError   \
+   -0.001891862   0.005858592    -0.003064005   28     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     120.5029      3.493362   120.5095      20.528 0.099 0    NoError  *\
+   3.00     619.3421      28.6319    619.3963      18.751 0.044 0    NoError  * 
+ngc628-c_acsff555w_fram6384.450  1539.490  256   matched_frame1_test_ref256    \
+   6384.450   1539.490   0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.             0.             0.             54     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.            3.167918   0.            INDEF  INDEF 0    NoError  *\
+   3.00     1.86268       28.30918   1.86268       25.056 0.796 0    NoError  * 
+ngc628-c_acsff555w_fram1285.420  4318.550  257   matched_frame1_test_ref257    \
+   1286.000   4319.000   0.580   0.450   0.000   0.000          0    NoError   \
+   0.05744344     0.01102037     0.005026075    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.137791      3.343146   1.945749      25.008 0.778 0    NoError  *\
+   3.00     3.513622      28.38807   1.882913      25.044 0.792 0    NoError  * 
+ngc628-c_acsff555w_fram3316.440  4465.590  258   matched_frame1_test_ref258    \
+   3317.000   4465.332   0.560   -0.258  0.000   0.150          0    NoError   \
+   0.06817252     0.01004359     0.00274349     40     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     19.7222       3.487491   19.48445      22.507 0.246 0    NoError  *\
+   3.00     67.1112       28.63399   65.15915      21.196 0.135 0    NoError  * 
+ngc628-c_acsff555w_fram4005.450  1044.680  259   matched_frame1_test_ref259    \
+   4005.987   1045.525   0.537   0.844   0.009   0.040          0    NoError   \
+   2.987498       1.840764       -0.7627435     38     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     400.7419      3.526726   390.2058      19.253 0.056 0    NoError  *\
+   3.00     1899.343      28.81074   1813.271      17.585 0.027 0    NoError  * 
+ngc628-c_acsff555w_fram4493.490  2309.550  260   matched_frame1_test_ref260    \
+   4493.875   2310.000   0.384   0.450   0.050   0.000          0    NoError   \
+   -0.01135048    0.005385362    0.001695206    33     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     74.09367      3.327421   74.13144      21.056 0.126 0    NoError  *\
+   3.00     344.2797      28.36729   344.6017      19.388 0.058 0    NoError  * 
+ngc628-c_acsff555w_fram502.480   3721.560  261   matched_frame1_test_ref261    \
+   503.000    3722.000   0.520   0.440   0.000   0.000          0    NoError   \
+   0.             0.004466383    0.004175254    30     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     54.98635      3.343146   54.98635      21.380 0.146 0    NoError  *\
+   3.00     208.081       28.38807   208.081       19.935 0.075 0    NoError  * 
+ngc628-c_acsff555w_fram2701.900  3043.420  262   matched_frame1_test_ref262    \
+   2701.994   3043.000   0.094   -0.420  0.749   0.000          0    NoError   \
+   0.04687935     0.01094601     -0.004472861   46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     2.089869      3.343087   1.933148      25.015 0.781 0    NoError  *\
+   3.00     13.63966      28.38802   12.30885      23.005 0.310 0    NoError  * 
+ngc628-c_acsff555w_fram4164.490  3020.590  263   matched_frame1_test_ref263    \
+   4164.507   3021.492   0.017   0.902   0.262   0.264          0    NoError   \
+   0.0263608      0.009352186    -0.005975251   51     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     6.392933      3.1714     6.309333      23.731 0.432 0    NoError  *\
+   3.00     15.88098      28.27994   15.1355       22.781 0.279 0    NoError  * 
+ngc628-c_acsff555w_fram3266.430  470.390   264   matched_frame1_test_ref264    \
+   3266.430   470.390    0.000   0.000   INDEF   INDEF          103  LowSnr    \
+   0.             0.             0.             49     0        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.            3.210482   0.            INDEF  INDEF 0    NoError  *\
+   3.00     1.133488      28.40267   1.133488      25.595 1.020 0    NoError  * 
+ngc628-c_acsff555w_fram3267.470  3172.600  265   matched_frame1_test_ref265    \
+   3267.591   3173.103   0.121   0.503   0.033   0.022          0    NoError   \
+   3.446939       1.973531       0.8334888      39     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     454.1475      3.499388   442.0854      19.117 0.052 0    NoError  *\
+   3.00     2243.735      28.64445   2144.999      17.402 0.024 0    NoError  * 
+ngc628-c_acsff555w_fram1890.510  4384.530  266   matched_frame1_test_ref266    \
+   1891.000   4384.000   0.490   -0.530  0.000   0.000          0    NoError   \
+   0.09421718     0.01032984     0.005499469    43     5        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.398718      3.343146   4.083736      24.203 0.537 0    NoError  *\
+   3.00     14.64569      28.38807   11.97105      23.036 0.314 0    NoError  * 
+ngc628-c_acsff555w_fram5378.420  2145.570  267   matched_frame1_test_ref267    \
+   5378.724   2146.000   0.304   0.430   0.058   0.000          0    NoError   \
+   -0.01426434    0.007281939    0.006389157    30     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     111.1419      3.456307   111.1912      20.616 0.103 0    NoError  *\
+   3.00     509.1118      28.60931   509.5199      18.963 0.048 0    NoError  * 
+ngc628-c_acsff555w_fram4485.450  2833.520  268   matched_frame1_test_ref268    \
+   4485.367   2833.000   -0.083  -0.520  2.582   0.000          103  LowSnr    \
+   0.007086768    0.009064095    0.002271421    40     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.05000721    3.502622   0.02518495    29.728 6.884 0    NoError  *\
+   3.00     0.1494232     28.65193   -0.05362635   INDEF  INDEF 0    NoError  * 
+ngc628-c_acsff555w_fram4564.400  5380.530  269   matched_frame1_test_ref269    \
+   4564.583   5381.643   0.183   1.113   0.069   0.066          107  BigShift  \
+   0.006298649    0.01052694     -0.006652378   33     15       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     101.1523      3.274548   101.1317      20.719 0.108 0    NoError  *\
+   3.00     477.5018      28.42907   477.3227      19.034 0.050 0    NoError  * 
+ngc628-c_acsff555w_fram1992.460  1736.600  270   matched_frame1_test_ref270    \
+   1992.799   1737.000   0.339   0.400   0.065   0.000          0    NoError   \
+   0.002155052    0.008670926    -0.008386006   30     20       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     114.5547      3.399832   114.5474      20.584 0.101 0    NoError  *\
+   3.00     552.7006      28.458     552.6393      18.875 0.046 0    NoError  * 
+ngc628-c_acsff555w_fram907.280   3551.510  271   matched_frame1_test_ref271    \
+   908.000    3551.510   0.720   0.000   0.000   INDEF          103  LowSnr    \
+   0.01652938     0.01022441     -0.002136171   40     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.05530876    3.527721   -0.003002289  INDEF  INDEF 0    NoError  *\
+   3.00     0.4073879     28.82931   -0.06914268   INDEF  INDEF 0    NoError  * 
+ngc628-c_acsff555w_fram2925.460  668.580   272   matched_frame1_test_ref272    \
+   2926.000   668.000    0.540   -0.580  0.000   0.000          0    NoError   \
+   0.             1.613098E-9    3.041502E-6    46     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.594088      3.343146   4.594088      24.076 0.507 0    NoError  *\
+   3.00     30.77809      28.38807   30.7781       22.010 0.196 0    NoError  * 
+ngc628-c_acsff555w_fram3625.490  1000.550  273   matched_frame1_test_ref273    \
+   3626.000   1001.800   0.510   1.250   0.000   0.093          107  BigShift  \
+   1.673549E-4    0.009971068    0.006259933    42     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     31.66538      3.398734   31.66481      21.980 0.193 0    NoError  *\
+   3.00     125.1306      28.45527   125.1258      20.488 0.097 0    NoError  * 
+ngc628-c_acsff555w_fram3347.470  2227.600  274   matched_frame1_test_ref274    \
+   3347.503   2228.000   0.033   0.400   0.183   0.000          0    NoError   \
+   0.01140988     0.01005987     0.006318917    38     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     9.728193      3.527847   9.687941      23.265 0.349 0    NoError  *\
+   3.00     37.91155      28.83737   37.58252      21.794 0.177 0    NoError  * 
+ngc628-c_acsff555w_fram2543.450  4343.580  275   matched_frame1_test_ref275    \
+   2543.969   4344.316   0.519   0.736   0.024   0.062          0    NoError   \
+   0.3565876      0.982195       0.4410832      44     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     137.1445      3.478182   135.9042      20.398 0.094 0    NoError  *\
+   3.00     679.0284      28.6339    668.8179      18.668 0.043 0    NoError  * 
+ngc628-c_acsff555w_fram3908.420  3000.620  276   matched_frame1_test_ref276    \
+   3909.000   3001.000   0.580   0.380   0.000   0.000          0    NoError   \
+   0.03901312     0.01009092     -0.005375258   45     3        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     7.314917      3.343146   7.184491      23.590 0.405 0    NoError  *\
+   3.00     18.69921      28.38807   17.5917       22.618 0.259 0    NoError  * 
+ngc628-c_acsff555w_fram2169.430  3773.630  277   matched_frame1_test_ref277    \
+   2170.000   3774.348   0.570   0.718   0.000   0.071          0    NoError   \
+   0.07255513     0.01581173     0.01083389     25     21       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     104.4653      3.494758   104.2117      20.686 0.106 0    NoError  *\
+   3.00     472.3679      28.63129   470.2905      19.050 0.050 0    NoError  * 
+ngc628-c_acsff555w_fram4759.430  2806.420  278   matched_frame1_test_ref278    \
+   4759.000   2805.000   -0.430  -1.420  0.000   0.000          107  BigShift  \
+   -0.006578962   0.00703479     0.003100645    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.95567       3.343146   1.977664      24.991 0.772 0    NoError  *\
+   3.00     3.799935      28.38807   3.986699      24.229 0.544 0    NoError  * 
+ngc628-c_acsff555w_fram3076.480  1720.500  279   matched_frame1_test_ref279    \
+   3076.000   1721.000   -0.480  0.500   0.000   0.000          0    NoError   \
+   -0.005761339   0.008850323    0.005929233    42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     31.22511      3.343146   31.24437      21.994 0.194 0    NoError  *\
+   3.00     140.5353      28.38807   140.6988      20.360 0.092 0    NoError  * 
+ngc628-c_acsff555w_fram4839.410  4972.610  280   matched_frame1_test_ref280    \
+   4839.572   4973.399   0.162   0.790   0.105   0.107          0    NoError   \
+   0.003543647    0.005477434    -2.260258E-4   41     8        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     34.35385      3.20361    34.34249      21.891 0.185 0    NoError  *\
+   3.00     109.5418      28.40343   109.4412      20.633 0.104 0    NoError  * 
+ngc628-c_acsff555w_fram2757.440  4404.570  281   matched_frame1_test_ref281    \
+   2758.000   4404.957   0.560   0.387   0.000   0.745          0    NoError   \
+   0.1666661      0.02058075     0.01101173     47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.667678      3.339994   3.111014      24.499 0.616 0    NoError  *\
+   3.00     18.79689      28.38563   14.06597      22.861 0.290 0    NoError  * 
+ngc628-c_acsff555w_fram3264.480  1415.560  282   matched_frame1_test_ref282    \
+   3262.000   1416.000   -2.480  0.440   0.000   0.000          107  BigShift  \
+   -0.01201573    0.008519904    -0.005291837   44     4        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     1.934263      3.343146   1.974433      24.992 0.773 0    NoError  *\
+   3.00     4.322219      28.38807   4.663322      24.059 0.503 0    NoError  * 
+ngc628-c_acsff555w_fram3479.450  2537.580  283   matched_frame1_test_ref283    \
+   3480.000   2538.003   0.550   0.423   0.000   0.211          0    NoError   \
+   0.02885847     0.01190418     -0.008726407   30     18       0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     115.5527      3.343129   115.4563      20.575 0.101 0    NoError  *\
+   3.00     601.4194      28.38806   600.6002      18.785 0.044 0    NoError  * 
+ngc628-c_acsff555w_fram2158.350  1499.590  284   matched_frame1_test_ref284    \
+   2156.905   1500.447   -1.445  0.857   1.843   INDEF          103  LowSnr    \
+   3.225657E-4    0.007403721    -0.005903352   44     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     0.03436395    3.509327   0.03323196    29.427 5.974 0    NoError  *\
+   3.00     0.8113338     28.66946   0.802086      25.970 1.214 0    NoError  * 
+ngc628-c_acsff555w_fram5269.520  4711.510  285   matched_frame1_test_ref285    \
+   5270.000   4711.001   0.480   -0.509  0.000   0.017          0    NoError   \
+   -0.00994764    0.00613063     0.003480417    47     1        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     4.034181      3.343144   4.067437      24.208 0.538 0    NoError  *\
+   3.00     12.46674      28.38807   12.74914      22.967 0.304 0    NoError  * 
+ngc628-c_acsff555w_fram2999.460  2516.550  286   matched_frame1_test_ref286    \
+   2999.291   2517.000   -0.169  0.450   0.143   0.000          0    NoError   \
+   0.0270406      0.01017679     -0.007318041   42     6        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     14.40122      3.465517   14.30751      22.842 0.287 0    NoError  *\
+   3.00     64.2725       28.63692   63.49813      21.224 0.136 0    NoError  * 
+ngc628-c_acsff555w_fram1145.450  3686.580  287   matched_frame1_test_ref287    \
+   1146.000   3687.123   0.550   0.543   0.000   0.088          0    NoError   \
+   0.02334853     0.006932033    -0.004453201   41     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     46.35937      3.324806   46.28174      21.567 0.160 0    NoError  *\
+   3.00     184.1488      28.36809   183.4865      20.072 0.080 0    NoError  * 
+ngc628-c_acsff555w_fram4880.510  3114.580  288   matched_frame1_test_ref288    \
+   4882.000   3116.502   1.490   1.922   0.000   0.376          107  BigShift  \
+   -0.007319507   0.006380624    -0.001416422   40     2        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     3.880474      3.527856   3.906296      24.252 0.549 0    NoError  *\
+   3.00     5.53903       28.83855   5.750114      23.832 0.453 0    NoError  * 
+ngc628-c_acsff555w_fram3882.460  5460.560  289   matched_frame1_test_ref289    \
+   3881.714   5461.200   -0.746  0.640   0.113   0.098          0    NoError   \
+   0.             0.             0.             42     7        0    NoError   \
+   1.             INDEF          INDEF                  INDEF                  \
+   1.00     23.46426      3.404907   23.46426      22.305 0.224 0    NoError  *\
+   3.00     134.7126      28.54922   134.7126      20.407 0.094 0    NoError  * 

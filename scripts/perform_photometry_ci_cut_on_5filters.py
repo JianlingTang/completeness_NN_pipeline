@@ -11,32 +11,6 @@ import numpy as np
 
 from pyraf import iraf
 
-# Read in library clusters from SLUG
-
-# from __future__ import print_function
-# from pyraf import iraf
-# from pyraf.iraf import noao, digiphot, daophot
-# import astropy.io.fits as pyfits
-# from astropy.io import ascii
-# import logging
-# import os, shutil, sys
-# from scipy.ndimage import distance_transform_edt
-# from astropy.io import fits
-# import argparse
-# import astropy.units as u
-# import astropy.constants as c
-# import multiprocessing as mp
-# import astropy.io.fits as pyfits
-# import os
-# import shutil
-# import sys
-# import argparse
-# import multiprocessing
-# import glob
-# import re
-# import numpy as np
-# from math import *
-# import subprocess
 
 def extract_core_tag(filename: str) -> str | None:
     """
