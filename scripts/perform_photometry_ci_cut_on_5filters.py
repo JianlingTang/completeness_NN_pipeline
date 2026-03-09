@@ -1,4 +1,3 @@
-# Read in library clusters from SLUG
 import argparse
 import glob
 import os
@@ -11,6 +10,8 @@ import astropy.io.fits as pyfits
 import numpy as np
 
 from pyraf import iraf
+
+# Read in library clusters from SLUG
 
 # from __future__ import print_function
 # from pyraf import iraf
