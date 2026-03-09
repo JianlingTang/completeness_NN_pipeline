@@ -6,14 +6,14 @@ Saves to tests/output/completeness_mag_mass_age_bins.png so you can open the fig
 Usage:
   python scripts/plot_completeness_mag_mass_age.py
   python scripts/plot_completeness_mag_mass_age.py --out tests/output/my_completeness.png
+
+Run from repo root so cluster_pipeline is importable, or set PYTHONPATH to repo root.
 """
 import argparse
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import numpy as np
 
@@ -38,7 +38,7 @@ def binned_completeness_percentile(x, y_det, n_bins=15):
 
 def main():
     ap = argparse.ArgumentParser(description="Plot completeness vs mag / mass / age (synthetic data)")
-    ap.add_argument("--out", type=Path, default=ROOT / "tests" / "output" / "completeness_mag_mass_age_bins.png")
+    ap.add_argument("--out", type=Path, default=Path(__file__).resolve().parent.parent / "tests" / "output" / "completeness_mag_mass_age_bins.png")
     args = ap.parse_args()
 
     try:

@@ -18,7 +18,7 @@ def load_slug_library(
 
     Returns
     -------
-    (cid, actual_mass, target_mass, form_time, eval_time, A_V,
+    (cid, actual_mass, target_mass, form_time, eval_time, a_v,
      phot_neb_ex, phot_neb_ex_veg, filter_names, filter_units)
     """
     import glob
@@ -26,7 +26,6 @@ def load_slug_library(
 
     from .slug_reader import read_cluster
 
-    libdir = str(slug_lib_dir)
     if mrmodel == "flat":
         libs = sorted(glob.glob(str(slug_lib_dir / "flat_in_logm_cluster_phot.fits")))
     else:
@@ -34,12 +33,12 @@ def load_slug_library(
         libs1 = glob.glob(str(output_lib_dir / "*_cluster_phot.fits"))
         libs2 = glob.glob(str(slug_lib_dir / "tang*_cluster_phot.fits"))
         libs = sorted(set(itertools.chain(libs0, libs1, libs2)))
-        libs = [l for l in libs if "subsolar" not in l]
+        libs = [path for path in libs if "subsolar" not in path]
     if not libs:
         raise FileNotFoundError("No SLUG library files found.")
     allfilters_cam = sorted(allfilters_cam, key=lambda x: x[-4:])
     cid_list, actual_mass_list, target_mass_list = [], [], []
-    form_time_list, eval_time_list, A_V_list = [], [], []
+    form_time_list, eval_time_list, a_v_list = [], [], []
     phot_neb_ex_list, phot_neb_ex_veg_list = [], []
     for lib in libs:
         libname = lib.split("_cluster_phot.fits")[0]
@@ -50,7 +49,7 @@ def load_slug_library(
         target_mass_list.append(lib_read.target_mass)
         form_time_list.append(lib_read.form_time)
         eval_time_list.append(lib_read.time)
-        A_V_list.append(lib_read.A_V)
+        a_v_list.append(lib_read.A_V)
         phot_neb_ex_list.append(lib_read.phot_neb_ex)
         phot_neb_ex_veg_list.append(lib_read_vega.phot_neb_ex)
     n = min(10_000_000_00, sum(len(c) for c in cid_list))
@@ -59,12 +58,12 @@ def load_slug_library(
     target_mass = np.concatenate(target_mass_list)[:n]
     form_time = np.concatenate(form_time_list)[:n]
     eval_time = np.concatenate(eval_time_list)[:n]
-    A_V = np.concatenate(A_V_list)[:n]
+    a_v = np.concatenate(a_v_list)[:n]
     phot_neb_ex = np.concatenate(phot_neb_ex_list)[:n, :]
     phot_neb_ex_veg = np.concatenate(phot_neb_ex_veg_list)[:n, :]
     filter_names = getattr(lib_read, "filter_names", [])
     filter_units = getattr(lib_read, "filter_units", [])
     return (
-        cid, actual_mass, target_mass, form_time, eval_time, A_V,
+        cid, actual_mass, target_mass, form_time, eval_time, a_v,
         phot_neb_ex, phot_neb_ex_veg, filter_names, filter_units,
     )

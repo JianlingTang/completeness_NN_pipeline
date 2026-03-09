@@ -216,9 +216,9 @@ def make_lr_schedule(total_steps: int, max_lr: float, warmup_frac: float = 0.1):
 
 
 def train_one_model(
-    X_tr_t,
+    x_tr_t,
     y_tr_t,
-    X_va_t,
+    x_va_t,
     y_va_t,
     input_dim,
     hidden_dim,
@@ -238,8 +238,8 @@ def train_one_model(
     optimizer = optim.AdamW(model.parameters(), lr=max_lr, weight_decay=weight_decay)
     criterion = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
-    N = X_tr_t.shape[0]
-    steps_per_epoch = (N + batch_size - 1) // batch_size
+    n = x_tr_t.shape[0]
+    steps_per_epoch = (n + batch_size - 1) // batch_size
     total_steps = epochs * steps_per_epoch
     lr_schedule = make_lr_schedule(total_steps, max_lr, warmup_frac)
 
@@ -259,14 +259,14 @@ def train_one_model(
 
     for ep in range(epochs):
         model.train()
-        perm = torch.randperm(N, device=device)
+        perm = torch.randperm(n, device=device)
         train_loss_sum = 0.0
-        assert X_tr_t.dtype == torch.float32
+        assert x_tr_t.dtype == torch.float32
         assert y_tr_t.dtype == torch.float32
 
-        for i in range(0, N, batch_size):
+        for i in range(0, n, batch_size):
             idx = perm[i : i + batch_size]
-            xb, yb = X_tr_t[idx], y_tr_t[idx]
+            xb, yb = x_tr_t[idx], y_tr_t[idx]
 
             lr = lr_schedule(global_step)
             for g in optimizer.param_groups:
@@ -280,11 +280,11 @@ def train_one_model(
             train_loss_sum += loss.item() * xb.size(0)
             global_step += 1
 
-        train_loss = train_loss_sum / N
+        train_loss = train_loss_sum / n
 
         model.eval()
         with torch.no_grad():
-            val_loss = criterion(model(X_va_t), y_va_t).item()
+            val_loss = criterion(model(x_va_t), y_va_t).item()
 
         history["train_loss_epoch"].append(train_loss)
         history["val_loss_epoch"].append(val_loss)
@@ -315,28 +315,28 @@ def train_one_model(
 
 def run_sweep_for_feature_set(
     name,
-    X_tr_t,
+    x_tr_t,
     y_tr_t,
-    X_va_t,
+    x_va_t,
     y_va_t,
     device,
     pos_weight,
 ):
-    input_dim = X_tr_t.shape[1]
+    input_dim = x_tr_t.shape[1]
     results = []
 
-    for h, L, wd, lr in itertools.product(
+    for h, n_hidden, wd, lr in itertools.product(
         HIDDEN_DIMS, N_HIDDEN_LIST, WEIGHT_DECAYS, MAX_LRS
     ):
-        run_name = f"{name}_h{h}_L{L}_wd{wd:.0e}_lr{lr:.0e}"
+        run_name = f"{name}_h{h}_L{n_hidden}_wd{wd:.0e}_lr{lr:.0e}"
         _, hist = train_one_model(
-            X_tr_t,
+            x_tr_t,
             y_tr_t,
-            X_va_t,
+            x_va_t,
             y_va_t,
             input_dim,
             h,
-            L,
+            n_hidden,
             lr,
             wd,
             EPOCHS_SWEEP,
@@ -447,27 +447,27 @@ def main():
     )
 
     # ---- build features/labels ----
-    X_phys = np.column_stack([prop["mass"], prop["age"], prop["av"]])
-    X_phot = prop["phot"]
+    x_phys = np.column_stack([prop["mass"], prop["age"], prop["av"]])
+    x_phot = prop["phot"]
     y = y_flat.reshape(-1, 1)
 
     # ---- split ----
     y_int = y_flat.astype(int)
     sss = StratifiedShuffleSplit(1, test_size=0.2, random_state=SEED)
-    tr_idx, te_idx = next(sss.split(X_phys, y_int))
+    tr_idx, te_idx = next(sss.split(x_phys, y_int))
 
     np.savez(out_dir / "split_indices.npz", train_idx=tr_idx, val_idx=te_idx)
 
     # ---- scalers (train only) ----
-    scaler_phys = StandardScaler().fit(X_phys[tr_idx])
-    scaler_phot = StandardScaler().fit(X_phot[tr_idx])
+    scaler_phys = StandardScaler().fit(x_phys[tr_idx])
+    scaler_phot = StandardScaler().fit(x_phot[tr_idx])
     joblib.dump(scaler_phys, out_dir / f"scaler_phys_{args.outname}.pkl")
     joblib.dump(scaler_phot, out_dir / f"scaler_phot_{args.outname}.pkl")
 
-    Xp_tr = torch.tensor(scaler_phys.transform(X_phys[tr_idx]), dtype=torch.float32, device=device)
-    Xp_va = torch.tensor(scaler_phys.transform(X_phys[te_idx]), dtype=torch.float32, device=device)
-    Xph_tr = torch.tensor(scaler_phot.transform(X_phot[tr_idx]), dtype=torch.float32, device=device)
-    Xph_va = torch.tensor(scaler_phot.transform(X_phot[te_idx]), dtype=torch.float32, device=device)
+    xp_tr = torch.tensor(scaler_phys.transform(x_phys[tr_idx]), dtype=torch.float32, device=device)
+    xp_va = torch.tensor(scaler_phys.transform(x_phys[te_idx]), dtype=torch.float32, device=device)
+    xph_tr = torch.tensor(scaler_phot.transform(x_phot[tr_idx]), dtype=torch.float32, device=device)
+    xph_va = torch.tensor(scaler_phot.transform(x_phot[te_idx]), dtype=torch.float32, device=device)
 
     y_tr = torch.tensor(y[tr_idx], dtype=torch.float32, device=device)
     y_va = torch.tensor(y[te_idx], dtype=torch.float32, device=device)
@@ -476,15 +476,15 @@ def main():
     pos_weight = torch.tensor([(1 - pos_frac) / max(pos_frac, 1e-6)], device=device)
 
     # ---- sweep + train best (phys) ----
-    results_phys = run_sweep_for_feature_set("phys", Xp_tr, y_tr, Xp_va, y_va, device, pos_weight)
+    results_phys = run_sweep_for_feature_set("phys", xp_tr, y_tr, xp_va, y_va, device, pos_weight)
     best_phys = results_phys[0][0]
 
     train_one_model(
-        Xp_tr,
+        xp_tr,
         y_tr,
-        Xp_va,
+        xp_va,
         y_va,
-        input_dim=Xp_tr.shape[1],
+        input_dim=xp_tr.shape[1],
         hidden_dim=best_phys["hidden_dim"],
         n_hidden=best_phys["n_hidden"],
         max_lr=best_phys["max_lr"],
@@ -529,7 +529,7 @@ def main():
     save_values_path=out_dir / f"phys_lr_wd_grid_{args.outname}.npz",)
 
     # ---- sweep + train best (phot) ----
-    results_phot = run_sweep_for_feature_set("phot", Xph_tr, y_tr, Xph_va, y_va, device, pos_weight)
+    results_phot = run_sweep_for_feature_set("phot", xph_tr, y_tr, xph_va, y_va, device, pos_weight)
     best_phot = results_phot[0][0]
 
     best_cfg, best_hist = results_phot[0]
@@ -561,11 +561,11 @@ def main():
     save_values_path=out_dir / f"phot_lr_wd_grid_{args.outname}.npz",)
 
     train_one_model(
-        Xph_tr,
+        xph_tr,
         y_tr,
-        Xph_va,
+        xph_va,
         y_va,
-        input_dim=Xph_tr.shape[1],
+        input_dim=xph_tr.shape[1],
         hidden_dim=best_phot["hidden_dim"],
         n_hidden=best_phot["n_hidden"],
         max_lr=best_phot["max_lr"],

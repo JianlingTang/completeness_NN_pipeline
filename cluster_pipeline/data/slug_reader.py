@@ -114,7 +114,6 @@ def _read_prop_fits(prop_path: str):
     """Read ``*_cluster_prop.fits`` and return a namedtuple."""
     with pyfits.open(prop_path) as hdul:
         tbl = hdul[1].data
-        cols = [c.name for c in hdul[1].columns]
 
         cluster_id   = np.asarray(tbl.field("UniqueID"), dtype="uint64")
         trial        = np.asarray(tbl.field("Trial"),    dtype="uint64")
@@ -242,7 +241,6 @@ def _read_phot_fits(
                     col_idx = sel_filters.index(canon)
                     arr[:, col_idx] = tbl.field(bf + suffix)
             else:
-                ptr_hdu = 2
                 col_idx = 0
                 for bf, keep in zip(base_filters, fmask):
                     hdu_offset = 0

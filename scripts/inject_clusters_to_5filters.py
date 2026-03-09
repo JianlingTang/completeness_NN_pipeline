@@ -8,19 +8,28 @@ import shutil
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 # Function that represents a worker process
 import astropy.io.fits as pyfits
 import astropy.units as u
 import numpy as np
-from astropy.coordinates import *
 from astropy.io import fits
-from numpy import *
 from numpy import genfromtxt
 from numpy.random import SeedSequence
 
 # Ensure that DISPLAY is not set to avoid GUI issues
 os.environ["DISPLAY"] = ""
+
+# Path defaults: env or project root (no hardcoded absolute paths)
+SCRIPT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _path_env(env_key: str, default_subpath: str) -> Path:
+    raw = os.environ.get(env_key)
+    if raw:
+        return Path(raw).resolve()
+    return (SCRIPT_ROOT / default_subpath).resolve()
 
 
 ##############Helper functions#############################
@@ -116,9 +125,9 @@ def fits_divide_scalar(in_path: str, scalar: float, out_path: str) -> None:
 
 def fits_add_images(a_path: str, b_path: str, out_path: str) -> None:
     """Add two FITS images safely pixel-by-pixel."""
-    with fits.open(a_path, memmap=False) as A, fits.open(b_path, memmap=False) as B:
-        data = A[0].data.astype(np.float32) + B[0].data.astype(np.float32)
-        hdr = A[0].header
+    with fits.open(a_path, memmap=False) as hdul_a, fits.open(b_path, memmap=False) as hdul_b:
+        data = hdul_a[0].data.astype(np.float32) + hdul_b[0].data.astype(np.float32)
+        hdr = hdul_a[0].header
     fits.writeto(out_path, data, hdr, overwrite=True)
 
 def clear_directory(directory: str) -> None:
@@ -218,21 +227,22 @@ def main(
     filter_id = filter_id if filter_id is not None else 0
     use_white = use_white if use_white is not None else False
 
-    fits_path = "/g/data/jh2/jt4478/make_LC_copy"
-    PSFpath = os.path.join(main_dir, "PSF_files")
-    if not os.path.isdir(PSFpath):
-        PSFpath = "/g/data/jh2/jt4478/PSF_all"
+    fits_path = os.environ.get("COMP_FITS_PATH") or main_dir
+    fits_path = os.path.abspath(fits_path)
+    psf_path = os.path.join(main_dir, "PSF_files")
+    if not os.path.isdir(psf_path):
+        psf_path = str(_path_env("COMP_PSF_PATH", "PSF_all"))
     baopath = os.path.join(main_dir, ".deps", "local", "bin")
     bl_exe = os.path.join(baopath, "bl")
     if not os.path.isfile(bl_exe) and not os.path.isfile(bl_exe + ".exe"):
-        baopath = "/g/data/jh2/jt4478/baolab-0.94.1g"
+        baopath = str(_path_env("COMP_BAO_PATH", "baolab"))
     if not os.path.isdir(baopath):
         baopath = os.path.join(main_dir, ".deps", "local", "bin")
     bl_exe = os.path.join(baopath, "bl")
     if not os.path.isfile(bl_exe):
         bl_exe = os.path.join(baopath, "bl.exe")
     bl_exe = os.path.abspath(os.path.normpath(bl_exe))
-    libdir = "/scratch/mk27/jt4478/output_lib"
+    libdir = str(_path_env("COMP_OUTPUT_LIB_DIR", "output_lib"))
     galaxies = np.load(os.path.join(main_dir, "galaxy_names.npy"))
     gal_filters = np.load(
         os.path.join(main_dir, "galaxy_filter_dict.npy"), allow_pickle=True
@@ -338,33 +348,33 @@ def main(
     sciframepath = os.path.abspath(os.path.normpath(sciframe))
     fname = filt  # set filter name
     cam_lower = (cam.lower() if isinstance(cam, str) else str(cam)).split("_")[0]  # e.g. WFC3_UVIS -> wfc3
-    psfname = glob.glob(os.path.join(PSFpath, f"psf_*_{cam_lower}_{filt}.fits"))
+    psfname = glob.glob(os.path.join(psf_path, f"psf_*_{cam_lower}_{filt}.fits"))
     if psfname:
         print(f"Found PSF file: {psfname}")
     elif "white" in galn:
-        fallback_psf = os.path.join(PSFpath, "psf_ngc1566_wfc3_f555w.fits")
+        fallback_psf = os.path.join(psf_path, "psf_ngc1566_wfc3_f555w.fits")
         if os.path.isfile(fallback_psf):
             psfname = [fallback_psf]
         else:
             raise FileNotFoundError(f"PSF not found: no match for psf_*_{cam_lower}_{filt}.fits and fallback {fallback_psf} missing")
     else:
-        raise FileNotFoundError(f"PSF not found: no match for psf_*_{cam_lower}_{filt}.fits in {PSFpath}")
+        raise FileNotFoundError(f"PSF not found: no match for psf_*_{cam_lower}_{filt}.fits in {psf_path}")
     psffile = psfname[0]
     psffilepath = psffile  # this path contains all PSF files (wfc3 and acs)
 
-    # set baoFHWM for photometry
+    # set bao_fhwm for photometry
     print("reff is", reff)
     print("galdist is", galdist)
     print("pixscale_wfc3 is", pixscale_wfc3)
 
     if cam == "wfc3":
-        baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
+        bao_fhwm = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
     elif cam == "acs":
-        baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_acs) / 1.13
+        bao_fhwm = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_acs) / 1.13
     else:
-        baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
+        bao_fhwm = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
 
-    print(baoFHWM)
+    print(bao_fhwm)
 
     # set aperture correction file
     apcorrfile = f"avg_aperture_correction_{gal}.txt"
@@ -427,9 +437,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -438,9 +448,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r0
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -449,9 +459,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r1
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -576,9 +586,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -587,9 +597,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r0
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -598,9 +608,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r1
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -1142,9 +1152,9 @@ if __name__ == "__main__":
         if args.validation:
             galx = args.gal_name
             outname = args.outname
-            galaxies = np.load("/g/data/jh2/jt4478/make_LEGUS_CCT/galaxy_names.npy")
+            galaxies = np.load(os.path.join(args.directory, "galaxy_names.npy"))
             gal_filters = np.load(
-                "/g/data/jh2/jt4478/make_LEGUS_CCT/galaxy_filter_dict.npy",
+                os.path.join(args.directory, "galaxy_filter_dict.npy"),
                 allow_pickle=True,
             ).item()
             filts = gal_filters[galx][0]

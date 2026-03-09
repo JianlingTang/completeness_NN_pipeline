@@ -1,19 +1,14 @@
 # Read in library clusters from SLUG
-import glob
-import re
-import subprocess
-from math import *
-
-import numpy as np
-from numpy import *
-
-print("IMPORTING PACKAGES...")
 import argparse
+import glob
 import os
+import re
 import shutil
+import subprocess
 import sys
 
 import astropy.io.fits as pyfits
+import numpy as np
 
 from pyraf import iraf
 
@@ -42,7 +37,6 @@ from pyraf import iraf
 # from math import *
 # import subprocess
 
-print("IMPORTING PACKAGES...")
 def extract_core_tag(filename: str) -> str | None:
     """
     Extracts 'frameX_<outname>_reffY.fits' from filenames such as:
@@ -118,7 +112,7 @@ def main(
     print(f"[DEBUG] outname: {outname}")
     print(f"[DEBUG] framenum: {framenum}")
     print(f"[DEBUG] validation: {validation}")
-    main_dir = "/g/data/jh2/jt4478/make_LC_copy"
+    main_dir = os.path.abspath(dirname or os.environ.get("COMP_MAIN_DIR", os.getcwd()))
     os.chdir(main_dir)
     # define constants
     gal_filters = np.load("galaxy_filter_dict.npy", allow_pickle=True).item()

@@ -1,3 +1,17 @@
+"""
+Generate white-light synthetic cluster frames for the completeness pipeline.
+
+Paths are configurable via environment variables (no hardcoded absolute paths):
+  COMP_MAIN_DIR     - main run directory (default: project root)
+  COMP_FITS_PATH    - LEGUS FITS images root
+  COMP_PSF_PATH     - PSF files directory
+  COMP_BAO_PATH     - BAOlab binary directory (contains 'bl')
+  COMP_SLUG_LIB_DIR - SLUG cluster library directory
+  COMP_OUTPUT_LIB_DIR - additional SLUG output library directory
+
+CLI arguments (e.g. --directory, --fits_path) override the above.
+When env and CLI are unset, paths default to the project root (directory of this file).
+"""
 import argparse
 import datetime
 import glob
@@ -8,6 +22,7 @@ import re
 import shutil
 import subprocess
 import time
+from pathlib import Path
 from typing import Any
 
 import astropy.io.fits as pyfits
@@ -22,6 +37,41 @@ from scipy.ndimage import gaussian_filter
 from cluster_pipeline.data.slug_reader import read_cluster
 from cluster_pipeline.utils.fits_arithmetic import fits_add, fits_div
 
+# -----------------------------------------------------------------------------
+# Path configuration: env vars override; fallback to project root / cwd
+# Set COMP_MAIN_DIR, COMP_FITS_PATH, COMP_PSF_PATH, COMP_BAO_PATH,
+# COMP_SLUG_LIB_DIR, COMP_OUTPUT_LIB_DIR for custom paths.
+# -----------------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parent
+
+
+def _path_from_env(env_key: str, default_path: Path) -> Path:
+    """Resolve path from env var or default (Path)."""
+    raw = os.environ.get(env_key)
+    if raw:
+        return Path(raw).resolve()
+    return default_path.resolve() if default_path.is_absolute() else (PROJECT_ROOT / default_path).resolve()
+
+
+def get_default_fits_path() -> Path:
+    return _path_from_env("COMP_FITS_PATH", PROJECT_ROOT)
+
+
+def get_default_psf_path() -> Path:
+    return _path_from_env("COMP_PSF_PATH", PROJECT_ROOT / "PSF_all")
+
+
+def get_default_bao_path() -> Path:
+    return _path_from_env("COMP_BAO_PATH", PROJECT_ROOT / "baolab")
+
+
+def get_default_slug_lib_dir() -> Path:
+    return _path_from_env("COMP_SLUG_LIB_DIR", PROJECT_ROOT / "SLUG_library")
+
+
+def get_default_output_lib_dir() -> Path:
+    return _path_from_env("COMP_OUTPUT_LIB_DIR", PROJECT_ROOT / "output_lib")
+
 
 ##############Helper functions#############################
 def phys_to_pix(args: tuple[float, float, float]) -> float:
@@ -33,8 +83,8 @@ def phys_to_pix(args: tuple[float, float, float]) -> float:
 
 
 def sample_k19_radii(mass, n_draw=10):
-    logM = np.log10(mass)
-    mu = 0.1415 * logM
+    log_m = np.log10(mass)
+    mu = 0.1415 * log_m
     sigma = 0.21
 
     radii_log = mu[:, None] + np.random.randn(len(mass), n_draw) * sigma
@@ -43,7 +93,12 @@ def sample_k19_radii(mass, n_draw=10):
     parent_idx = np.repeat(np.arange(len(mass)), n_draw)
     return parent_idx, radii_pc.ravel()
 
-def load_slug_libraries(allfilters_cam, mrmodel, libdir=None, output_lib_dir=None):
+def load_slug_libraries(
+    allfilters_cam: list[str],
+    mrmodel: str,
+    libdir: Path | str | None = None,
+    output_lib_dir: Path | str | None = None,
+):
     """
     Load SLUG cluster libraries and concatenate into unified arrays.
 
@@ -59,38 +114,31 @@ def load_slug_libraries(allfilters_cam, mrmodel, libdir=None, output_lib_dir=Non
         Filters in CAM_FILTER format, e.g. WFC3_UVIS_F275W
     mrmodel : str
         Mass-radius model name ("flat", "Krumholz19", ...)
-    libdir : str, optional
-        Path to SLUG cluster library directory.
-    output_lib_dir : str, optional
-        Path to additional output library directory.
+    libdir : Path or str, optional
+        Path to SLUG cluster library directory. Default from COMP_SLUG_LIB_DIR or PROJECT_ROOT/SLUG_library.
+    output_lib_dir : Path or str, optional
+        Path to additional output library directory. Default from COMP_OUTPUT_LIB_DIR or PROJECT_ROOT/output_lib.
 
     Returns
     -------
     tuple
-        (cid, actual_mass, target_mass, form_time, eval_time, A_V,
+        (cid, actual_mass, target_mass, form_time, eval_time, a_v,
          phot_neb_ex, phot_neb_ex_veg, filter_names, filter_units)
     """
-
-    if libdir is None:
-        libdir = "/g/data/jh2/jt4478/cluster_slug"
-    if output_lib_dir is None:
-        output_lib_dir = "/g/data/jh2/jt4478/output_lib"
+    libdir = Path(libdir) if libdir is not None else get_default_slug_lib_dir()
+    output_lib_dir = Path(output_lib_dir) if output_lib_dir is not None else get_default_output_lib_dir()
+    libdir = libdir.resolve()
+    output_lib_dir = output_lib_dir.resolve()
 
     # --------------------------------------------------
     # 1. Decide which libraries to read
     # --------------------------------------------------
     if mrmodel == "flat":
-        libs = sorted(
-            glob.glob(os.path.join(libdir, "flat_in_logm_cluster_phot.fits"))
-        )
+        libs = sorted(glob.glob(str(libdir / "flat_in_logm_cluster_phot.fits")))
     else:
-        libs0 = glob.glob(os.path.join(libdir, "flat_in_logm_cluster_phot.fits"))
-        libs1 = glob.glob(
-            os.path.join(output_lib_dir, "*_cluster_phot.fits")
-        )
-        libs2 = glob.glob(
-            os.path.join(libdir, "tang*_cluster_phot.fits")
-        )
+        libs0 = glob.glob(str(libdir / "flat_in_logm_cluster_phot.fits"))
+        libs1 = glob.glob(str(output_lib_dir / "*_cluster_phot.fits"))
+        libs2 = glob.glob(str(libdir / "tang*_cluster_phot.fits"))
         libsjoin = list(itertools.chain(libs0, libs1))
         libs = list(itertools.chain(libsjoin, libs2))
         libs = [lf for lf in libs if "subsolar" not in lf]
@@ -131,13 +179,13 @@ def load_slug_libraries(allfilters_cam, mrmodel, libdir=None, output_lib_dir=Non
     # --------------------------------------------------
     # 4. Concatenate arrays
     # --------------------------------------------------
-    ncl_MIST = 10000000000
+    ncl_mist = int(1e10)  # cap total clusters to concatenate
     cid = []
     actual_mass = []
     target_mass = []
     form_time = []
     eval_time = []
-    A_V = []
+    a_v = []
     phot_neb_ex = []
     phot_neb_ex_veg = []
     filter_names = lib_all_list[0].filter_names
@@ -149,18 +197,18 @@ def load_slug_libraries(allfilters_cam, mrmodel, libdir=None, output_lib_dir=Non
         target_mass.append(lib_all.target_mass)
         form_time.append(lib_all.form_time)
         eval_time.append(lib_all.time)
-        A_V.append(lib_all.A_V)
+        a_v.append(lib_all.A_V)
         phot_neb_ex.append(lib_all.phot_neb_ex)
         phot_neb_ex_veg.append(lib_all_list_veg[i].phot_neb_ex)
 
-    cid = np.concatenate(cid)[:ncl_MIST]
-    actual_mass = np.concatenate(actual_mass)[:ncl_MIST]
-    target_mass = np.concatenate(target_mass)[:ncl_MIST]
-    form_time = np.concatenate(form_time)[:ncl_MIST]
-    eval_time = np.concatenate(eval_time)[:ncl_MIST]
-    A_V = np.concatenate(A_V)[:ncl_MIST]
-    phot_neb_ex = np.concatenate(phot_neb_ex)[:ncl_MIST, :]
-    phot_neb_ex_veg = np.concatenate(phot_neb_ex_veg)[:ncl_MIST, :]
+    cid = np.concatenate(cid)[:ncl_mist]
+    actual_mass = np.concatenate(actual_mass)[:ncl_mist]
+    target_mass = np.concatenate(target_mass)[:ncl_mist]
+    form_time = np.concatenate(form_time)[:ncl_mist]
+    eval_time = np.concatenate(eval_time)[:ncl_mist]
+    a_v = np.concatenate(a_v)[:ncl_mist]
+    phot_neb_ex = np.concatenate(phot_neb_ex)[:ncl_mist, :]
+    phot_neb_ex_veg = np.concatenate(phot_neb_ex_veg)[:ncl_mist, :]
 
 
     # --------------------------------------------------
@@ -172,7 +220,7 @@ def load_slug_libraries(allfilters_cam, mrmodel, libdir=None, output_lib_dir=Non
         target_mass,
         form_time,
         eval_time,
-        A_V,
+        a_v,
         phot_neb_ex,
         phot_neb_ex_veg,
         filter_names,
@@ -244,12 +292,12 @@ def mass_to_radius(args: tuple[Any, int | None, str]) -> np.ndarray:
 
         if n_trial is not None:
             # Generate random variations and calculate the mean radius
-            sigma_MR = -0.2103855
-            random_variations = np.random.randn(len(rad_lib), n_trial) * sigma_MR
-            mean_R = rad_lib[:, None] + random_variations
-            mean_R = np.mean(mean_R, axis=1)
+            sigma_mr = -0.2103855
+            random_variations = np.random.randn(len(rad_lib), n_trial) * sigma_mr
+            mean_r = rad_lib[:, None] + random_variations
+            mean_r = np.mean(mean_r, axis=1)
         else:
-            mean_R = rad_lib  # No random variations applied
+            mean_r = rad_lib  # No random variations applied
 
     elif model == "Ryon17":
         # Compute librad using the OLS equation
@@ -259,16 +307,16 @@ def mass_to_radius(args: tuple[Any, int | None, str]) -> np.ndarray:
         cap_value = -7.775 + 1.674 * 5.2  # Compute librad at log10(libmass) = 5.5
         librad = np.where(log_libmass > 5.2, cap_value, librad)
 
-        mean_R = 10**librad  # Ensure consistency in return format
+        mean_r = 10**librad  # Ensure consistency in return format
 
     elif model == "flat":
         # Return a random radius between 1 and 10 for each mass
-        mean_R = np.log10(np.random.uniform(1, 10, size=len(libmass)))
+        mean_r = np.log10(np.random.uniform(1, 10, size=len(libmass)))
 
     else:
         raise NotImplementedError("Model not implemented, exiting...")
 
-    return mean_R
+    return mean_r
 
 
 def clear_directory(directory: str) -> None:
@@ -346,24 +394,21 @@ def generate_white(
     dmod = dmod  # distance modulus
 
     if fits_path is None:
-        fits_path = "/g/data/jh2/jt4478/make_LC_copy"
+        fits_path = str(get_default_fits_path())
     if psf_path is None:
-        PSFpath = "/g/data/jh2/jt4478/PSF_all"
-    else:
-        PSFpath = psf_path
+        psf_path = str(get_default_psf_path())
     if bao_path is None:
-        baopath = "/g/data/jh2/jt4478/baolab-0.94.1g/"
+        baopath = str(get_default_bao_path())
     else:
-        baopath = bao_path
+        baopath = str(bao_path)
     gal_filters = np.load(
         os.path.join(main_dir, "galaxy_filter_dict.npy"), allow_pickle=True
     ).item()
     reffs = np.array([eradius])
-    nsf = False
     pixscale_wfc3 = 0.04
     pixscale_acs = 0.05
     nums_perframe = ncl
-    sigma_pc = 100
+    sigma_pc = 120
     minsep = False
 
     _galaxy_names = galaxy_names_list if galaxy_names_list is not None else [galaxy_name]
@@ -434,7 +479,7 @@ def generate_white(
         assert fn == f
 
     d = Distance(distmod=dmod * u.mag)
-    distance_in_cm = d.to(u.cm).value
+    _ = d.to(u.cm).value  # distance_in_cm unused here; kept for future use
 
     _using_input_coords = input_coords_path is not None
 
@@ -449,10 +494,10 @@ def generate_white(
         actual_mass_use = None
         eval_time_use   = None
         form_time_use   = None
-        A_V_use         = None
+        a_v_use         = None
         phot_neb_ex_use = None
         phot_neb_ex_veg_use = None
-        mag_BAO_use     = None
+        mag_bao_use     = None
 
     elif mrmodel == "Krumholz19":
         # ---- K19: per-radius subsets ----
@@ -460,18 +505,18 @@ def generate_white(
             actual_mass_use = actual_mass_val_r[eradius]
             eval_time_use   = eval_time_val_r[eradius]
             form_time_use   = form_time_val_r[eradius]
-            A_V_use         = A_V_val_r[eradius]
+            a_v_use         = a_v_val_r[eradius]
             phot_neb_ex_use = None
             phot_neb_ex_veg_use = phot_neb_ex_veg_val_r[eradius]
-            mag_BAO_use     = mag_BAO_val_r[eradius]
+            mag_bao_use     = mag_bao_val_r[eradius]
         else:
             actual_mass_use = actual_mass_main_r[eradius]
             eval_time_use   = eval_time_main_r[eradius]
             form_time_use   = form_time_main_r[eradius]
-            A_V_use         = A_V_main_r[eradius]
+            a_v_use         = a_v_main_r[eradius]
             phot_neb_ex_use = None
             phot_neb_ex_veg_use = phot_neb_ex_veg_main_r[eradius]
-            mag_BAO_use     = mag_BAO_main_r[eradius]
+            mag_bao_use     = mag_bao_main_r[eradius]
 
     else:
         # ---- flat / other models ----
@@ -479,18 +524,18 @@ def generate_white(
             actual_mass_use = actual_mass_val
             eval_time_use   = eval_time_val
             form_time_use   = form_time_val
-            A_V_use         = A_V_val
+            a_v_use         = a_v_val
             phot_neb_ex_use = phot_neb_ex_val
             phot_neb_ex_veg_use = phot_neb_ex_veg_val
-            mag_BAO_use     = mag_BAO_val
+            mag_bao_use     = mag_bao_val
         else:
             actual_mass_use = actual_mass_main
             eval_time_use   = eval_time_main
             form_time_use   = form_time_main
-            A_V_use         = A_V_main
+            a_v_use         = a_v_main
             phot_neb_ex_use = phot_neb_ex_main
             phot_neb_ex_veg_use = phot_neb_ex_veg_main
-            mag_BAO_use     = mag_BAO_main
+            mag_bao_use     = mag_bao_main
 
     if _using_input_coords:
         _ic = np.loadtxt(input_coords_path)
@@ -500,7 +545,7 @@ def generate_white(
             f"--input_coords file must have >= 3 columns (x y mag), got {_ic.shape[1]}"
         )
         print(f"[input_coords] Loaded {len(_ic)} clusters from {input_coords_path}")
-        mag_BAO_select = _ic[:, 2]
+        mag_bao_select = _ic[:, 2]
         ncl = len(_ic)
         if _ic.shape[1] >= 5:
             # Use mass/age from same file (1:1 with pipeline clusters)
@@ -520,16 +565,16 @@ def generate_white(
             idx = (np.arange(ncl) + i_frame * ncl) % pool_size
             mass_select = mass_pool[idx].copy()
             age_select = age_pool[idx].copy()
-        AV_select = np.zeros(ncl)
-        mag_VEGA_select = np.broadcast_to(mag_BAO_select.reshape(-1, 1), (ncl, 5))
+        av_select = np.zeros(ncl)
+        mag_vega_select = np.broadcast_to(mag_bao_select.reshape(-1, 1), (ncl, 5))
         physprop_dir = os.path.join(main_dir, "physprop")
         os.makedirs(physprop_dir, exist_ok=True)
         to_save = {
             f"mass_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mass_select,
             f"age_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": age_select,
-            f"av_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": AV_select,
-            f"mag_BAO_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_BAO_select,
-            f"mag_VEGA_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_VEGA_select,
+            f"av_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": av_select,
+            f"mag_BAO_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_bao_select,
+            f"mag_VEGA_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_vega_select,
         }
         for fname, arr in to_save.items():
             savepath = os.path.join(physprop_dir, fname)
@@ -554,12 +599,12 @@ def generate_white(
 
         mass_select = actual_mass_use[resampled_indices]
         age_select  = eval_time_use[resampled_indices] - form_time_use[resampled_indices]
-        AV_select   = A_V_use[resampled_indices]
-        mag_BAO_select = mag_BAO_use[resampled_indices]
-        mag_VEGA_select = phot_neb_ex_veg_use[resampled_indices] + dmod
+        av_select   = a_v_use[resampled_indices]
+        mag_bao_select = mag_bao_use[resampled_indices]
+        mag_vega_select = phot_neb_ex_veg_use[resampled_indices] + dmod
 
         assert actual_mass_use is not None
-        assert mag_BAO_use is not None
+        assert mag_bao_use is not None
         if mrmodel != "Krumholz19":
             assert phot_neb_ex_use is not None
 
@@ -570,9 +615,9 @@ def generate_white(
         to_save = {
             f"mass_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mass_select,
             f"age_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": age_select,
-            f"av_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": AV_select,
-            f"mag_BAO_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_BAO_select,
-            f"mag_VEGA_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_VEGA_select,
+            f"av_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": av_select,
+            f"mag_BAO_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_bao_select,
+            f"mag_VEGA_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy": mag_vega_select,
         }
 
         for fname, arr in to_save.items():
@@ -634,9 +679,9 @@ def generate_white(
             if "distance" in label:
                 galdist = float(match.group(2)) * 1e6
             elif "CI" in label:
-                ci = float(match.group(1))
+                _ = float(match.group(1))  # ci
             elif "aperture" in label.lower():
-                useraperture = float(match.group(1))
+                _ = float(match.group(1))  # useraperture
         else:
             raise FileNotFoundError(label + " not found in the readme.")
 
@@ -670,30 +715,25 @@ def generate_white(
     hd = pyfits.getheader(sciframepath)
 
     fname = filt  # set filter name
-    psfname = glob.glob(os.path.join(PSFpath, f"psf_*_{cam}_{filt}.fits"))
+    psfname = glob.glob(os.path.join(psf_path, f"psf_*_{cam}_{filt}.fits"))
     if psfname:
         print(f"Found PSF file: {psfname}")
     elif "white" in galn or sciframe_path is not None:
-        psfname = [os.path.join(PSFpath, "psf_ngc1566_wfc3_f555w.fits")]
+        psfname = [os.path.join(psf_path, "psf_ngc1566_wfc3_f555w.fits")]
         print(f"Using white-light fallback PSF: {psfname[0]}")
     else:
-        raise FileNotFoundError(f"No PSF found matching psf_*_{cam}_{filt}.fits in {PSFpath}")
+        raise FileNotFoundError(f"No PSF found matching psf_*_{cam}_{filt}.fits in {psf_path}")
     psffile = psfname[0]
     psffilepath = psffile  # this path contains all PSF files (wfc3 and acs)
 
-    # set baoFHWM for photometry
+    # set bao_fhwm for photometry
     print("reff is", reff)
     print("galdist is", galdist)
     print("pixscale_wfc3 is", pixscale_wfc3)
 
-    # if cam == "wfc3":
-    #     baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
-    # elif cam == "acs":
-    #     baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_acs) / 1.13
-    # else:
-    baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
+    bao_fhwm = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
 
-    print(baoFHWM)
+    print(bao_fhwm)
 
     # ---- --- -- - BAOlab zeropoint value: - -- --- ----
     baozpoint = 1e3
@@ -751,9 +791,9 @@ def generate_white(
             "mkcmppsf "
             + cmppsf_r
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -762,9 +802,9 @@ def generate_white(
             "mkcmppsf "
             + cmppsf_r0
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -773,9 +813,9 @@ def generate_white(
             "mkcmppsf "
             + cmppsf_r1
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -886,9 +926,9 @@ def generate_white(
             "mkcmppsf "
             + cmppsf_r
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -897,9 +937,9 @@ def generate_white(
             "mkcmppsf "
             + cmppsf_r0
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -908,9 +948,9 @@ def generate_white(
             "mkcmppsf "
             + cmppsf_r1
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.FWHMOBJY="
-            + str(baoFHWM)
+            + str(bao_fhwm)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -1037,46 +1077,28 @@ def generate_white(
     else:
         raise TypeError(f"Unknown camera type '{cam}', exiting..")
 
-    if nsf:
-        filtered = image_data
-        image_data_flat = image_data.flatten()
-        # Get indices where values are greater than 0
-        positive_indices_image = np.where(image_data_flat == 0)
+    # convert to pixel scale and gaussian-convolve with sigma = pixel scale
+    pix_cl = (sigma_pc / (2 * np.pi * galdist) * 3600) / pix_scale
+    # convert pc scale to pixel-scale for gaussian_filter function
+    filtered = gaussian_filter(image_data, sigma=pix_cl)
+    filtered_flat = filtered.flatten()
 
-        # Create boolean arrays with the same shape as the original arrays
-        image_data_positive = np.zeros_like(image_data_flat, dtype=bool)
+    # Get indices where values are greater than 0
+    positive_indices_image = np.where(image_data_flat > 0)
+    positive_indices_filtered = np.where(filtered_flat > 0)
 
-        # Mark the positive indices as True
-        image_data_positive[positive_indices_image] = True
+    # Create boolean arrays with the same shape as the original arrays
+    image_data_positive = np.zeros_like(image_data_flat, dtype=bool)
+    filtered_positive = np.zeros_like(filtered_flat, dtype=bool)
 
-        # Element-wise logical AND operation
-        p_id = image_data_positive
-        positive_indices_result = where(p_id)[0]
-        image_shape = image_data.shape
+    # Mark the positive indices as True
+    image_data_positive[positive_indices_image] = True
+    filtered_positive[positive_indices_filtered] = True
 
-    else:
-        # convert to pixel scale and gaussian-convolve with sigma = pixel scale
-        pix_cl = (sigma_pc / (2 * np.pi * galdist) * 3600) / pix_scale
-        # convert pc scale to pixel-scale for gaussian_filter function
-        filtered = gaussian_filter(image_data, sigma=pix_cl)
-        filtered_flat = filtered.flatten()
-
-        # Get indices where values are greater than 0
-        positive_indices_image = np.where(image_data_flat > 0)
-        positive_indices_filtered = np.where(filtered_flat > 0)
-
-        # Create boolean arrays with the same shape as the original arrays
-        image_data_positive = np.zeros_like(image_data_flat, dtype=bool)
-        filtered_positive = np.zeros_like(filtered_flat, dtype=bool)
-
-        # Mark the positive indices as True
-        image_data_positive[positive_indices_image] = True
-        filtered_positive[positive_indices_filtered] = True
-
-        # Element-wise logical AND operation
-        p_id = np.logical_and(image_data_positive, filtered_positive)
-        positive_indices_result = where(p_id)[0]
-        image_shape = image_data.shape
+    # Element-wise logical AND operation
+    p_id = np.logical_and(image_data_positive, filtered_positive)
+    positive_indices_result = where(p_id)[0]
+    image_shape = image_data.shape
 
     theta = np.arctan(
         reff * 3 * u.pc / (galdist * u.pc)
@@ -1143,11 +1165,10 @@ def generate_white(
 
     # --- 2) Non-validation mode: write filter mags and white files ---
     if not validation:
-        BAO_mag_select = mag_BAO_select
+        bao_mag_select = mag_bao_select
 
         # 2a) Filter-specific magnitude files (skip when using input_coords)
         if not _using_input_coords:
-            mag_VEGA_select = mag_VEGA_select
             for ifn, fname in enumerate(filter_names):
                 fn = os.path.join(
                     pydir, f"{fname}_position_{i_frame}_{outname}_reff{reff:.2f}.txt"
@@ -1155,7 +1176,7 @@ def generate_white(
                 if not os.path.exists(fn):
                     with open(fn, "w") as fh:
                         for (y, x), mag in zip(
-                            selected_coordinates, mag_VEGA_select[:, ifn]
+                            selected_coordinates, mag_vega_select[:, ifn]
                         ):
                             fh.write(f"{y} {x} {mag}\n")
                 else:
@@ -1174,7 +1195,7 @@ def generate_white(
                 open(white_fn, "w") as wf,
                 open(os.path.join(path, namecoord), "w") as nc,
             ):
-                for (y, x), mag in zip(selected_coordinates, BAO_mag_select):
+                for (y, x), mag in zip(selected_coordinates, bao_mag_select):
                     wf.write(f"{y} {x} {mag}\n")
                     nc.write(f"{y} {x} {mag}\n")
 
@@ -1188,15 +1209,15 @@ def generate_white(
         if not os.path.exists(white_orig):
             raise FileNotFoundError(f"Missing validation white file: {white_orig}")
 
-        BAO_mag_select = np.loadtxt(white_orig)[:, -1]
-        mag_VEGA_select = np.zeros((len(BAO_mag_select), len(filter_names)))
+        bao_mag_select = np.loadtxt(white_orig)[:, -1]
+        mag_vega_select = np.zeros((len(bao_mag_select), len(filter_names)))
 
-        # 3b) Rebuild mag_VEGA_select from filter files
+        # 3b) Rebuild mag_vega_select from filter files
         for ifn, fname in enumerate(filter_names):
             fn = os.path.join(
                 pydir, f"{fname}_position_{i_frame}_{outname}_reff{reff:.2f}.txt"
             )
-            mag_VEGA_select[:, ifn] = np.loadtxt(fn)[:, -1]
+            mag_vega_select[:, ifn] = np.loadtxt(fn)[:, -1]
 
         # 3c) Write validation filter files
         for ifn, fname in enumerate(filter_names):
@@ -1207,7 +1228,7 @@ def generate_white(
             if not os.path.exists(fn_val):
                 with open(fn_val, "w") as fh:
                     for (y, x), mag in zip(
-                        selected_coordinates, mag_VEGA_select[:, ifn]
+                        selected_coordinates, mag_vega_select[:, ifn]
                     ):
                         fh.write(f"{y} {x} {mag}\n")
             else:
@@ -1228,7 +1249,7 @@ def generate_white(
                 open(white_val, "w") as wf,
                 open(os.path.join(path, namecoord), "w") as nc,
             ):
-                for (y, x), mag in zip(selected_coordinates, BAO_mag_select):
+                for (y, x), mag in zip(selected_coordinates, bao_mag_select):
                     wf.write(f"{y} {x} {mag}\n")
                     nc.write(f"{y} {x} {mag}\n")
 
@@ -1396,7 +1417,7 @@ if __name__ == "__main__":
         "--directory",
         type=str,
         default=None,
-        help="main directory of the completeness calculation (str)",
+        help="Main directory for the run (default: COMP_MAIN_DIR env or current working directory)",
     )
     parser.add_argument(
         "--ncl", type=int, default=500, help="number of star clusters (int)"
@@ -1466,25 +1487,25 @@ if __name__ == "__main__":
         "--fits_path",
         type=str,
         default=None,
-        help="Root path for LEGUS FITS images (default: same as --directory)",
+        help="Root path for LEGUS FITS images (default: same as --directory, or COMP_FITS_PATH env, or project root)",
     )
     parser.add_argument(
         "--psf_path",
         type=str,
         default=None,
-        help="Path to PSF files directory",
+        help="Path to PSF files directory (default: COMP_PSF_PATH env or project_root/PSF_all)",
     )
     parser.add_argument(
         "--bao_path",
         type=str,
         default=None,
-        help="Path to BAOlab binary directory (containing 'bl')",
+        help="Path to BAOlab binary directory containing 'bl' (default: COMP_BAO_PATH env or project_root/baolab)",
     )
     parser.add_argument(
         "--slug_lib_dir",
         type=str,
         default=None,
-        help="Path to SLUG cluster library directory",
+        help="Path to SLUG cluster library directory (default: COMP_SLUG_LIB_DIR env or project_root/SLUG_library)",
     )
     parser.add_argument(
         "--input_coords",
@@ -1516,6 +1537,11 @@ if __name__ == "__main__":
         "--auto_check_missing", action="store_true", help="Auto check missing files"
     )
     args = parser.parse_args()
+
+    # Default --directory from env or project root (no hardcoded paths)
+    if args.directory is None:
+        args.directory = os.environ.get("COMP_MAIN_DIR", str(PROJECT_ROOT))
+    args.directory = os.path.abspath(args.directory)
 
     eradius_list = args.eradius_list
     ncl = args.ncl
@@ -1568,7 +1594,7 @@ if __name__ == "__main__":
             target_mass,
             form_time,
             eval_time,
-            A_V,
+            a_v,
             phot_neb_ex,
             phot_neb_ex_veg,
             filter_names,
@@ -1602,7 +1628,7 @@ if __name__ == "__main__":
         target_mass = target_mass[bright_mask]
         form_time = form_time[bright_mask]
         eval_time = eval_time[bright_mask]
-        A_V = A_V[bright_mask]
+        a_v = a_v[bright_mask]
         phot_neb_ex = phot_neb_ex[bright_mask, :]
         phot_neb_ex_veg = phot_neb_ex_veg[bright_mask, :]
 
@@ -1641,7 +1667,7 @@ if __name__ == "__main__":
 
 
         if not validation:
-            phot_F = phot_neb_ex / (4 * np.pi * distance_in_cm**2)
+            phot_f = phot_neb_ex / (4 * np.pi * distance_in_cm**2)
             # convert to e/s in each filter
             # Create an array of scaling factors based on PHOTFLAM values
             scaling_factors = np.array(
@@ -1649,7 +1675,7 @@ if __name__ == "__main__":
             )
 
             # Divide each filter value in the dataset by the corresponding scaling factor
-            scaled_dataset = phot_F / scaling_factors
+            scaled_dataset = phot_f / scaling_factors
 
             # convert scaled phot_neb_ex to white fluxes
             # Read FITS files
@@ -1671,7 +1697,7 @@ if __name__ == "__main__":
 
             # Combine images for dual population
             slug_cluster_white_flux = 0.5 * (img21ms + img24rgb)
-            mag_BAO = np.log10(slug_cluster_white_flux) / -0.4
+            mag_bao = np.log10(slug_cluster_white_flux) / -0.4
 
 
 
@@ -1757,18 +1783,18 @@ if __name__ == "__main__":
             actual_mass_val_r  = {r: actual_mass[k19_val_idx[r]] for r in eradius_list}
             eval_time_val_r    = {r: eval_time[k19_val_idx[r]]   for r in eradius_list}
             form_time_val_r    = {r: form_time[k19_val_idx[r]]   for r in eradius_list}
-            A_V_val_r          = {r: A_V[k19_val_idx[r]]         for r in eradius_list}
+            a_v_val_r          = {r: a_v[k19_val_idx[r]]         for r in eradius_list}
             phot_neb_ex_val_r  = {r: phot_neb_ex[k19_val_idx[r]] for r in eradius_list}
             phot_neb_ex_veg_val_r = {r: phot_neb_ex_veg[k19_val_idx[r]] for r in eradius_list}
-            mag_BAO_val_r      = {r: mag_BAO[k19_val_idx[r]]     for r in eradius_list}
+            mag_bao_val_r      = {r: mag_bao[k19_val_idx[r]]     for r in eradius_list}
 
             actual_mass_main_r = {r: actual_mass[k19_main_idx[r]] for r in eradius_list}
             eval_time_main_r   = {r: eval_time[k19_main_idx[r]]   for r in eradius_list}
             form_time_main_r   = {r: form_time[k19_main_idx[r]]   for r in eradius_list}
-            A_V_main_r         = {r: A_V[k19_main_idx[r]]         for r in eradius_list}
+            a_v_main_r         = {r: a_v[k19_main_idx[r]]         for r in eradius_list}
             phot_neb_ex_main_r = {r: phot_neb_ex[k19_main_idx[r]] for r in eradius_list}
             phot_neb_ex_veg_main_r = {r: phot_neb_ex_veg[k19_main_idx[r]] for r in eradius_list}
-            mag_BAO_main_r     = {r: mag_BAO[k19_main_idx[r]]     for r in eradius_list}
+            mag_bao_main_r     = {r: mag_bao[k19_main_idx[r]]     for r in eradius_list}
 
 
 
@@ -1779,19 +1805,19 @@ if __name__ == "__main__":
             actual_mass_val = actual_mass[:N_VAL]
             eval_time_val = eval_time[:N_VAL]
             form_time_val = form_time[:N_VAL]
-            A_V_val = A_V[:N_VAL]
+            a_v_val = a_v[:N_VAL]
             phot_neb_ex_val = phot_neb_ex[:N_VAL, :]
             phot_neb_ex_veg_val = phot_neb_ex_veg[:N_VAL, :]
-            mag_BAO_val = mag_BAO[:N_VAL]
+            mag_bao_val = mag_bao[:N_VAL]
 
             # Training subset = remaining
             actual_mass_main = actual_mass[N_VAL:]
             eval_time_main = eval_time[N_VAL:]
             form_time_main = form_time[N_VAL:]
-            A_V_main = A_V[N_VAL:]
+            a_v_main = a_v[N_VAL:]
             phot_neb_ex_main = phot_neb_ex[N_VAL:, :]
             phot_neb_ex_veg_main = phot_neb_ex_veg[N_VAL:, :]
-            mag_BAO_main = mag_BAO[N_VAL:]
+            mag_bao_main = mag_bao[N_VAL:]
 
             print(
                 f"[LIB] Validation subset: {N_VAL} clusters; Training subset: {TOTAL - N_VAL}"
@@ -1910,9 +1936,9 @@ if __name__ == "__main__":
             all_missing = []
             galx = args.gal_name
             outname = args.outname
-            galaxies = np.load("/g/data/jh2/jt4478/make_LEGUS_CCT/galaxy_names.npy")
+            galaxies = np.load(os.path.join(args.directory, "galaxy_names.npy"))
             gal_filters = np.load(
-                "/g/data/jh2/jt4478/make_LEGUS_CCT/galaxy_filter_dict.npy",
+                os.path.join(args.directory, "galaxy_filter_dict.npy"),
                 allow_pickle=True,
             ).item()
             filts = gal_filters[galx][0]

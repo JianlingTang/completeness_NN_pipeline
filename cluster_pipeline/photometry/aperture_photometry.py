@@ -3,7 +3,12 @@ Aperture photometry using IRAF daophot.phot on detected coordinates.
 Photometry is performed on detected positions (matched_coords), not injected.
 All parameters (zeropoint, aperture radii, etc.) come from config/metadata; no hardcoding.
 """
+from __future__ import annotations
+
 from pathlib import Path
+
+from ..config import PipelineConfig
+from ..data.galaxy_metadata import GalaxyMetadata
 
 
 def run_aperture_photometry(
@@ -47,8 +52,9 @@ def run_aperture_photometry(
         Path to the magnitude table .txt file (grep "*" from .mag, sed INDEF->99.999).
     """
     try:
-        from pyraf.iraf import daophot, digiphot, noao
+        from pyraf.iraf import daophot, digiphot, noao  # load IRAF packages (side effect)
 
+        _ = (daophot, digiphot, noao)
         from pyraf import iraf
     except ImportError:
         raise ImportError("pyraf is required for aperture_photometry") from None
@@ -136,7 +142,7 @@ def run_aperture_photometry(
 class AperturePhotometryRunner:
     """Run aperture photometry using galaxy metadata and config."""
 
-    def __init__(self, metadata: "GalaxyMetadata", config: "PipelineConfig"):
+    def __init__(self, metadata: GalaxyMetadata, config: PipelineConfig):
         self.metadata = metadata
         self.config = config
 

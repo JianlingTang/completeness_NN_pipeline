@@ -12,3 +12,9 @@ if str(ROOT) not in __import__("sys").path:
 @pytest.fixture
 def project_root():
     return ROOT
+
+
+@pytest.fixture
+def tmp_path_dir(tmp_path):
+    """Temporary directory for tests that expect a tmp_path_dir fixture (alias for tmp_path)."""
+    return tmp_path

@@ -62,6 +62,7 @@ Commit only these paths so the repo contains the pipeline and ML code, no data o
 
 ## Docs
 
+- `docs/RUNNING.md` – How to run: required files, commands, env vars
 - `docs/DEPLOY_FOR_PAPER.md`
 - `docs/FILES_FOR_GIT.md`
 

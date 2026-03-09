@@ -12,7 +12,7 @@ Pipeline for synthetic cluster injection, detection, matching, 5-filter photomet
 
 - **Python** 3.10+
 - **External binaries:** SExtractor, IRAF/PyRAF (for aperture photometry), BAOlab (for injection). Install separately; paths are configurable (e.g. BAOlab under `.deps/local/bin`).
-- **Data (not in repo):** Galaxy FITS, `galaxy_filter_dict.npy`, readme with zeropoints/CI, SLUG library, PSF files.
+- **Data (not in repo):** Galaxy FITS, `galaxy_filter_dict.npy`, readme with zeropoints/CI, SLUG library, PSF files. See **`docs/RUNNING.md`** for the complete required-files list.
 
 ## Installation
 
@@ -27,6 +27,8 @@ pip install numpy scipy pandas pyarrow matplotlib pytest torch scikit-learn jobl
 For the full pipeline you also need IRAF/PyRAF, SExtractor, and BAOlab; see your institution’s setup or `docs/DEPLOY_FOR_PAPER.md`.
 
 ## Quick start
+
+See **`docs/RUNNING.md`** for the full list of required files and step-by-step run instructions.
 
 ### 1. Run the pipeline
 
@@ -101,6 +103,7 @@ CI runs on push/PR: `ruff check` and `pytest` (see `.github/workflows/ci.yml`).
 
 ## Documentation
 
+- **`docs/RUNNING.md`** – **How to run the pipeline**: required files and directories, step-by-step run commands, environment variables.
 - **`docs/DEPLOY_FOR_PAPER.md`** – What to include for paper/GitHub: pipeline modules, ML step, optional reference script, exclude list.
 - **`docs/FILES_FOR_GIT.md`** – Explicit list of files to commit for a pipeline-only push.
 - **`tests/README.md`** – How to run tests and the completeness visualisation script.

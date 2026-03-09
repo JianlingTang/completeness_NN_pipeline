@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ..data.schemas import DATASET_ROW_SCHEMA, get_required_columns
+from ..data.schemas import get_required_columns
 
 
 def build_dataset(
@@ -47,7 +47,6 @@ def build_dataset(
     )
     match_df["detection_label"] = match_df["in_catalogue"].fillna(0).astype(np.int8)
     # Join with injected for mass, age, av, magnitudes
-    cols = [c for c in inj.columns if c in DATASET_ROW_SCHEMA or c.startswith("mag_f")]
     merge_cols = ["cluster_id", "galaxy_id", "frame_id", "reff"]
     base = list(set(merge_cols) & set(inj.columns))
     df = match_df.merge(inj[[c for c in base + ["mass", "age", "av"] + [c for c in inj.columns if c.startswith("mag_f")] if c in inj.columns]], on=base, how="left")

@@ -3,12 +3,18 @@ Diagnostics after stage 3: completeness vs magnitude.
 Pipeline writes (mag, matched) per frame/reff when running stage 3; this module
 aggregates and plots completeness = fraction detected per magnitude bin.
 """
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from ..config import PipelineConfig
+from ..data.models import MatchResult
+
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
 
 
 def load_coords_with_mag(path: Path) -> tuple[np.ndarray, np.ndarray | None]:
@@ -26,7 +32,7 @@ def load_coords_with_mag(path: Path) -> tuple[np.ndarray, np.ndarray | None]:
 
 def write_match_summary(
     coord_path: Path,
-    match_result: "MatchResult",
+    match_result: MatchResult,
     out_path: Path,
 ) -> None:
     """
@@ -106,9 +112,9 @@ def plot_completeness_diagnostics(
     mag_min: float | None = None,
     mag_max: float | None = None,
     n_bins: int = 15,
-    ax: Optional["Axes"] = None,
+    ax: Axes | None = None,
     title: str | None = None,
-) -> "Axes":
+) -> Axes:
     """
     Plot completeness (y) vs magnitude (x) from match summaries written by stage 3.
     diagnostics_dir contains match_summary_*.txt files.

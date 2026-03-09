@@ -268,15 +268,15 @@ def _run_one_frame_reff(
                     meta = GalaxyMetadata.load(config.main_dir, galaxy_id)
                     filters = getattr(meta, "filters", [])
                     if len(filters) >= 1:
-                        mag_VEGA_path = config.physprop_dir() / (
+                        mag_vega_path = config.physprop_dir() / (
                             f"mag_VEGA_select_model{config.mrmodel}_frame{frame_id}_reff{int(reff):d}_{outname}.npy"
                         )
                         cluster_ids_path = out_matched.parent / (out_matched.stem + "_cluster_ids.txt")
-                        if mag_VEGA_path.exists() and cluster_ids_path.exists():
+                        if mag_vega_path.exists() and cluster_ids_path.exists():
                             write_matched_coords_per_filter(
                                 matched_coords_path=out_matched,
                                 cluster_ids_path=cluster_ids_path,
-                                mag_VEGA_path=mag_VEGA_path,
+                                mag_vega_path=mag_vega_path,
                                 white_dir=config.white_dir(galaxy_id),
                                 frame_id=frame_id,
                                 reff=reff,
@@ -307,7 +307,7 @@ def _run_one_frame_reff(
                         else:
                             logger.warning(
                                 "physprop mag_VEGA or cluster_ids missing; skip inject. Paths: %s, %s",
-                                mag_VEGA_path, cluster_ids_path,
+                                mag_vega_path, cluster_ids_path,
                             )
                 print(f"  [Phase B] Running photometry + CI cut (frame {frame_id}: 5 filters, may take 1–2 min each)...", flush=True)
                 _run_photometry_and_catalogue(

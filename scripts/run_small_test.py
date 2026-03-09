@@ -356,21 +356,21 @@ def backfill_physprop_from_white_coords(nframe: int, input_coords_path: str = No
             if data.ndim == 1:
                 data = data.reshape(1, -1)
             ncl = len(data)
-            mag_BAO_select = data[:, -1]
+            mag_bao_select = data[:, -1]
             if use_file_phys:
                 mass_select = ic_mass[:ncl].copy()
                 age_select = ic_age[:ncl].copy()
             else:
                 mass_select, age_select = take_mass_age(ncl)
-            AV_select = np.zeros(ncl)
-            mag_VEGA_select = np.broadcast_to(mag_BAO_select.reshape(-1, 1), (ncl, 5))
+            av_select = np.zeros(ncl)
+            mag_vega_select = np.broadcast_to(mag_bao_select.reshape(-1, 1), (ncl, 5))
             base = f"reff{int(reff_f)}_{OUTNAME}"
             to_save = {
                 f"mass_select_model{mrmodel}_frame{i_frame}_{base}.npy": mass_select,
                 f"age_select_model{mrmodel}_frame{i_frame}_{base}.npy": age_select,
-                f"av_select_model{mrmodel}_frame{i_frame}_{base}.npy": AV_select,
-                f"mag_BAO_select_model{mrmodel}_frame{i_frame}_{base}.npy": mag_BAO_select,
-                f"mag_VEGA_select_model{mrmodel}_frame{i_frame}_{base}.npy": mag_VEGA_select,
+                f"av_select_model{mrmodel}_frame{i_frame}_{base}.npy": av_select,
+                f"mag_BAO_select_model{mrmodel}_frame{i_frame}_{base}.npy": mag_bao_select,
+                f"mag_VEGA_select_model{mrmodel}_frame{i_frame}_{base}.npy": mag_vega_select,
             }
             for fname, arr in to_save.items():
                 np.save(physprop_dir / fname, arr)
