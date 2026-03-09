@@ -1,0 +1,28 @@
+# 备用：用 PyPI API Token 上传（用于首次发布或 Trusted Publisher 有问题时）
+# 1. 在 PyPI 创建 API token，在 GitHub 仓库 Settings → Secrets 里添加 PYPI_API_TOKEN
+# 2. 在 Actions 里手动 Run workflow 运行一次，即可在 PyPI 上创建项目并上传
+# 3. 之后用主 workflow「Publish to PyPI」(Trusted Publisher) 即可
+name: Publish to PyPI (token)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build
+        run: |
+          python -m pip install build
+          python -m build
+      - name: Publish to PyPI (token)
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python -m pip install twine
+          twine upload dist/*
