@@ -24,7 +24,7 @@ RUN_PIPELINE_E2E=1 pytest tests/e2e/
 
 - **Completeness in [0, 1]** (or NaN for empty bins).
 - **Logistic-like**: synthetic data with detection probability logistic in mag (or log mass) → mean completeness in bright/high-mass bins ≥ faint/low-mass bins.
-- **Mag / mass / age 三张子图**: The integration test `test_completeness_visual_mag_mass_age_bins` draws completeness vs **magnitude**, vs **log₁₀(mass)**, and vs **log₁₀(age)** and saves under pytest’s `tmp_path` (removed after the run). To get the same figure in a fixed location, run:
+- **Mag / mass / age (three panels)**: The integration test `test_completeness_visual_mag_mass_age_bins` draws completeness vs **magnitude**, vs **log10(mass)**, and vs **log10(age)** and saves under pytest’s `tmp_path` (removed after the run). To get the same figure in a fixed location, run:
   ```bash
   python scripts/plot_completeness_mag_mass_age.py
   ```

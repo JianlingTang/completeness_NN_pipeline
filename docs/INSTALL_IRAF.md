@@ -1,41 +1,41 @@
-# 本地安装 IRAF（用于五色 photometry）
+# Installing IRAF locally (for 5-filter photometry)
 
-PyRAF 已通过 `pip install pyraf` 安装在项目 `.venv` 中。要跑带 photometry 的完整流程，还需安装 **IRAF** 并设置环境变量。
+PyRAF is installed in the project `.venv` via `pip install pyraf`. To run the full pipeline with photometry, you also need **IRAF** installed and the environment variable set.
 
-## Apple Silicon (M1/M2/M3) 一键安装
+## Apple Silicon (M1/M2/M3) one-step install
 
-安装包已下载到项目中，只需在本机执行：
+If the installer package is already in the project, run on your machine:
 
 ```bash
-# 1. 去掉 quarantine（否则 macOS 可能阻止安装）
+# 1. Remove quarantine (otherwise macOS may block the install)
 xattr -c .deps/iraf_download/iraf-2.18.1-1-arm64.pkg
 
-# 2. 打开安装器（会提示输入登录密码）
+# 2. Open the installer (will prompt for login password)
 open .deps/iraf_download/iraf-2.18.1-1-arm64.pkg
 ```
 
-按安装向导点击「继续」，在需要时输入本机密码。默认会装到 `/usr/local/lib/iraf/`。
+Follow the installer; enter your password when asked. By default IRAF is installed to `/usr/local/lib/iraf/`.
 
-## 从头到尾跑一遍（含 photometry → detection_*.npy）
+## Running the full pipeline (with photometry to detection_*.npy)
 
-安装好 IRAF 后，在项目根目录执行：
+After IRAF is installed, from the project root run:
 
 ```bash
 chmod +x scripts/run_full_with_iraf.sh
 ./scripts/run_full_with_iraf.sh
 ```
 
-该脚本会设置 `IRAF=/usr/local/lib/iraf` 并调用：
+That script sets `IRAF=/usr/local/lib/iraf` and runs:
 
 ```bash
 python scripts/run_small_test.py --input_coords ngc628-c/white/input_coords_500.txt --run_photometry
 ```
 
-会依次执行：Phase A 注入 → 准备五色 frame → Phase B（detection + matching + 五色 photometry + CI cut）→ 输出 `detection_*.npy` 与 completeness 诊断图。
+This runs: Phase A injection, 5-filter frame setup, Phase B (detection + matching + 5-filter photometry + CI cut), then writes `detection_*.npy` and completeness diagnostics.
 
-## 若未装 IRAF 直接跑
+## Running without IRAF
 
-不装 IRAF 也可以跑同一命令，但 photometry 会跳过，只得到 white-match 的 label 和诊断图：
+You can run the same command without IRAF installed; photometry will be skipped and you will only get white-match labels and diagnostics:
 
 ```bash
 .venv/bin/python scripts/run_small_test.py --input_coords ngc628-c/white/input_coords_500.txt --run_photometry
