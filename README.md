@@ -33,8 +33,8 @@ Predictions can then be obtained using
 ```python
 from completeness_nn_api import ngc628_completeness_predict as predict
 with calls such as predict(phys=(log(mass), log(age), av)) or predict(phot=magnitudes). 
-A detailed description of the inputs, outputs, and function arguments is provided in the package documentation. 
 ```
+A detailed description of the inputs, outputs, and function arguments is provided in the package documentation. 
 
 ## Quick start
 
