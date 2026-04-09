@@ -5,7 +5,7 @@ Pipeline for synthetic cluster injection, detection, matching, 5-filter photomet
 ## Overview
 
 1. **Pipeline (stages 1–5):** Inject synthetic clusters on white-light and 5-filter images → run SExtractor → match injected vs detected positions → run IRAF aperture photometry → apply concentration-index (CI) cut → write detection labels and catalogue.
-2. **Build ML inputs:** Assemble 3D detection array and property `.npz` from pipeline outputs (CFR order).
+2. **Build ML inputs:** Assemble 3D detection array and property `.npz` from pipeline outputs (cluster-frame-radius order).
 3. **NN training:** Train an MLP to predict completeness from physical and photometric features; save best model and diagnostics.
 
 ## Requirements
