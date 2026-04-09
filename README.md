@@ -26,13 +26,15 @@ pip install -e ".[api]"
 
 For the full pipeline you also need IRAF/PyRAF, SExtractor, and BAOlab; see your institution’s setup or `docs/DEPLOY_FOR_PAPER.md`.
 
-## Using pre-trained NN to predict completeness on a LEGUS galaxy
+## Using pre-trained neural networkds to predict completeness on a LEGUS galaxy using own inputs
 The package is available on PyPI and can be installed via 
-pip install cluster-completeness-pipeline. 
+```bash
+pip install cluster-completeness-pipeline.
+```
 Predictions can then be obtained using 
 ```python
 from completeness_nn_api import ngc628_completeness_predict as predict
-with calls such as predict(phys=(log(mass), log(age), av)) or predict(phot=magnitudes). 
+predict(phys=(log(mass), log(age), av)) or predict(phot=magnitudes). 
 ```
 A detailed description of the inputs, outputs, and function arguments is provided in the package documentation. 
 
