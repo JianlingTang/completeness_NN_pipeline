@@ -29,12 +29,12 @@ For the full pipeline you also need IRAF/PyRAF, SExtractor, and BAOlab; see your
 ## Using pre-trained neural networks to predict completeness using own inputs
 The package is available on PyPI and can be installed via 
 ```bash
-pip install cluster-completeness-pipeline.
+pip install cluster-completeness-pipeline 
 ```
 Predictions can then be obtained using 
 ```python
 from completeness_nn_api import ngc628_completeness_predict as predict
-predict(phys=(log(mass), log(age), av)) or predict(phot=magnitudes). 
+predict(phys=(log(mass), log(age), av)) or predict(phot=magnitudes)
 ```
 A detailed description of the inputs, outputs, and function arguments is provided in the package documentation. 
 
