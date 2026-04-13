@@ -25,7 +25,8 @@ def binned_completeness_percentile(x, y_det, n_bins=15):
     hist_total, _ = np.histogram(x_ok, bins=bins)
     hist_det, _ = np.histogram(x_ok, bins=bins, weights=y_ok)
     centers = (bins[:-1] + bins[1:]) / 2
-    comp = np.where(hist_total > 0, hist_det / hist_total.astype(float), np.nan)
+    comp = np.full_like(hist_total, np.nan, dtype=float)
+    np.divide(hist_det, hist_total, out=comp, where=hist_total > 0)
     return centers, comp, hist_total
 
 

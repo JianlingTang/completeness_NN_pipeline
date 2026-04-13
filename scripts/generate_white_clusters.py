@@ -11,6 +11,10 @@ Paths are configurable via environment variables (no hardcoded absolute paths):
 
 CLI arguments (e.g. --directory, --fits_path) override the above.
 When env and CLI are unset, paths default to the project root (directory of this file).
+
+Placement sampling can use the white image (default), nanmean(F275W,F336W) via
+--placement_mode uv_mean, or any 2D FITS matching the white frame via --placement_fits;
+BAOlab still builds synthetic frames from the white --sciframe.
 """
 import argparse
 import datetime
@@ -34,8 +38,70 @@ from numpy import genfromtxt, where
 from numpy.random import SeedSequence, default_rng
 from scipy.ndimage import gaussian_filter
 
-from cluster_pipeline.data.slug_reader import read_cluster
+try:
+    from slugpy import read_cluster
+except ImportError:
+    from cluster_pipeline.data.slug_reader import read_cluster  # fallback if slugpy not in env
+
+
+def validate_psf_readable(psf_file: str, cam: str, filt: str) -> None:
+    """Fail fast with camera/filter context if PSF file is unreadable."""
+    try:
+        with pyfits.open(psf_file, memmap=False) as hdul:
+            data = hdul[0].data
+            if data is None:
+                raise ValueError("primary HDU data is empty")
+    except Exception as e:
+        raise FileNotFoundError(
+            f"Invalid PSF for camera={cam}, filter={filt}: {psf_file}. Reason: {e}"
+        ) from e
 from cluster_pipeline.utils.fits_arithmetic import fits_add, fits_div
+
+
+def _as_2d_float_image(arr: Any) -> np.ndarray:
+    """Squeeze FITS data to 2D float64 (placement PDF and shape checks)."""
+    a = np.asarray(arr, dtype=np.float64)
+    a = np.squeeze(a)
+    if a.ndim != 2:
+        raise ValueError(f"Expected a 2D image after squeeze, got shape {a.shape}")
+    return a
+
+
+def parse_exclude_regions_flat(values: list[float] | None) -> list[tuple[float, float, float]] | None:
+    """
+    Parse --exclude_region_param flat list into [(CX, CY, R), ...].
+    CX = column (horizontal pixel index), CY = row (vertical), 0-based, same as placement (row, col).
+    """
+    if values is None or len(values) == 0:
+        return None
+    n = len(values)
+    if n % 3 != 0:
+        raise ValueError(
+            f"--exclude_region_param must have a multiple of 3 values (CX CY R per region); got {n}"
+        )
+    regions: list[tuple[float, float, float]] = []
+    for i in range(0, n, 3):
+        cx, cy, r = float(values[i]), float(values[i + 1]), float(values[i + 2])
+        if r <= 0:
+            raise ValueError(
+                f"--exclude_region_param: radius must be > 0, got {r} (triplet starting at index {i})"
+            )
+        regions.append((cx, cy, r))
+    return regions
+
+
+def inside_any_exclusion_region(
+    row: int | float,
+    col: int | float,
+    exclude_regions: list[tuple[float, float, float]],
+) -> bool:
+    """True if (row, col) lies inside any circle (col - CX)^2 + (row - CY)^2 <= R^2."""
+    fc, fr = float(col), float(row)
+    for cx, cy, r in exclude_regions:
+        if (fc - cx) ** 2 + (fr - cy) ** 2 <= r * r:
+            return True
+    return False
+
 
 # -----------------------------------------------------------------------------
 # Path configuration: env vars override; fallback to project root / cwd
@@ -94,6 +160,98 @@ def sample_k19_radii(mass, n_draw=10):
     parent_idx = np.repeat(np.arange(len(mass)), n_draw)
     return parent_idx, radii_pc.ravel()
 
+def load_slug_libraries_original_style(
+    allfilters_cam: list[str],
+    libdir: Path | str,
+):
+    """
+    Load SLUG library using flat_in_logm_cluster_phot.fits, first file only, slugpy.read_cluster
+    for L_lambda and Vega → lib_all_list, lib_all_list_veg, then concatenate with ncl_MIST=9950000.
+
+    Returns same tuple as load_slug_libraries: (cid, actual_mass, target_mass, form_time, eval_time,
+    a_v, phot_neb_ex, phot_neb_ex_veg, filter_names, filter_units). target_mass = actual_mass
+    when slugpy object has no target_mass.
+    """
+    try:
+        from slugpy import read_cluster as slugpy_read_cluster
+    except ImportError as e:
+        raise ImportError(
+            "Original-style loading requires slugpy. Install with e.g. pip install slugpy."
+        ) from e
+
+    libdir = Path(libdir).resolve()
+    lib_phot_files = glob.glob(os.path.join(libdir, "flat_in_logm_cluster_phot.fits"))
+    lib_phot_files = sorted(lib_phot_files)
+    if len(lib_phot_files) == 0:
+        raise FileNotFoundError(
+            f"No flat_in_logm_cluster_phot.fits found in {libdir}. "
+            "Original-style loading expects flat_in_logm library file."
+        )
+
+    # Manually sort filter values to match the filter order of the LEGUS cluster catalogue (COL6-12)
+    allfilters_cam = sorted(allfilters_cam, key=lambda x: x[-4:])
+
+    lib_all_list = []
+    lib_all_list_veg = []
+    for ilib, lib in enumerate(lib_phot_files[:1]):
+        libname = lib.split("_cluster_phot.fits")[0]
+        print(f"Reading library clusters from file {libname}... (slugpy.read_cluster)")
+        lib_read = slugpy_read_cluster(
+            libname, read_filters=allfilters_cam, photsystem="L_lambda"
+        )
+        lib_read_vega = slugpy_read_cluster(
+            libname, read_filters=allfilters_cam, photsystem="Vega"
+        )
+        phot_length = np.shape(lib_read.phot_neb_ex)
+        print(f"library phot shape is {phot_length}")
+        lib_all_list.append(lib_read)
+        lib_all_list_veg.append(lib_read_vega)
+
+    ncl_MIST = 9950000
+    cid = []
+    actual_mass = []
+    form_time = []
+    eval_time = []
+    A_V = []
+    phot_neb_ex = []
+    phot_neb_ex_veg = []
+    filter_names = lib_all_list[0].filter_names
+    filter_units = lib_all_list[0].filter_units
+
+    for i, lib_all in enumerate(lib_all_list):
+        cid.append(lib_all.id)
+        actual_mass.append(lib_all.actual_mass)
+        form_time.append(lib_all.form_time)
+        eval_time.append(lib_all.time)
+        A_V.append(lib_all.A_V)
+        phot_neb_ex.append(lib_all.phot_neb_ex)
+        phot_neb_ex_veg.append(lib_all_list_veg[i].phot_neb_ex)
+
+    cid = np.concatenate(cid)[:ncl_MIST]
+    actual_mass = np.concatenate(actual_mass)[:ncl_MIST]
+    form_time = np.concatenate(form_time)[:ncl_MIST]
+    eval_time = np.concatenate(eval_time)[:ncl_MIST]
+    A_V = np.concatenate(A_V)[:ncl_MIST]
+    phot_neb_ex = np.concatenate(phot_neb_ex)[:ncl_MIST, :]
+    phot_neb_ex_veg = np.concatenate(phot_neb_ex_veg)[:ncl_MIST, :]
+    # target_mass not in original; use actual_mass so downstream shape is unchanged
+    target_mass = np.array(actual_mass, dtype=float, copy=True)
+
+    print(f"The whole library length is {np.shape(phot_neb_ex)}... \n")
+    return (
+        cid,
+        actual_mass,
+        target_mass,
+        form_time,
+        eval_time,
+        A_V,
+        phot_neb_ex,
+        phot_neb_ex_veg,
+        filter_names,
+        filter_units,
+    )
+
+
 def load_slug_libraries(
     allfilters_cam: list[str],
     mrmodel: str,
@@ -131,6 +289,9 @@ def load_slug_libraries(
     libdir = libdir.resolve()
     output_lib_dir = output_lib_dir.resolve()
 
+    # slugpy.read_cluster may omit photometry columns; use repo reader for flat concat path
+    from cluster_pipeline.data.slug_reader import read_cluster as read_cluster_lib
+
     # --------------------------------------------------
     # 1. Decide which libraries to read
     # --------------------------------------------------
@@ -163,12 +324,12 @@ def load_slug_libraries(
         libname = lib.split("_cluster_phot.fits")[0]
         print(f"Reading library clusters from file {libname}...")
 
-        lib_read = read_cluster(
+        lib_read = read_cluster_lib(
             libname,
             read_filters=allfilters_cam,
             photsystem="L_lambda",
         )
-        lib_read_vega = read_cluster(
+        lib_read_vega = read_cluster_lib(
             libname,
             read_filters=allfilters_cam,
             photsystem="Vega",
@@ -189,8 +350,9 @@ def load_slug_libraries(
     a_v = []
     phot_neb_ex = []
     phot_neb_ex_veg = []
-    filter_names = lib_all_list[0].filter_names
-    filter_units = lib_all_list[0].filter_units
+    lib0 = lib_all_list[0]
+    filter_names = getattr(lib0, "filter_names", None) or list(allfilters_cam)
+    filter_units = getattr(lib0, "filter_units", None) or (["Angstrom"] * len(filter_names))
 
     for i, lib_all in enumerate(lib_all_list):
         cid.append(lib_all.id)
@@ -376,6 +538,10 @@ def generate_white(
     slug_lib_dir: str | None = None,
     galaxy_names_list: list | None = None,
     input_coords_path: str | None = None,
+    sigma_pc: float = 100.0,
+    placement_mode: str = "white",
+    placement_fits: str | None = None,
+    exclude_regions: list[tuple[float, float, float]] | None = None,
 ) -> int:
     # All imports are now at the top of the file for clarity and portability
     # Set up variables as before
@@ -409,7 +575,7 @@ def generate_white(
     pixscale_wfc3 = 0.04
     pixscale_acs = 0.05
     nums_perframe = ncl
-    sigma_pc = 120
+    # Gaussian smoothing kernel for white-light footprint (physical sigma in pc)
     minsep = False
 
     _galaxy_names = galaxy_names_list if galaxy_names_list is not None else [galaxy_name]
@@ -630,7 +796,16 @@ def generate_white(
 
     # Set up variables for photometry
     nums_perframe = ncl
-    maglim = [-4, 4]
+    # Same as original_select_insert_white: maglim from actual mag_BAO range for BAOlab test frames
+    _mag_bao_path = os.path.join(
+        main_dir, "physprop",
+        f"mag_BAO_select_model{mrmodel}_frame{i_frame}_reff{eradius}_{outname}.npy",
+    )
+    if not validation and os.path.isfile(_mag_bao_path):
+        _mag_bao = np.load(_mag_bao_path)
+        maglim = [float(_mag_bao.min()), float(_mag_bao.max())]
+    else:
+        maglim = [-4, 4]  # fallback for validation or when physprop not yet written (e.g. input_coords)
     reff = eradius
     start_time = time.time()
 
@@ -651,9 +826,9 @@ def generate_white(
     path = os.path.abspath(os.path.join(pydir, "baolab"))
     rd_pattern = os.path.join(gal_dir, f"automatic_catalog*_{gal}.readme")
     matching_files = glob.glob(rd_pattern)
-    if matching_files:
-        readme_file = matching_files[0]
-    # try:
+    if not matching_files:
+        raise FileNotFoundError(f"Missing readme: pattern {rd_pattern}")
+    readme_file = matching_files[0]
 
     with open(readme_file) as f:
         content = f.read()
@@ -716,23 +891,32 @@ def generate_white(
     hd = pyfits.getheader(sciframepath)
 
     fname = filt  # set filter name
-    psfname = glob.glob(os.path.join(psf_path, f"psf_*_{cam}_{filt}.fits"))
+    # PSF files use psf_*_<camera>_<filter>.fits with lowercase camera stem + filter (same as inject_clusters_to_5filters.py)
+    cam_lower = (str(cam).lower() if cam else "").split("_")[0]
+    filt_lower = str(filt).lower()
+    psfname = glob.glob(os.path.join(psf_path, f"psf_*_{cam_lower}_{filt_lower}.fits"))
+    if not psfname:
+        psfname = glob.glob(os.path.join(psf_path, f"psf_*_{cam}_{filt}.fits"))
     if psfname:
         print(f"Found PSF file: {psfname}")
     elif "white" in galn or sciframe_path is not None:
-        psfname = [os.path.join(psf_path, "psf_ngc1566_wfc3_f555w.fits")]
-        print(f"Using white-light fallback PSF: {psfname[0]}")
+        raise FileNotFoundError(
+            f"No PSF found matching psf_*_{cam_lower}_{filt_lower}.fits (or psf_*_{cam}_{filt}.fits) in {psf_path} for white injection."
+        )
     else:
-        raise FileNotFoundError(f"No PSF found matching psf_*_{cam}_{filt}.fits in {psf_path}")
+        raise FileNotFoundError(
+            f"No PSF found matching psf_*_{cam_lower}_{filt_lower}.fits in {psf_path}"
+        )
     psffile = psfname[0]
+    validate_psf_readable(psffile, str(cam), str(filt))
     psffilepath = psffile  # this path contains all PSF files (wfc3 and acs)
 
     # set bao_fhwm for photometry
     print("reff is", reff)
     print("galdist is", galdist)
     print("pixscale_wfc3 is", pixscale_wfc3)
-
-    bao_fhwm = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
+    pixscale_arcsec = pixscale_wfc3 if ("wfc3" in str(cam).lower()) else pixscale_acs
+    bao_fhwm = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_arcsec) / 1.13
 
     print(bao_fhwm)
 
@@ -747,13 +931,19 @@ def generate_white(
 
     # ---- --- -- - finding the zeropoint and exptime - -- --- ----
     zpfile = os.path.join(gal_dir, f"header_info_{gal}.txt")
-    filters, instrument, zpoint = np.loadtxt(
-        zpfile, unpack=True, skiprows=0, usecols=(0, 1, 2), dtype="str"
+    filters, instrument, zpoint, exptime_col = np.loadtxt(
+        zpfile, unpack=True, skiprows=0, usecols=(0, 1, 2, 3), dtype="str"
     )
-    match = where(filters == fname)
+    match = where(np.char.lower(filters.astype(str)) == str(fname).lower())
     # Set zp to be 1 for easy computation
     zp = 1
-    expt = hd["EXPTIME"]
+    # White frames generated via averaging may not preserve EXPTIME in header.
+    # Fall back to per-filter exposure listed in header_info_<gal>.txt.
+    try:
+        expt = hd["EXPTIME"]
+    except KeyError:
+        expt = float(exptime_col[match][0])
+        print(f"EXPTIME not found in science header; using header_info value: {expt}")
     print("zp: ")
     print(zp)
     print("expt: ")
@@ -1060,10 +1250,47 @@ def generate_white(
     print(
         "I am writing the baolab file to generate the frames with synthetic sources..."
     )
-    # Load FITS image
+    # Load white-light FITS (BAOlab mksynth input); placement PDF may use another map below.
     hdul = fits.open(sciframepath)
     image_data = hdul[0].data
-    image_data_flat = image_data.flatten()
+    white_image_2d = _as_2d_float_image(image_data)
+
+    if placement_fits:
+        pmap_path = os.path.abspath(placement_fits)
+        if not os.path.isfile(pmap_path):
+            raise FileNotFoundError(f"--placement_fits not found: {pmap_path}")
+        with fits.open(pmap_path) as pm_hdu:
+            placement_image = _as_2d_float_image(pm_hdu[0].data)
+        if placement_image.shape != white_image_2d.shape:
+            raise ValueError(
+                f"placement_fits shape {placement_image.shape} != white science frame "
+                f"{white_image_2d.shape} ({sciframepath})"
+            )
+        print(f"[placement] Using --placement_fits for PDF: {pmap_path}")
+    elif placement_mode == "uv_mean":
+        f275_keys = [fn for fn in filter_names if fn.lower().startswith("f275")]
+        f336_keys = [fn for fn in filter_names if fn.lower().startswith("f336")]
+        if not f275_keys or not f336_keys:
+            raise ValueError(
+                "placement_mode=uv_mean requires F275W and F336W in galaxy_filter_dict / "
+                f"filter_names; got {filter_names!r}"
+            )
+        k275, k336 = f275_keys[0], f336_keys[0]
+        placement_image = np.nanmean(
+            np.stack([fits_data[k275], fits_data[k336]], axis=0), axis=0
+        ).astype(np.float64, copy=False)
+        if placement_image.shape != white_image_2d.shape:
+            raise ValueError(
+                f"UV mean shape {placement_image.shape} != white science frame "
+                f"{white_image_2d.shape}"
+            )
+        print(f"[placement] Using nanmean({k275}, {k336}) for PDF (sigma_pc={sigma_pc} pc)")
+    elif placement_mode == "white":
+        placement_image = white_image_2d
+    else:
+        raise ValueError(f"Unknown placement_mode {placement_mode!r}; use white or uv_mean")
+
+    image_data_flat = placement_image.flatten()
 
     # convert physical size to pixel size
 
@@ -1081,7 +1308,7 @@ def generate_white(
     # convert to pixel scale and gaussian-convolve with sigma = pixel scale
     pix_cl = (sigma_pc / (2 * np.pi * galdist) * 3600) / pix_scale
     # convert pc scale to pixel-scale for gaussian_filter function
-    filtered = gaussian_filter(image_data, sigma=pix_cl)
+    filtered = gaussian_filter(placement_image, sigma=pix_cl)
     filtered_flat = filtered.flatten()
 
     # Get indices where values are greater than 0
@@ -1096,14 +1323,20 @@ def generate_white(
     image_data_positive[positive_indices_image] = True
     filtered_positive[positive_indices_filtered] = True
 
-    # Element-wise logical AND operation
+    # Element-wise logical AND operation (same as original_select_insert_white.py)
     p_id = np.logical_and(image_data_positive, filtered_positive)
     positive_indices_result = where(p_id)[0]
-    image_shape = image_data.shape
+    image_shape = placement_image.shape
 
-    theta = np.arctan(
-        reff * 3 * u.pc / (galdist * u.pc)
-    )  # select minimum separation value to be 3 times of the effective radius
+    # PDF for cluster placement: proportional to (convolved) light profile on allowed pixels
+    placement_weights = np.asarray(filtered_flat[positive_indices_result], dtype=np.float64)
+    placement_weights = np.maximum(placement_weights, 0.0)
+    if placement_weights.sum() <= 0:
+        raise ValueError("No positive flux in convolved image on allowed mask; cannot define placement PDF.")
+    placement_weights /= placement_weights.sum()
+
+    # Minimum separation: 3 times the effective radius in pixels (same as original_select_insert_white.py)
+    theta = np.arctan(reff * 3 * u.pc / (galdist * u.pc))
     theta = theta.to(u.arcsec)
     pix_cl = theta / (pix_scale * u.arcsec)
     min_separation = 3 * pix_cl.value
@@ -1118,15 +1351,36 @@ def generate_white(
     else:
         selected_coordinates = []
         rng = default_rng(seed)  # seed is a SeedSequence object passed from main()
+        if exclude_regions:
+            print(
+                f"[exclude_region_param] {len(exclude_regions)} circular exclusion(s) "
+                "(CX=column, CY=row, 0-based pixels)"
+            )
+        max_attempts = (
+            max(10_000_000, nums_perframe * 1_000_000) if exclude_regions else None
+        )
+        attempts = 0
 
         while len(selected_coordinates) < nums_perframe:
-            # Generate a random coordinate
-            random_coord = rng.choice(positive_indices_result)
+            if max_attempts is not None:
+                attempts += 1
+                if attempts > max_attempts:
+                    raise RuntimeError(
+                        f"Could not sample {nums_perframe} injection positions after {max_attempts} tries; "
+                        "exclusion circles may cover the placement mask — relax regions or mask."
+                    )
+            # Sample position from PDF proportional to (sigma_pc-convolved) light profile
+            random_coord = rng.choice(positive_indices_result, p=placement_weights)
 
-            # Convert the random coordinate to (x, y)
-            x, y = np.unravel_index(random_coord, image_shape)
+            # Convert the random coordinate to (row, col)
+            row, col = np.unravel_index(random_coord, image_shape)
 
-            if (y, x) in selected_coordinates:
+            if exclude_regions is not None and inside_any_exclusion_region(
+                row, col, exclude_regions
+            ):
+                continue
+
+            if (row, col) in selected_coordinates:
                 continue
 
             # Flag to check if the coordinate meets the minimum separation requirement
@@ -1135,20 +1389,18 @@ def generate_white(
 
                 if len(selected_coordinates) > 0:
                     # Check the distance to the nearest neighbor for each selected coordinate
-                    x_sel, y_sel = (
-                        np.array([coord[0] for coord in selected_coordinates]),
-                        np.array([coord[1] for coord in selected_coordinates]),
-                    )
-                    distance = np.sqrt((x - x_sel) ** 2 + (y - y_sel) ** 2)
+                    row_sel = np.array([coord[0] for coord in selected_coordinates])
+                    col_sel = np.array([coord[1] for coord in selected_coordinates])
+                    distance = np.sqrt((row - row_sel) ** 2 + (col - col_sel) ** 2)
                     if np.any(distance < min_separation):
                         meets_requirement = False
 
                 if not meets_requirement:
                     continue  # Restart the loop for a new random coordinate
                 else:
-                    selected_coordinates.append((y, x))
+                    selected_coordinates.append((row, col))
             else:
-                selected_coordinates.append((y, x))
+                selected_coordinates.append((row, col))
 
     # --- 1) Build filenames ---
     if not validation:
@@ -1460,8 +1712,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--galaxy_fullname",
         type=str,
-        default="ngc628-c_white-R17v100",
-        help="full name of the galaxy (str)",
+        default=None,
+        help="full name/path key of the galaxy directory; defaults to --gal_name when omitted",
     )
     parser.add_argument(
         "--outname", type=str, default=None, help="output name (str, optional)"
@@ -1517,6 +1769,37 @@ if __name__ == "__main__":
              "with these magnitudes, bypassing SLUG library sampling.",
     )
     parser.add_argument(
+        "--sigma_pc",
+        type=float,
+        default=100.0,
+        help="Gaussian smoothing kernel for placement footprint in pc (default 100); "
+        "applies to the map chosen by --placement_mode / --placement_fits.",
+    )
+    parser.add_argument(
+        "--placement_mode",
+        type=str,
+        default="white",
+        choices=["white", "uv_mean"],
+        help="Map for cluster placement PDF: white (same as --sciframe) or uv_mean "
+        "(nanmean of F275W and F336W drizzled images under --fits_path). Ignored if "
+        "--placement_fits is set.",
+    )
+    parser.add_argument(
+        "--placement_fits",
+        type=str,
+        default=None,
+        help="Optional FITS path for placement PDF only; pixel shape must match --sciframe. "
+        "BAOlab still injects on the white science frame. Overrides --placement_mode.",
+    )
+    parser.add_argument(
+        "--exclude_region_param",
+        nargs="+",
+        type=float,
+        default=None,
+        help="Circular exclusion zones for injection sampling only (pixels): "
+        "CX1 CY1 R1 CX2 CY2 R2 ... with CX=column, CY=row (0-based). Reject and resample if inside any circle.",
+    )
+    parser.add_argument(
         "--overwrite",
         default=False,
         action="store_true",
@@ -1539,6 +1822,12 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
+    try:
+        exclude_regions_parsed = parse_exclude_regions_flat(args.exclude_region_param)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(2)
+
     # Default --directory from env or project root (no hardcoded paths)
     if args.directory is None:
         args.directory = os.environ.get("COMP_MAIN_DIR", str(PROJECT_ROOT))
@@ -1549,7 +1838,7 @@ if __name__ == "__main__":
     dmod = args.dmod
     mrmodel = args.mrmodel
     directory = args.directory
-    galaxy_fullname = args.galaxy_fullname
+    galaxy_fullname = args.galaxy_fullname or args.gal_name
     galaxy_name = args.gal_name
     outname = args.outname
     validation = args.validation
@@ -1605,8 +1894,7 @@ if __name__ == "__main__":
             mrmodel=mrmodel,
             libdir=args.slug_lib_dir,
         )
-
-        print(f"[LIB] Loaded {len(actual_mass)} clusters total.")
+        print(f"[LIB] Loaded {len(actual_mass)} clusters total (slugpy.read_cluster).")
 
         # ------------------------------------------------------------------
         # Apply brightness cutoff BEFORE splitting into subsets
@@ -1622,6 +1910,14 @@ if __name__ == "__main__":
         )
         print(f"[Filter] Remaining clusters: {n_after} / {n_before}")
 
+        # Only sample clusters with every band > 18 mag (apparent) - fainter than 18
+        FAINT_LIMIT_APPMAG = 18
+        faint_mask = np.all((phot_neb_ex_veg + args.dmod) > FAINT_LIMIT_APPMAG, axis=1)
+        bright_mask = bright_mask & faint_mask
+        n_after = np.sum(bright_mask)
+        print(
+            f"[Filter] Kept only clusters with every band > {FAINT_LIMIT_APPMAG} mag (apparent): {n_after} remaining."
+        )
 
         # Apply mask to all relevant arrays
         cid = cid[bright_mask]
@@ -1879,6 +2175,10 @@ if __name__ == "__main__":
                     args.slug_lib_dir,
                     galaxy_names,
                     args.input_coords,
+                    args.sigma_pc,
+                    args.placement_mode,
+                    args.placement_fits,
+                    exclude_regions_parsed,
                 )
                 for (eradius, i_frame), seed in zip(param_grid, child_seeds)
             ]
@@ -1923,6 +2223,10 @@ if __name__ == "__main__":
                     args.slug_lib_dir,
                     galaxy_names,
                     args.input_coords,
+                    args.sigma_pc,
+                    args.placement_mode,
+                    args.placement_fits,
+                    exclude_regions_parsed,
                 )
                 for (eradius, i_frame_validation), seed in zip(param_grid, child_seeds)
             ]
@@ -2022,6 +2326,10 @@ if __name__ == "__main__":
                         args.slug_lib_dir,
                         galaxy_names,
                         args.input_coords,
+                        args.sigma_pc,
+                        args.placement_mode,
+                        args.placement_fits,
+                        exclude_regions_parsed,
                     )
                     for (eradius, i_frame_validation, framenum), seed in zip(
                         param_grid, child_seeds

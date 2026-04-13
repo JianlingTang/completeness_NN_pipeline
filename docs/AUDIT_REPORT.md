@@ -19,7 +19,7 @@
 
 - **Tests:** `tests/test_coordinate_matcher.py` and `tests/unit/test_coordinate_matcher.py` both test `match_coordinates`, `load_coords`, and `CoordinateMatcher`; `tests/test_label_builder.py` and `tests/unit/test_label_builder.py` both test `build_final_detection` and `save_final_detection`. Intentionally not consolidated: root tests use shared fixtures and class-based layout; unit tests are smaller and more isolated. Both layers are retained.
 - **Pipeline entry points:** `run_galaxy_pipeline` (pipeline_runner) is the main path used by `run_pipeline.py`; `run_ast_pipeline` (ast_pipeline) is exported and may be used by HPC or external workflows. No consolidation or removal.
-- **`load_coords` vs `load_coords_white_position`:** Both in `coordinate_matcher.py`; different formats (generic x y [mag] vs white_position y x mag). No duplication to remove.
+- **`load_coords` vs `load_coords_white_position`:** Both in `coordinate_matcher.py`; same file format (x y [mag]). `load_coords_white_position` is for white_position files from generate_white_clusters; both return (x, y) = (col, row). No duplication to remove.
 - **`slug_library_loader.py`:** Re-exports `load_slug_library` from `cluster_library.py`. No other code imports `slug_library_loader`; only `cluster_library.load_slug_library` exists. Kept as a documented alias for refactor/spec compatibility; not removed.
 
 ---

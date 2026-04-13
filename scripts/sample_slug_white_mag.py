@@ -24,7 +24,10 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from cluster_pipeline.data.slug_reader import read_cluster  # noqa: E402
+try:
+    from slugpy import read_cluster  # noqa: E402
+except ImportError:
+    from cluster_pipeline.data.slug_reader import read_cluster  # noqa: E402
 
 
 def generate_white_light(scale_factors, f275, f336, f438, f555, f814):

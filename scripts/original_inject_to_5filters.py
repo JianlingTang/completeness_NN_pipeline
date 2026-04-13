@@ -1,39 +1,32 @@
-import argparse
-import glob
-import itertools
-import multiprocessing as mp
+import numpy as np
 import os
-import re
-import shutil
-import subprocess
-import sys
 import time
-from pathlib import Path
+import subprocess
+import glob
+from astropy.io import fits
+from numpy import genfromtxt, size
+import shutil
+import argparse
+from numpy.random import SeedSequence
+import sys
 
 # Function that represents a worker process
 import astropy.io.fits as pyfits
 import astropy.units as u
-import numpy as np
-from astropy.io import fits
-from numpy import genfromtxt
-from numpy.random import SeedSequence
+from numpy import *
+import re
+from astropy.coordinates import *
+from numpy import *
+import multiprocessing as mp
+import itertools
+from typing import Optional, Tuple, List, Any
 
 # Ensure that DISPLAY is not set to avoid GUI issues
 os.environ["DISPLAY"] = ""
 
-# Path defaults: env or project root (no hardcoded absolute paths)
-SCRIPT_ROOT = Path(__file__).resolve().parent.parent
-
-
-def _path_env(env_key: str, default_subpath: str) -> Path:
-    raw = os.environ.get(env_key)
-    if raw:
-        return Path(raw).resolve()
-    return (SCRIPT_ROOT / default_subpath).resolve()
-
 
 ##############Helper functions#############################
-def phys_to_pix(args: tuple[float, float, float]) -> float:
+def phys_to_pix(args: Tuple[float, float, float]) -> float:
     acpx, galdist, phys = args
     theta = np.arctan(phys / (galdist * u.pc))
     theta = theta.to(u.arcsec)
@@ -41,115 +34,11 @@ def phys_to_pix(args: tuple[float, float, float]) -> float:
     return pix_val.value
 
 
-
-
-def _resolve_gal_data_dir(fits_path: str, gal_short: str) -> str:
-    """Resolve galaxy data dir: fits_path may be the dir itself or its parent. Prefer first with header_info_<gal>.txt."""
-    def has_header_file(d: str) -> bool:
-        # LEGUS may use header_info_ngc628.txt or header_info_ngc628-c.txt
-        for name in (f"header_info_{gal_short}.txt", f"header_info_{gal_short.split('-')[0]}.txt"):
-            if os.path.isfile(os.path.join(d, name)):
-                return True
-        return False
-
-    candidates = [
-        fits_path,
-        os.path.join(fits_path, gal_short),
-        os.path.join(fits_path, f"{gal_short}_white-R17v100"),
-    ]
-    for d in candidates:
-        if os.path.isdir(d) and has_header_file(d):
-            return os.path.abspath(d)
-    # Fallback: first candidate that is a dir (for backward compat)
-    for d in candidates:
-        if os.path.isdir(d):
-            return os.path.abspath(d)
-    return os.path.abspath(os.path.join(fits_path, gal_short))
-
-
-def _find_header_info_path(gal_data_dir: str, gal_short: str) -> str:
-    """Return path to header_info_<gal>.txt; try header_info_ngc628-c.txt then header_info_ngc628.txt."""
-    for name in (f"header_info_{gal_short}.txt", f"header_info_{gal_short.split('-')[0]}.txt"):
-        p = os.path.join(gal_data_dir, name)
-        if os.path.isfile(p):
-            return p
-    return os.path.join(gal_data_dir, f"header_info_{gal_short}.txt")  # raise FileNotFoundError later
-
-
-def get_aperture_radius_and_metadata_from_readme(
-    gal_dir: str,
-    gal: str,
-    eradius: float,
-    dmod: float,
-) -> tuple[float, float, float]:
-    """
-    Get useraperture (pixel), galdist (pc), and ci from readme. If readme is missing,
-    returns defaults. If readme exists, aperture (one of two patterns), distance, and
-    CI must all match or FileNotFoundError is raised. Aperture patterns: "The aperture
-    radius used for photometry is X." or "Photometry performed at aperture radius of X px".
-    Returns (useraperture, galdist, ci).
-    """
-    rd_pattern = os.path.join(gal_dir, f"automatic_catalog*_{gal}.readme")
-    matching_files = glob.glob(rd_pattern)
-    useraperture = float(eradius)
-    # galdist in pc: from dmod, d_pc = 10^((dmod+5)/5)
-    galdist = 10 ** ((float(dmod) + 5) / 5.0)
-    ci = 0.0
-    if not matching_files:
-        print(
-            f"[inject_clusters] No readme found for {gal}; using eradius={useraperture}, galdist from dmod={dmod} pc, ci={ci}"
-        )
-        return useraperture, galdist, ci
-    readme_file = matching_files[0]
-    try:
-        with open(readme_file) as f:
-            content = f.read()
-    except Exception as e:
-        print(f"[inject_clusters] Could not read readme {readme_file}: {e}; using defaults.")
-        return useraperture, galdist, ci
-    # Two aperture patterns (either must match); if neither matches, raise. Same for distance and CI.
-    patterns = [
-        (
-            r"The aperture radius used for photometry is (\d+(\.\d+)?)\.",
-            "User-aperture radius",
-        ),
-        (
-            r"Photometry performed at aperture radius of (\d+(?:\.\d+)?) px",
-            "User-aperture radius (alt)",
-        ),
-        (
-            r"Distance modulus used (\d+\.\d+) mag \((\d+\.\d+) Mpc\)",
-            "Galactic distance",
-        ),
-        (
-            r"This catalogue contains only sources with CI[ ]*>=[ ]*(\d+(\.\d+)?)\.",
-            "CI value",
-        ),
-    ]
-    for pattern, label in patterns:
-        match = re.search(pattern, content)
-        if match:
-            if "distance" in label:
-                galdist = float(match.group(2)) * 1e6  # Mpc -> pc
-            elif "CI" in label:
-                ci = float(match.group(1))
-            elif "User-aperture" in label:
-                # group 1 from "X." pattern or "X px" pattern
-                useraperture = float(match.group(1))
-        elif "User-aperture" in label:
-            # Aperture: require at least one of the two patterns to match (checked after loop)
-            pass
-        elif "distance" in label or "CI" in label:
-            raise FileNotFoundError(f"[inject_clusters] {label} not found in readme.")
-    # Require aperture: either "The aperture radius used..." or "Photometry performed at aperture radius of X px" must match
-    aperture_found = re.search(r"The aperture radius used for photometry is (\d+(\.\d+)?)\.", content) or re.search(r"Photometry performed at aperture radius of (\d+(?:\.\d+)?) px", content)
-    if not aperture_found:
-        raise FileNotFoundError("[inject_clusters] User-aperture radius not found in readme (neither 'The aperture radius used for photometry is X.' nor 'Photometry performed at aperture radius of X px').")
-    return useraperture, galdist, ci
+import datetime
 
 
 #########################
-# FITS math helper funcs (same as original_inject_to_5filters.py)
+# FITS math helper funcs
 #########################
 def fits_divide_scalar(in_path: str, scalar: float, out_path: str) -> None:
     """Divide FITS image by a scalar safely."""
@@ -159,33 +48,6 @@ def fits_divide_scalar(in_path: str, scalar: float, out_path: str) -> None:
     fits.writeto(out_path, data, hdr, overwrite=True)
 
 
-def validate_psf_readable(psf_file: str, cam: str, filt: str) -> None:
-    """Fail fast with explicit camera/filter when PSF exists but is unreadable."""
-    try:
-        with fits.open(psf_file, memmap=False) as hdul:
-            data = hdul[0].data
-            if data is None:
-                raise ValueError("primary HDU data is empty")
-    except Exception as e:
-        raise FileNotFoundError(
-            f"Invalid PSF for camera={cam}, filter={filt}: {psf_file}. Reason: {e}"
-        ) from e
-
-
-def resolve_existing_testimg(path: str, expected_path: str, gal: str, cam: str, filt: str, reff: float, frame_id: int, outname: str) -> str:
-    """Return expected test image path, or best matching generated fallback if naming differs."""
-    if os.path.exists(expected_path):
-        return expected_path
-    pattern = os.path.join(
-        path,
-        f"test_source_mag_*{gal}_{cam}f{filt}_reff{reff:.2f}_frame{frame_id}_{outname}_test*.fits",
-    )
-    matches = sorted(glob.glob(pattern))
-    if matches:
-        return matches[0]
-    return expected_path
-
-
 def fits_add_images(a_path: str, b_path: str, out_path: str) -> None:
     """Add two FITS images safely pixel-by-pixel."""
     with fits.open(a_path, memmap=False) as A, fits.open(b_path, memmap=False) as B:
@@ -193,14 +55,16 @@ def fits_add_images(a_path: str, b_path: str, out_path: str) -> None:
         hdr = A[0].header
     fits.writeto(out_path, data, hdr, overwrite=True)
 
-
 def clear_directory(directory: str) -> None:
-    """Ensure directory exists; safe when multiple workers create the same path (exist_ok=True)."""
-    os.makedirs(directory, exist_ok=True)
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+        print(f"Directory {directory} created.")
+    else:
+        print(f"Directory {directory} already exists.")
 
 
 def generate_white_light(
-    scale_factors: list[float],
+    scale_factors: List[float],
     f275: np.ndarray,
     f336: np.ndarray,
     f438: np.ndarray,
@@ -229,25 +93,26 @@ def main(
     ncl: int,
     dmod: float,
     mrmodel: str,
+    galaxy_fullname: str,
     validation: bool,
     overwrite: bool,
     directory: str,
     galaxy_name: str,
     outname: str,
     seed: SeedSequence,
-    i_frame: int | None = None,
-    i_frame_validation: int | None = None,
-    framenum: int | None = None,
-    filter_id: int | None = None,
-    use_white: bool | None = False,
+    i_frame: Optional[int] = None,
+    i_frame_validation: Optional[int] = None,
+    framenum: Optional[int] = None,
+    filter_id: Optional[int] = None,
+    use_white: Optional[bool] = False,
 ) -> int:
-    # Set up variables
-    main_dir = os.path.abspath(os.path.normpath(directory))
+    # All imports are now at the top of the file for clarity and portability
+    # Set up variables as before
+    main_dir = directory
     print(f"main_dir is {main_dir}")
-    galaxy = galaxy_name.strip() if galaxy_name else ""
-    if not galaxy:
-        raise ValueError("galaxy_name is required (e.g. --gal_name ngc1313-e).")
-    gal_short = galaxy.split("_")[0]
+    galaxy = galaxy_name
+    galful = galaxy_fullname
+    validation = validation
     print(f"validation is {validation}")
     if validation:
         print(f"i_frame_validation is {i_frame_validation}")
@@ -258,6 +123,7 @@ def main(
         print(f"ncl is {ncl}")
         print(f"dmod is {dmod}")
         print(f"mrmodel is {mrmodel}")
+        print(f"galaxy_fullname is {galaxy_fullname}")
         print(f"galaxy_name is {galaxy_name}")
         print(f"outname is {outname}")
         print(f"i_frame is {i_frame}")
@@ -270,6 +136,7 @@ def main(
         print(f"ncl is {ncl}")
         print(f"dmod is {dmod}")
         print(f"mrmodel is {mrmodel}")
+        print(f"galaxy_fullname is {galaxy_fullname}")
         print(f"galaxy_name is {galaxy_name}")
         print(f"outname is {outname}")
         print(f"overwrite is {overwrite}")
@@ -285,22 +152,10 @@ def main(
     filter_id = filter_id if filter_id is not None else 0
     use_white = use_white if use_white is not None else False
 
-    fits_path = os.environ.get("COMP_FITS_PATH") or main_dir
-    fits_path = os.path.abspath(fits_path)
-    psf_path = os.path.join(main_dir, "PSF_files")
-    if not os.path.isdir(psf_path):
-        psf_path = str(_path_env("COMP_PSF_PATH", "PSF_all"))
-    baopath = os.path.join(main_dir, ".deps", "local", "bin")
-    bl_exe = os.path.join(baopath, "bl")
-    if not os.path.isfile(bl_exe) and not os.path.isfile(bl_exe + ".exe"):
-        baopath = str(_path_env("COMP_BAO_PATH", "baolab"))
-    if not os.path.isdir(baopath):
-        baopath = os.path.join(main_dir, ".deps", "local", "bin")
-    bl_exe = os.path.join(baopath, "bl")
-    if not os.path.isfile(bl_exe):
-        bl_exe = os.path.join(baopath, "bl.exe")
-    bl_exe = os.path.abspath(os.path.normpath(bl_exe))
-    libdir = str(_path_env("COMP_OUTPUT_LIB_DIR", "output_lib"))
+    fits_path = "/g/data/jh2/jt4478/make_LC_copy"
+    PSFpath = "/g/data/jh2/jt4478/PSF_all"
+    baopath = "/g/data/jh2/jt4478/baolab-0.94.1g/"
+    libdir = "/scratch/mk27/jt4478/output_lib"
     galaxies = np.load(os.path.join(main_dir, "galaxy_names.npy"))
     gal_filters = np.load(
         os.path.join(main_dir, "galaxy_filter_dict.npy"), allow_pickle=True
@@ -312,7 +167,6 @@ def main(
     merr_cut = 0.3
     binsize = 0.3
     nums_perframe = ncl
-    # Same as original_inject_to_5filters.py
     sigma_pc = 100
     xcol = 0
     ycol = 1
@@ -329,10 +183,7 @@ def main(
         os.path.join(main_dir, "galaxy_filter_dict.npy"), allow_pickle=True
     ).item()
     allfilters_cam = []
-    if gal_short not in gal_filters:
-        raise KeyError(f"Galaxy '{gal_short}' not found in galaxy_filter_dict.npy")
-    filters_for_gal = list(gal_filters[gal_short][0])
-    cams_for_gal = list(gal_filters[gal_short][1])
+    cams = gal_filters["ngc628-c"]
 
     for galaxy_name in galaxy_names:
         galaxy_name = galaxy_name.split("_")[0]
@@ -352,7 +203,8 @@ def main(
 
     # Assigning variables to avoid confusion with the arguments
     if validation:
-        reff, i_frame, i_frame_validation, outname, filter_id = (
+        galn, reff, i_frame, i_frame_validation, outname, filter_id = (
+            galaxy_fullname,
             eradius,
             framenum,
             i_frame_validation,
@@ -360,48 +212,72 @@ def main(
             filter_id,
         )
     else:
-        reff, i_frame, outname, filter_id = (
+        galn, reff, i_frame, outname, filter_id = (
+            galaxy_fullname,
             eradius,
             i_frame,
             outname,
             filter_id,
         )
 
-    for filt in filters_for_gal[filter_id : filter_id + 1]:
-        filt_orig = filt
-        filt = filt.lower()
-        cam = str(cams_for_gal[filters_for_gal.index(filt_orig)]).lower()
-        if cam.startswith("wfc3"):
-            cam = "wfc3"
-        elif cam.startswith("acs"):
-            cam = "acs"
+    for filt in gal_filters["ngc628-c"][0][filter_id : filter_id + 1]:
+        filt, cam = filt.lower(), cams[-1][cams[0].index(filt)]
     print(f"filt is {filt}")
     print(f"cam is {cam}")
 
-    gal = gal_short
-    # Data dir: resolve (fits_path may be galaxy dir or its parent)
-    gal_data_dir = _resolve_gal_data_dir(fits_path, gal_short)
-    # Output dir: always main_dir / galaxy (short name)
-    gal_dir = os.path.join(main_dir, galaxy)
-    galn_for_white = os.path.basename(gal_data_dir)  # for "white" in pattern logic
+    gal = galn.split("_")[0]
+    gal_dir = os.path.join(main_dir, galn)
 
     pydir = os.path.join(gal_dir, filt)
-    # Aperture radius and metadata: readme lives in data dir
-    useraperture, galdist, ci = get_aperture_radius_and_metadata_from_readme(
-        gal_data_dir, gal, float(eradius), dmod
-    )
+    rd_pattern = os.path.join(gal_dir, f"automatic_catalog*_{gal}.readme")
+    matching_files = glob.glob(rd_pattern)
+    if matching_files:
+        readme_file = matching_files[0]
+    # try:
+
+    with open(readme_file, "r") as f:
+        content = f.read()
+
+    # Match aperture radius, distance modulus, and CI using regular expressions
+    patterns = [
+        (
+            r"The aperture radius used for photometry is (\d+(\.\d+)?)\.",
+            "User-aperture radius",
+        ),
+        (
+            r"Distance modulus used (\d+\.\d+) mag \((\d+\.\d+) Mpc\)",
+            "Galactic distance",
+        ),
+        (
+            r"This catalogue contains only sources with CI[ ]*>=[ ]*(\d+(\.\d+)?)\.",
+            "CI value",
+        ),
+    ]
+
+    for pattern, label in patterns:
+        match = re.search(pattern, content)
+        if match:
+            if "distance" in label:
+                galdist = float(match.group(2)) * 1e6
+            elif "CI" in label:
+                ci = float(match.group(1))
+            else:
+                useraperture = float(match.group(1))
+        else:
+            raise FileNotFoundError(label + " not found in the readme.")
 
     # --- Science frame pattern logic ---
     if "5194" in gal:
-        pattern = os.path.join(gal_data_dir, f"hlsp_legus_hst_*{gal}*_{filt}_*sci.fits")
-    elif "white" in galn_for_white:
-        if filter_id is not None:
-            pattern = os.path.join(gal_data_dir, f"hlsp_legus_hst_*{gal}_{filt}_*drc.fits")
+        pattern = os.path.join(gal_dir, f"hlsp_legus_hst_*{gal}*_{filt}_*sci.fits")
+    elif "white" in galn:
+        # Prefer white dualpop frame unless both filter args are valid
+        if args.nfilter_start is not None and args.nfilter_end is not None:
+            pattern = os.path.join(gal_dir, f"hlsp_legus_hst_*{gal}_{filt}_*drc.fits")
         else:
-            pattern = os.path.join(gal_data_dir, "white_dualpop_s2n_white_remake.fits")
+            pattern = os.path.join(gal_dir, "white_dualpop_s2n_white_remake.fits")
     else:
-        if filter_id is not None:
-            pattern = os.path.join(gal_data_dir, f"hlsp_legus_hst_*{gal}_{filt}_*drc.fits")
+        if args.nfilter_start is not None and args.nfilter_end is not None:
+            pattern = os.path.join(gal_dir, f"hlsp_legus_hst_*{gal}_{filt}_*drc.fits")
         else:
             raise FileNotFoundError("No valid filter range or galaxy pattern found.")
 
@@ -411,60 +287,59 @@ def main(
         sciframe = matching_files[0]
         print(f"Found matching file: {sciframe}")
     else:
-        raise FileNotFoundError(
-            f"No matching file found for galaxy '{gal}' and filter '{filt}' (pattern: {pattern})"
-        )
-    sciframepath = os.path.abspath(os.path.normpath(sciframe))
+        print(f"No matching file found for galaxy '{gal}' and filter '{filt}'")
+    sciframepath = os.path.join(gal_dir, sciframe)
     fname = filt  # set filter name
-    cam_lower = (cam.lower() if isinstance(cam, str) else str(cam)).split("_")[0]  # e.g. WFC3_UVIS -> wfc3
-    psfname = glob.glob(os.path.join(psf_path, f"psf_*_{cam_lower}_{filt}.fits"))
+    psfname = glob.glob(os.path.join(PSFpath, f"psf_*_{cam}_{filt}.fits"))
     if psfname:
         print(f"Found PSF file: {psfname}")
-    elif "white" in galn_for_white:
-        raise FileNotFoundError(
-            f"PSF not found: no match for psf_*_{cam_lower}_{filt}.fits in {psf_path}"
-        )
+    elif "white" in galn:
+        psfname = [os.path.join(PSFpath, "psf_ngc1566_wfc3_f555w.fits")]
     else:
-        raise FileNotFoundError(f"PSF not found: no match for psf_*_{cam_lower}_{filt}.fits in {psf_path}")
+        raise FileNotFoundError
     psffile = psfname[0]
-    validate_psf_readable(psffile, cam_lower, filt)
     psffilepath = psffile  # this path contains all PSF files (wfc3 and acs)
 
-    # reff -> BAOlab FWHM (same as legus_original_pipeline: reff/galdist in rad, then arcsec/px, /1.13)
-    if galdist < 1e5:
-        raise ValueError(
-            f"galdist={galdist} pc looks wrong (expected Mpc*1e6 or dmod-based pc). Check readme/dmod."
-        )
-    pixscale_arcsec = pixscale_wfc3 if cam == "wfc3" else pixscale_acs
-    if cam != "wfc3" and cam != "acs":
-        pixscale_arcsec = pixscale_wfc3
-    reff_angular_arcsec = (reff / galdist) * (180.0 / np.pi) * 3600.0
-    reff_angular_pixels = reff_angular_arcsec / pixscale_arcsec
-    bao_fhwm = reff_angular_pixels / 1.13
-    print("reff (pc) =", reff, " galdist (pc) =", galdist, " pixscale =", pixscale_arcsec)
-    print("reff angular = {:.4f} arcsec = {:.2f} px  bao_fhwm (FWHM px) = {:.4f}".format(reff_angular_arcsec, reff_angular_pixels, bao_fhwm))
+    # set baoFHWM for photometry
+    print("reff is", reff)
+    print("galdist is", galdist)
+    print("pixscale_wfc3 is", pixscale_wfc3)
+
+    if cam == "wfc3":
+        baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
+    elif cam == "acs":
+        baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_acs) / 1.13
+    else:
+        baoFHWM = (reff / galdist) * (180.0 / np.pi) * (3600.0 / pixscale_wfc3) / 1.13
+
+    print(baoFHWM)
 
     # set aperture correction file
     apcorrfile = f"avg_aperture_correction_{gal}.txt"
 
-    # ---- --- -- - BAOlab zeropoint value (same as original_inject_to_5filters.py) - -- --- ----
-    baozpoint = 1e15
+    # ---- --- -- - BAOlab zeropoint value: - -- --- ----
+    baozpoint = 1e10  # change this to 1e10 for bright sources
 
     # ---- --- -- - scientific frame dimensions: - -- --- ----
-    hd = pyfits.getheader(sciframepath)
+    hd = pyfits.getheader(sciframe)
     xaxis = hd["NAXIS1"]
     yaxis = hd["NAXIS2"]
 
     # ---- --- -- - finding the zeropoint and exptime - -- --- ----
-    zpfile = _find_header_info_path(gal_data_dir, gal)
+    zpfile = os.path.join(gal_dir, f"header_info_{gal}.txt")
     filters, instrument, zpoint = np.loadtxt(
         zpfile, unpack=True, skiprows=0, usecols=(0, 1, 2), dtype="str"
     )
     match = np.where(filters == filt.lower())
-    zp_arr = np.atleast_1d(zpoint[match])
-    if zp_arr.size == 0:
+    print(f"match is {match}")
+    print("filters:", filters)
+    print("filt:", filt)
+    print("match:", match)
+    print("zpoint[match]:", zpoint[match])
+    print("zpoint[match] shape:", np.shape(zpoint[match]))
+    zp = float(zpoint[match])
+    if size(zp) == 0:
         sys.exit("Wrong instrument/filter names! Check the input file! \nQuitting...")
-    zp = float(zp_arr.flat[0])
     expt = hd["EXPTIME"]
     print("zp: ")
     print(zp)
@@ -473,7 +348,7 @@ def main(
     # --------------------------
     # STEP 1: SOURCE CREATION
     # --------------------------
-    pydir = os.path.join(gal_dir, filt_orig)
+    pydir = os.path.join(gal_dir, filt.lower())
 
     # Clear or create the baolab directory
     # if i_frame < 1:
@@ -505,9 +380,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.FWHMOBJY="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -516,9 +391,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r0
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.FWHMOBJY="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -527,9 +402,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r1
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.FWHMOBJY="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -597,19 +472,19 @@ def main(
         cmppsf_log = f"bao_reff{reff:.2f}_frame{i_frame}_vframe{i_frame_validation}_{outname}.txt"
         test_log = f"bao_reff{reff:.2f}_frame{i_frame}_vframe{i_frame_validation}_{outname}.txt"
 
-        with open(os.path.join(path, mk_cmppsf_bl)) as script, open(
+        with open(os.path.join(path, mk_cmppsf_bl), "r") as script, open(
             os.path.join(path, cmppsf_log), "w"
         ) as log:
             subprocess.run(
-                [bl_exe], stdin=script, stdout=log, cwd=path, check=True
+                [baopath + "bl"], stdin=script, stdout=log, cwd=path, check=True
             )
 
         # Run mk_test_bl
-        with open(os.path.join(path, mk_test_bl)) as script, open(
+        with open(os.path.join(path, mk_test_bl), "r") as script, open(
             os.path.join(path, test_log), "w"
         ) as log:
             subprocess.run(
-                [bl_exe], stdin=script, stdout=log, cwd=path, check=True
+                [baopath + "bl"], stdin=script, stdout=log, cwd=path, check=True
             )
 
         # with open(os.path.join(path, mk_test_bl), 'r') as script, \
@@ -621,22 +496,17 @@ def main(
 
         testimg1_path = os.path.join(path, testimg1)
         testimg2_path = os.path.join(path, testimg2)
-        testimg1_path = resolve_existing_testimg(path, testimg1_path, gal, cam, filt, reff, i_frame, outname)
-        testimg2_path = resolve_existing_testimg(path, testimg2_path, gal, cam, filt, reff, i_frame, outname)
 
-        # Same as original_inject_to_5filters.py: fits_divide_scalar then replace
-        if os.path.exists(testimg1_path) and os.path.exists(testimg2_path):
-            tmp1 = testimg1_path + ".tmp"
-            tmp2 = testimg2_path + ".tmp"
-            fits_divide_scalar(testimg1_path, factor_def, tmp1)
-            fits_divide_scalar(testimg2_path, factor_def, tmp2)
-            os.replace(tmp1, testimg1_path)
-            os.replace(tmp2, testimg2_path)
-        else:
-            print(
-                f"[WARN] Missing test source FITS for {gal} {cam} {filt} frame={i_frame}; "
-                "skipping test-image normalization."
-            )
+        # Use full paths for both input and output
+        # --- Replace test frame divisions ---
+        tmp1 = testimg1_path + ".tmp"
+        tmp2 = testimg2_path + ".tmp"
+        fits_divide_scalar(testimg1_path, factor_def, tmp1)
+        fits_divide_scalar(testimg2_path, factor_def, tmp2)
+        os.replace(tmp1, testimg1_path)
+        os.replace(tmp2, testimg2_path)
+        # iraf.imarith(operand1=testimg1_path, op='/', operand2=factor_def, result=testimg1_path)
+        # iraf.imarith(operand1=testimg2_path, op='/', operand2=factor_def, result=testimg2_path)
 
         # File existence check also needs full paths
         if os.path.exists(testimg1_path):
@@ -659,9 +529,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.FWHMOBJY="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -670,9 +540,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r0
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.FWHMOBJY="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -681,9 +551,9 @@ def main(
             "mkcmppsf "
             + cmppsf_r1
             + " MKCMPPSF.PSFTYPE=USER MKCMPPSF.OBJTYPE=EFF15 MKCMPPSF.FWHMOBJX="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.FWHMOBJY="
-            + str(bao_fhwm)
+            + str(baoFHWM)
             + " MKCMPPSF.RADIUS=100. MKCMPPSF.BITPIX=-32 MKCMPPSF.PSFFILE="
             + psffilepath
             + " \n\n"
@@ -753,11 +623,11 @@ def main(
         cmppsf_log = f"bao_reff{reff:.2f}_frame{i_frame}_{outname}.txt"
         test_log = f"bao_reff{reff:.2f}_frame{i_frame}_{outname}.txt"
         try:
-            with open(os.path.join(path, mk_cmppsf_bl)) as script, open(
+            with open(os.path.join(path, mk_cmppsf_bl), "r") as script, open(
                 os.path.join(path, cmppsf_log), "w"
             ) as log:
                 subprocess.run(
-                    [bl_exe], stdin=script, stdout=log, cwd=path, check=True
+                    [baopath + "bl"], stdin=script, stdout=log, cwd=path, check=True
                 )
         except Exception as e:
             print("Error in mk_cmppsf_bl subprocess:")
@@ -766,11 +636,11 @@ def main(
 
         # Run mk_test_bl with lock and debug logging
         try:
-            with open(os.path.join(path, mk_test_bl)) as script, open(
+            with open(os.path.join(path, mk_test_bl), "r") as script, open(
                 os.path.join(path, test_log), "w"
             ) as log:
                 subprocess.run(
-                    [bl_exe], stdin=script, stdout=log, cwd=path, check=True
+                    [baopath + "bl"], stdin=script, stdout=log, cwd=path, check=True
                 )
         except Exception as e:
             print("Error in mk_test_bl subprocess:")
@@ -783,22 +653,14 @@ def main(
 
         testimg1_path = os.path.join(path, testimg1)
         testimg2_path = os.path.join(path, testimg2)
-        testimg1_path = resolve_existing_testimg(path, testimg1_path, gal, cam, filt, reff, i_frame, outname)
-        testimg2_path = resolve_existing_testimg(path, testimg2_path, gal, cam, filt, reff, i_frame, outname)
 
-        # --- Replace test frame divisions (same as original_inject_to_5filters.py) ---
-        if os.path.exists(testimg1_path) and os.path.exists(testimg2_path):
-            tmp1 = testimg1_path + ".tmp"
-            tmp2 = testimg2_path + ".tmp"
-            fits_divide_scalar(testimg1_path, factor_def, tmp1)
-            fits_divide_scalar(testimg2_path, factor_def, tmp2)
-            os.replace(tmp1, testimg1_path)
-            os.replace(tmp2, testimg2_path)
-        else:
-            print(
-                f"[WARN] Missing test source FITS for {gal} {cam} {filt} frame={i_frame}; "
-                "skipping test-image normalization."
-            )
+        # --- Replace test frame divisions ---
+        tmp1 = testimg1_path + ".tmp"
+        tmp2 = testimg2_path + ".tmp"
+        fits_divide_scalar(testimg1_path, factor_def, tmp1)
+        fits_divide_scalar(testimg2_path, factor_def, tmp2)
+        os.replace(tmp1, testimg1_path)
+        os.replace(tmp2, testimg2_path)
 
         # File existence check also needs full paths
         if os.path.exists(testimg1_path):
@@ -813,7 +675,7 @@ def main(
         "I am writing the baolab file to generate the frames with synthetic sources..."
     )
     # Load FITS image
-    hdul = fits.open(sciframepath)
+    hdul = fits.open(sciframe)
     image_data = hdul[0].data
 
     # convert physical size to pixel size
@@ -824,7 +686,7 @@ def main(
         pix_scale = pixscale_wfc3
     elif cam == "acs":
         pix_scale = pixscale_acs
-    elif "white" in galn_for_white:
+    elif "white" in galn:
         pix_scale = pixscale_wfc3
     else:
         raise TypeError("Unknown camera type, exiting...")
@@ -875,15 +737,15 @@ def main(
             if os.path.exists(
                 os.path.join(
                     white_dir,
-                    f"{filt_orig}_position_{int(i_frame)}_{outname}_reff{reff:.2f}.txt",
+                    f"{filt}_position_{int(i_frame)}_{outname}_reff{reff:.2f}.txt",
                 )
             ):
                 print(
-                    f"{f'{filt_orig}_position_{int(i_frame)}_{outname}_reff{reff:.2f}.txt'} exists\n!"
+                    f"{f'{filt}_position_{int(i_frame)}_{outname}_reff{reff:.2f}.txt'} exists\n!"
                 )
                 mag_file = os.path.join(
                     white_dir,
-                    f"{filt_orig}_position_{int(i_frame)}_{outname}_reff{reff:.2f}.txt",
+                    f"{filt}_position_{int(i_frame)}_{outname}_reff{reff:.2f}.txt",
                 )
                 # Copy file
                 shutil.copy(mag_file, os.path.join(path, namecoord))
@@ -940,9 +802,9 @@ def main(
 
     # Properly open files inside bao_lock and run subprocess
     os.environ.pop("DISPLAY", None)  # Unset DISPLAY
-    with open(mk_frames_bl_path) as script, open(bao_log_path, "w") as log:
+    with open(mk_frames_bl_path, "r") as script, open(bao_log_path, "w") as log:
         subprocess.run(
-            [bl_exe], stdin=script, stdout=log, cwd=baolab_dir, check=False
+            [baopath + "bl"], stdin=script, stdout=log, cwd=baolab_dir, check=False
         )
     ##########################################################################################
     ########### I  DIVIDE THE FRAMES FOR THE CORRECT FACTOR AND ADD THE BACKGROUND ###########
@@ -1007,55 +869,33 @@ def main(
         print("List_image string from index 0 to -10 is", listimg[i])
         print("Final name of .fits file is ", name_final)
         # Ensure input path is full
-        print(f"Current path is {path} \n")
+        print(f"Current directory is {path} \n")
         print(f"Confirming image name -- {listimg[i]} \n")
         print(f"Iteration = {i}")
         lism = listimg[i]
         operand1_path = os.path.join(path, lism)
 
-        # Wait for BAOlab output to be written (avoid reading before flush)
-        for _ in range(30):
-            if os.path.exists(operand1_path):
-                try:
-                    with fits.open(operand1_path, memmap=False) as h:
-                        if h[0].data is not None and getattr(h[0].data, "size", 0) > 0:
-                            break
-                except Exception:
-                    pass
-            time.sleep(0.5)
-        if not os.path.exists(operand1_path):
-            raise FileNotFoundError(
-                f"BAOlab did not create {operand1_path} (see {bao_log_path})"
-            )
-        try:
-            with fits.open(operand1_path, memmap=False) as h:
-                if h[0].data is None or getattr(h[0].data, "size", 0) == 0:
-                    raise ValueError(
-                        f"BAOlab wrote empty image data: {operand1_path} (check {bao_log_path})"
-                    )
-        except ValueError:
-            raise
-        except Exception as e:
-            raise RuntimeError(f"Cannot read {operand1_path}: {e}") from e
-
         # Clean up old temp2 if it exists
         if os.path.exists(temp2):
             os.remove(temp2)
 
-        # Same as original_inject_to_5filters.py: fits_divide_scalar then fits_add_images
+        # First imarith: divide synthetic frame
         print("Dividing .fits by sampling factor. \n")
         fits_divide_scalar(operand1_path, factor_def, temp2)
         fits_add_images(temp2, sciframepath, name_final)
+        # iraf.imarith(operand1=operand1_path, op='/', operand2=factor_def, result=temp2)
+        # iraf.imarith(operand1=temp2, op='+', operand2=sciframepath, result=name_final)
 
-        # Copy to target dir (original uses scp for remote; we use shutil for local)
-        dest_dir = os.path.join(pydir, "synthetic_fits")
-        os.makedirs(dest_dir, exist_ok=True)
-        dest_path = os.path.join(dest_dir, os.path.basename(name_final))
+        # Secure copy to target dir
         try:
-            shutil.copy2(name_final, dest_path)
-        except Exception as e:
+            subprocess.run(
+                ["scp", name_final, os.path.join(pydir, "synthetic_fits/")],
+                check=True,
+                cwd=path,
+            )
+        except subprocess.CalledProcessError:
             raise FileNotFoundError(
-                f"Failed to copy {name_final} to synthetic_fits: {e}"
+                f"{name_final} is not found or failed to copy to synthetic_fits"
             )
     return 0
 
@@ -1071,12 +911,6 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="main directory of the completeness calculation (str)",
-    )
-    parser.add_argument(
-        "--fits-dir",
-        type=str,
-        default=None,
-        help="directory containing galaxy FITS (e.g. ngc628-c/); overrides COMP_FITS_PATH",
     )
     parser.add_argument(
         "--ncl", type=int, default=500, help="number of star clusters (int)"
@@ -1122,7 +956,7 @@ if __name__ == "__main__":
         "--galaxy_fullname",
         type=str,
         default="ngc628-c_white-R17v100",
-        help="(Deprecated) Use --gal_name. Full name of the galaxy; used as fallback when --gal_name is not set.",
+        help="full name of the galaxy (str)",
     )
     parser.add_argument(
         "--outname", type=str, default=None, help="output name (str, optional)"
@@ -1158,16 +992,6 @@ if __name__ == "__main__":
         "--auto_check_missing", action="store_true", help="Auto check missing files"
     )
     args = parser.parse_args()
-    # Always use white-light positions/magnitudes for 5-filter injection
-    # (LEGUS-style: inject the subset detected in white with their white-based mags).
-    args.use_white = True
-    gal_for_jobs = (args.gal_name or args.galaxy_fullname or "").strip()
-    if not gal_for_jobs:
-        raise ValueError("Must provide --gal_name (or --galaxy_fullname).")
-
-    # CLI override for FITS directory (so subprocess/pool workers see it)
-    if args.fits_dir:
-        os.environ["COMP_FITS_PATH"] = os.path.abspath(args.fits_dir)
 
     # Define master seed
     master_seed = SeedSequence(int(time.time_ns()))
@@ -1187,10 +1011,11 @@ if __name__ == "__main__":
                     args.ncl,
                     args.dmod,
                     args.mrmodel,
+                    args.galaxy_fullname,
                     args.validation,
                     args.overwrite,
                     args.directory,
-                    gal_for_jobs,
+                    args.gal_name,
                     args.outname,
                     seed,
                     frame_num,
@@ -1223,10 +1048,11 @@ if __name__ == "__main__":
                     args.ncl,
                     args.dmod,
                     args.mrmodel,
+                    args.galaxy_fullname,
                     args.validation,
                     args.overwrite,
                     args.directory,
-                    gal_for_jobs,
+                    args.gal_name,
                     args.outname,
                     seed,
                     None,
@@ -1243,11 +1069,11 @@ if __name__ == "__main__":
     else:
         print("Auto check missing mode")
         if args.validation:
-            galx = gal_for_jobs
+            galx = args.gal_name
             outname = args.outname
-            galaxies = np.load(os.path.join(args.directory, "galaxy_names.npy"))
+            galaxies = np.load("/g/data/jh2/jt4478/make_LEGUS_CCT/galaxy_names.npy")
             gal_filters = np.load(
-                os.path.join(args.directory, "galaxy_filter_dict.npy"),
+                "/g/data/jh2/jt4478/make_LEGUS_CCT/galaxy_filter_dict.npy",
                 allow_pickle=True,
             ).item()
             filts = gal_filters[galx][0]
@@ -1257,7 +1083,7 @@ if __name__ == "__main__":
                 fid = filts.index(filt)
                 print(f"\nChecking filter: {filt}")
                 directory = os.path.join(
-                    args.directory, gal_for_jobs, filt, "synthetic_fits"
+                    args.directory, args.galaxy_fullname, filt, "synthetic_fits"
                 )
                 expected_frames = list(
                     range(args.nframe_validation_start, args.nframe_validation_end)
@@ -1293,10 +1119,11 @@ if __name__ == "__main__":
                         args.ncl,
                         args.dmod,
                         args.mrmodel,
+                        args.galaxy_fullname,
                         args.validation,
                         args.overwrite,
                         args.directory,
-                        gal_for_jobs,
+                        args.gal_name,
                         args.outname,
                         seed,
                         None,
@@ -1312,9 +1139,7 @@ if __name__ == "__main__":
 
     if jobs:
         print(f"Launching {len(jobs)} jobs with multiprocessing...")
-        import builtins
-        n_proc = builtins.min(len(jobs), mp.cpu_count())
-        with mp.Pool(processes=n_proc) as pool:
+        with mp.Pool(processes=min(len(jobs), mp.cpu_count())) as pool:
             pool.starmap(main, jobs)
     else:
         print("No jobs to run.")

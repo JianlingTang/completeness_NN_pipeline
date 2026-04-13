@@ -1,17 +1,60 @@
-import argparse
+# Read in library clusters from SLUG
+from __future__ import print_function
+import multiprocessing
+from scipy.ndimage import gaussian_filter
+import time
 import glob
-import os
+import random
 import re
-import shutil
+import requests
+import itertools
+from numpy import *
+import numpy as np 
+from math import *
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 import subprocess
-import sys
 
-import astropy.io.fits as pyfits
-import numpy as np
-
+print("IMPORTING PACKAGES...")
 from pyraf import iraf
+from pyraf.iraf import noao, digiphot, daophot
+import astropy.io.fits as pyfits
+from astropy.io import ascii
+import logging
+import os, shutil, sys
+from scipy.ndimage import distance_transform_edt
+from astropy.io import fits
+import argparse
+import astropy.units as u
+import astropy.constants as c
+import multiprocessing as mp
 
+# from __future__ import print_function
+# from pyraf import iraf
+# from pyraf.iraf import noao, digiphot, daophot
+# import astropy.io.fits as pyfits
+# from astropy.io import ascii
+# import logging
+# import os, shutil, sys
+# from scipy.ndimage import distance_transform_edt
+# from astropy.io import fits
+# import argparse
+# import astropy.units as u
+# import astropy.constants as c
+# import multiprocessing as mp
+# import astropy.io.fits as pyfits
+# import os
+# import shutil
+# import sys
+# import argparse
+# import multiprocessing
+# import glob
+# import re
+# import numpy as np 
+# from math import *
+# import subprocess
 
+print("IMPORTING PACKAGES...")
 def extract_core_tag(filename: str) -> str | None:
     """
     Extracts 'frameX_<outname>_reffY.fits' from filenames such as:
@@ -87,7 +130,7 @@ def main(
     print(f"[DEBUG] outname: {outname}")
     print(f"[DEBUG] framenum: {framenum}")
     print(f"[DEBUG] validation: {validation}")
-    main_dir = os.path.abspath(dirname or os.environ.get("COMP_MAIN_DIR", os.getcwd()))
+    main_dir = "/g/data/jh2/jt4478/make_LC_copy"
     os.chdir(main_dir)
     # define constants
     gal_filters = np.load("galaxy_filter_dict.npy", allow_pickle=True).item()
@@ -113,15 +156,13 @@ def main(
         )
         readme_file = readme_files[0]
 
-        with open(readme_file) as f:
+        with open(readme_file, "r") as f:
             content = f.read()
 
-        # Match aperture radius, distance modulus, and CI using regular expressions.
-        # Readme may say "The aperture radius used for photometry is 4." or
-        # "Photometry performed at aperture radius of 4 px and sky at 7 px and 1 px wide."
+        # Match aperture radius, distance modulus, and CI using regular expressions
         patterns = [
             (
-                r"(?:The aperture radius used for photometry is (\d+(?:\.\d+)?)\.|Photometry performed at aperture radius of (\d+(?:\.\d+)?) px)",
+                r"The aperture radius used for photometry is (\d+(\.\d+)?)\.",
                 "User-aperture radius",
             ),
             (
@@ -142,8 +183,7 @@ def main(
                 elif "CI" in label:
                     ci = float(match.group(1))
                 else:
-                    # Aperture: group 1 = "X." form, group 2 = "X px" form
-                    useraperture = float(match.group(1) or match.group(2))
+                    useraperture = float(match.group(1))
             else:
                 raise FileNotFoundError(label + " not found in the readme.")
 
@@ -252,7 +292,7 @@ def main(
                     if f"vframe_{i}" in f and outname in f and f"_frame{framenum}" in f:
                         framename_validation.append(f)
                     else:
-                        continue
+                        continue 
             print("length of val frames is ", len(framename_validation))
             # print("Validation coords:", coordname_validation)
         else:
@@ -448,7 +488,7 @@ def main(
             print("I cannot find the 'aperture correction' file")
             sys.exit("quitting now...")
 
-        with open(filepath) as file:
+        with open(filepath, "r") as file:
             data = np.loadtxt(file, usecols=(0, 1, 2), dtype="str")
 
         filter, ap, aperr = data[:, 0], data[:, 1], data[:, 2]
@@ -474,7 +514,7 @@ def main(
             mag_3 = mag[id]
 
             useraperture = float(useraperture)
-            useraperture = f"{useraperture:.2f}"
+            useraperture = "{0:.2f}".format(useraperture)
             if float(useraperture) == 3.0:
                 id = np.where(aper == "3.00")
             elif float(useraperture) == 1.0:
@@ -548,7 +588,7 @@ def main(
             # --- -- - - write the ci_cut_*.coo file - after photometry, after ci cut
             if "555" in filt:
                 ci = float(ci)
-                id = np.where(values >= ci)
+                id = np.where((values >= ci))
                 xc = xc[id]
                 yc = yc[id]
                 mag_4 = mag_4[id]

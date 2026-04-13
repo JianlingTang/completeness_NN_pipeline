@@ -207,7 +207,7 @@ plt.show()
 
 ### Notes
 
-- **Magnitude source**: from the third column of the injection coords file (e.g. `white_position_*.txt`); the legacy script writes (y x mag).
+- **Magnitude source**: from the third column of the injection coords file (e.g. `white_position_*.txt`). Format is (x y mag), x=column y=row, aligned with `legus_original_pipeline.py`.
 - **Completeness**: per magnitude bin, completeness = number of matched injected sources / total injected in that bin.
 - **Diagnostic table location**: `{main_dir}/{galaxy_id}/white/diagnostics/match_summary_frame*_reff*_{outname}.txt`.
 

@@ -45,6 +45,7 @@ class PipelineConfig:
     sextractor_nnw_path: Path | None = None
     pixscale_wfc3: float = 0.04
     pixscale_acs: float = 0.05
+    # Gaussian smoothing kernel for white-light footprint (physical sigma in pc). Same as original_select_insert_white.py.
     sigma_pc: float = 100.0
     merr_cut: float = 0.3
     inject_5filter_script: Path | None = None

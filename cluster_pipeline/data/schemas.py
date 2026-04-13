@@ -53,9 +53,10 @@ CATALOGUE_FILTERS_SCHEMA: dict[str, str] = {
     "frame_id": "int32",
     "reff": "float64",
     "passes_ci": "int8",
-    "passes_merr": "int8",
-    "passes_multiband": "int8",
-    "in_catalogue": "int8",  # 1 if all filters pass
+    "passes_stage1_merr": "int8",   # Stage A: V<=0.3 and (B<=0.3 or I<=0.3)
+    "passes_stage2_merr": "int8",   # Stage B: at least 4 bands merr<=0.3
+    "passes_MV": "int8",            # Stage B: M_V <= -6            # M_V <= -6 (if dmod given)
+    "in_catalogue": "int8",
 }
 
 DATASET_ROW_SCHEMA: dict[str, str] = {

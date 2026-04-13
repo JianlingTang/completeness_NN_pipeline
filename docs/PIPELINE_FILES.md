@@ -40,7 +40,7 @@ This document lists the **files and directories** the pipeline reads or writes f
 | File / directory | Purpose |
 |------------------|--------|
 | `{galaxy}/white/synthetic_fits/` | `*_frame{i}_{outname}_reff{r}.fits` synthetic white frames. |
-| `{galaxy}/white/white_position_{i}_{outname}_reff{r}.txt` | Injected coords (y x mag) per (frame, reff). |
+| `{galaxy}/white/white_position_{i}_{outname}_reff{r}.txt` | Injected coords (x y mag), x=col y=row, same as legus_original_pipeline. |
 | `physprop/mass_select_model{mrmodel}_frame{i}_reff{r}_{outname}.npy` | Selected mass. |
 | `physprop/age_select_model{mrmodel}_frame{i}_reff{r}_{outname}.npy` | Selected age. |
 | `physprop/av_select_model{mrmodel}_frame{i}_reff{r}_{outname}.npy` | Selected A_V. |

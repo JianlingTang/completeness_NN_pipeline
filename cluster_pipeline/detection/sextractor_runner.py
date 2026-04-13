@@ -93,6 +93,12 @@ def run_sextractor(
     if nnw_path is not None and Path(nnw_path).exists():
         cmd.extend(["-STARNNW_NAME", str(Path(nnw_path).resolve())])
     cmd.extend(["-CATALOG_NAME", str(output_dir / catalog_name)])
+    # Force detection thresholds regardless of values in the config file.
+    cmd.extend([
+        "-DETECT_MINAREA", "5",
+        "-DETECT_THRESH", "10",
+        "-ANALYSIS_THRESH", "10",
+    ])
 
     # Resolve FILTER_NAME (convolution file) from SExtractor's share dir if needed
     if config_path is not None and config_path.exists():
@@ -131,7 +137,7 @@ def run_sextractor(
 
     # Always build .coo from current catalog so matching uses this run's detections (overwrite any stale .coo)
     if catalog_path.exists():
-        _write_coo_from_catalog(catalog_path, coo_path)
+        _write_coo_from_catalog(catalog_path, coo_path, param_path=param_path)
 
     return DetectionResult(
         catalog_path=catalog_path,
@@ -141,22 +147,47 @@ def run_sextractor(
     )
 
 
-def _write_coo_from_catalog(catalog_path: Path, coo_path: Path) -> None:
-    """Write two-column x y from SExtractor catalog (auto-skip # headers).
-    SExtractor may write columns in (Y_IMAGE, X_IMAGE) order; we need (x, y) = (X, Y) for matching.
+def _write_coo_from_catalog(
+    catalog_path: Path, coo_path: Path, param_path: Path | None = None
+) -> None:
+    """Write two-column (x, y) = (X_IMAGE, Y_IMAGE) from SExtractor catalog.
+    Column order is taken from PARAMETERS_NAME (param_path) so we output (x, y) for matching.
     """
     import numpy as np
     try:
         data = np.loadtxt(catalog_path, comments="#")
         if data.ndim == 1:
             data = data.reshape(1, -1)
-        if data.shape[1] >= 2:
-            # First two cols may be (X,Y) or (Y,X); ensure output (x,y) for matcher.
-            # Empirical: catalog often has col0=Y col1=X; swap to (x,y).
-            xy = data[:, [1, 0]]
-            np.savetxt(coo_path, xy, fmt="%.4f")
+        if data.shape[1] < 2:
+            return
+        # Resolve (x, y) column indices from param file (same order as SExtractor catalog)
+        xcol, ycol = _x_y_column_indices(param_path)
+        xy = data[:, [xcol, ycol]]
+        np.savetxt(coo_path, xy, fmt="%.4f")
     except Exception:
         coo_path.write_text("")
+
+
+def _x_y_column_indices(param_path: Path | None) -> tuple[int, int]:
+    """Return (col_index_X_IMAGE, col_index_Y_IMAGE) from PARAMETERS_NAME file.
+    If param_path is missing or unreadable, assume first two columns are (X, Y).
+    """
+    if param_path is None or not Path(param_path).exists():
+        return 0, 1
+    col = 0
+    xcol, ycol = None, None
+    for line in Path(param_path).read_text().splitlines():
+        line = line.split("#")[0].strip()
+        if not line:
+            continue
+        if line.upper() == "X_IMAGE":
+            xcol = col
+        elif line.upper() == "Y_IMAGE":
+            ycol = col
+        col += 1
+        if xcol is not None and ycol is not None:
+            return xcol, ycol
+    return 0, 1
 
 
 class SExtractorRunner:

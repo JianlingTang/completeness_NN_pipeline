@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 
 def load_coords_with_mag(path: Path) -> tuple[np.ndarray, np.ndarray | None]:
     """
-    Load coordinate file: two-column (x y) or three-column (e.g. y x mag).
+    Load coordinate file: two-column (x y) or three-column (x y mag), x=col y=row.
     Returns (coords (N,2), mags (N,) or None).
     """
     data = np.loadtxt(path)

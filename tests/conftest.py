@@ -133,8 +133,9 @@ def sample_catalogue_parquet(tmp_path):
         "frame_id": [0] * 3,
         "reff": [5.0] * 3,
         "passes_ci": np.int8([1, 1, 1]),
-        "passes_merr": np.int8([1, 1, 1]),
-        "passes_multiband": np.int8([1, 1, 1]),
+        "passes_stage1_merr": np.int8([1, 1, 1]),
+        "passes_stage2_merr": np.int8([1, 1, 1]),
+        "passes_MV": np.int8([1, 1, 1]),
         "in_catalogue": np.int8([1, 0, 0]),
     })
     path = tmp_path / "catalogue.parquet"

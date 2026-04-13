@@ -14,13 +14,12 @@ from cluster_pipeline.data.schemas import CATALOGUE_FILTERS_SCHEMA
 
 
 class TestApplyCatalogueFilters:
-    """apply_catalogue_filters: one row per (cluster_id, galaxy_id, frame_id, reff), in_catalogue = passes_ci & passes_merr & passes_multiband."""
+    """apply_catalogue_filters: LEGUS Stage A (CI + V and B|I merr) & Stage B (>=4 bands merr + M_V)."""
 
     def test_output_schema(self, sample_photometry_parquet):
         df = apply_catalogue_filters(
             sample_photometry_parquet,
             merr_cut=0.3,
-            required_filters=["F275W", "F336W", "F438W", "F555W", "F814W"],
         )
         for col in CATALOGUE_FILTERS_SCHEMA:
             assert col in df.columns
@@ -30,16 +29,15 @@ class TestApplyCatalogueFilters:
         df = apply_catalogue_filters(
             sample_photometry_parquet,
             merr_cut=0.5,
-            required_filters=["F275W", "F336W", "F438W", "F555W", "F814W"],
         )
         assert set(df["cluster_id"]) == {1, 2, 3}
         assert df["galaxy_id"].nunique() == 1
 
-    def test_passes_merr_all_under_cut(self, tmp_path_dir):
-        # All merr 0.1 < 0.3 -> passes_merr=1
+    def test_passes_stage1_stage2_merr(self, tmp_path_dir):
+        # V, B, I merr 0.1 -> Stage A pass; 5 filters all 0.1 -> Stage B pass (>=4 good)
         rows = []
         for cid in [1]:
-            for fname in ["F555W", "F814W"]:
+            for fname in ["F275W", "F336W", "F435W", "F555W", "F814W"]:
                 rows.append({
                     "cluster_id": cid,
                     "galaxy_id": "G",
@@ -55,16 +53,43 @@ class TestApplyCatalogueFilters:
         df_in = pd.DataFrame(rows)
         path = tmp_path_dir / "phot.parquet"
         df_in.to_parquet(path, index=False)
-        out = apply_catalogue_filters(path, merr_cut=0.3, required_filters=None)
-        assert out["passes_merr"].iloc[0] == 1
+        out = apply_catalogue_filters(path, merr_cut=0.3)
+        assert out["passes_stage1_merr"].iloc[0] == 1
+        assert out["passes_stage2_merr"].iloc[0] == 1
 
     def test_in_catalogue_binary(self, sample_photometry_parquet):
         df = apply_catalogue_filters(
             sample_photometry_parquet,
             merr_cut=0.5,
-            required_filters=["F275W", "F336W", "F438W", "F555W", "F814W"],
         )
         assert set(df["in_catalogue"].unique()).issubset({0, 1})
+
+    def test_mv_cut_turnover_at_faint_end_not_bright(self, tmp_path):
+        """M_V <= -6: keep bright (low m_V), discard faint (high m_V). Turnover at m_V ~ dmod - 6 (~24 mag), not at 20."""
+        dmod = 29.98
+        rows = []
+        for cid, v_mag in [(1, 20.0), (2, 25.0)]:
+            for fname in ["F275W", "F336W", "F435W", "F555W", "F814W"]:
+                mag = v_mag if fname == "F555W" else 21.0
+                rows.append({
+                    "cluster_id": cid,
+                    "galaxy_id": "G",
+                    "frame_id": 0,
+                    "reff": 5.0,
+                    "filter_name": fname,
+                    "mag": mag,
+                    "merr": 0.1,
+                    "mag_1px": mag,
+                    "mag_3px": mag + 0.3,
+                    "ci": 0.3,
+                })
+        path = tmp_path / "phot.parquet"
+        pd.DataFrame(rows).to_parquet(path, index=False)
+        df = apply_catalogue_filters(path, merr_cut=0.3, dmod=dmod)
+        # Bright (m_V=20) -> M_V = -9.98 <= -6 -> pass
+        assert df[df["cluster_id"] == 1]["passes_MV"].iloc[0] == 1
+        # Faint (m_V=25) -> M_V = -4.98 > -6 -> fail
+        assert df[df["cluster_id"] == 2]["passes_MV"].iloc[0] == 0
 
 
 class TestWriteCatalogueParquet:
@@ -77,8 +102,9 @@ class TestWriteCatalogueParquet:
             "frame_id": [0],
             "reff": [5.0],
             "passes_ci": np.int8([1]),
-            "passes_merr": np.int8([1]),
-            "passes_multiband": np.int8([1]),
+            "passes_stage1_merr": np.int8([1]),
+            "passes_stage2_merr": np.int8([1]),
+            "passes_MV": np.int8([1]),
             "in_catalogue": np.int8([1]),
         })
         path = tmp_path_dir / "cat.parquet"

@@ -2,6 +2,9 @@
 Coordinate matcher: match injected (synthetic) positions to detected (SExtractor) positions.
 Uses KD-tree for nearest-neighbor matching within a pixel tolerance.
 No global state; inputs/outputs are paths or arrays.
+
+Coord format (aligned with scripts/legus_original_pipeline.py and BAOlab):
+  All position files: (x y [mag]), x = column = NAXIS1, y = row = NAXIS2 (FITS/IRAF).
 """
 from pathlib import Path
 
@@ -24,15 +27,14 @@ def load_coords(path: Path) -> np.ndarray:
 
 def load_coords_white_position(path: Path) -> np.ndarray:
     """
-    Load white_position file written by generate_white_clusters: columns are (y x mag)
-    with y = row index, x = col index (from unravel_index: x,y = row,col then stored as (y,x)).
-    Returns (N, 2) array of (x, y) = (col, row) for SExtractor/matcher.
+    Load white_position file (same format as legus_original_pipeline.py coord files).
+    File columns: (x y mag), x = column = NAXIS1, y = row = NAXIS2.
+    Returns (N, 2) array of (x, y) for SExtractor/matcher.
     """
     data = np.loadtxt(path)
     if data.ndim == 1:
         data = data.reshape(1, -1)
-    # col0 = y (row), col1 = x (col) -> return (x, y)
-    return np.column_stack([data[:, 1], data[:, 0]]).astype(np.float64)
+    return data[:, :2].astype(np.float64)
 
 
 def match_coordinates(

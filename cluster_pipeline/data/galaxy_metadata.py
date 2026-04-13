@@ -48,11 +48,12 @@ def _read_dmod_and_ci_from_readme(gal_dir: Path, gal_short: str) -> tuple:
 
 @dataclass
 class GalaxyMetadata:
-    """Metadata for one galaxy: filters, zeropoints, instrument, paths to science FITS."""
+    """Metadata for one galaxy: filters, zeropoints, exptimes, instrument, paths to science FITS."""
 
     galaxy_id: str
     filters: list[str]
     zeropoints: dict[str, float]
+    exptimes: dict[str, float]  # filter -> exposure time in seconds (from header_info last column)
     instrument: dict[str, str]  # filter -> instrument name
     fits_paths: dict[str, Path]  # filter -> path to drc/sci FITS
     readme_path: Path | None = None
@@ -62,25 +63,41 @@ class GalaxyMetadata:
     ci_cut: float | None = None
 
     @classmethod
-    def load(cls, main_dir: Path, galaxy_id: str) -> "GalaxyMetadata":
-        """Load galaxy metadata from main_dir/galaxy_id (galaxy_filter_dict, header_info, readme)."""
-        gal_dir = main_dir / galaxy_id
+    def load(cls, main_dir: Path, galaxy_id: str, galaxy_data_dir: Path | None = None) -> "GalaxyMetadata":
+        """Load galaxy metadata. galaxy_filter_dict from main_dir; FITS/readme/header from galaxy_data_dir/galaxy_id or main_dir/galaxy_id."""
+        gal_dir = (galaxy_data_dir if galaxy_data_dir is not None else main_dir) / galaxy_id
         gal_short = galaxy_id.split("_")[0]
         gal_filters = np.load(
             main_dir / "galaxy_filter_dict.npy", allow_pickle=True
         ).item()
         filters_list, instruments = gal_filters.get(gal_short, ([], []))
+        # Sorted order = canonical 5-band wavelength order (F275W, F336W, F435W, F555W, F814W) for LEGUS
         filters = sorted(filters_list) if filters_list else []
         zp_path = gal_dir / f"header_info_{gal_short}.txt"
         zeropoints: dict[str, float] = {}
+        exptimes: dict[str, float] = {}
         instrument_map: dict[str, str] = {}
         if zp_path.exists():
-            data = np.loadtxt(zp_path, unpack=True, skiprows=0, usecols=(0, 1, 2), dtype="str")
+            # header_info: 4 columns required — filter, instrument, zeropoint, exptime (seconds)
+            data = np.loadtxt(zp_path, unpack=True, skiprows=0, dtype="str")
             if data.size > 0:
-                filts, inst, zp = data[0], data[1], data[2]
-                for f, i, z in zip(np.atleast_1d(filts), np.atleast_1d(inst), np.atleast_1d(zp)):
-                    zeropoints[str(f)] = float(z)
-                    instrument_map[str(f)] = str(i)
+                ncols = len(data) if isinstance(data, (list, tuple)) else data.shape[0]
+                if ncols < 4:
+                    raise ValueError(
+                        f"{zp_path}: header_info must have 4 columns (filter, instrument, zeropoint, exptime). "
+                        f"Found {ncols} columns. Do not use default exptime."
+                    )
+                filts = np.atleast_1d(data[0])
+                inst = np.atleast_1d(data[1])
+                zp = np.atleast_1d(data[2])
+                expt = np.atleast_1d(data[3])
+                for f, i, z, e in zip(filts, inst, zp, expt):
+                    fkey = str(f).strip()
+                    zval, eval_ = float(z), float(e)
+                    for k in (fkey, fkey.upper(), fkey.lower()):
+                        zeropoints[k] = zval
+                        instrument_map[k] = str(i)
+                        exptimes[k] = eval_
         fits_paths: dict[str, Path] = {}
         for f in filters:
             matches = list(gal_dir.glob(f"*{f}*drc.fits"))
@@ -89,6 +106,9 @@ class GalaxyMetadata:
             if matches:
                 fits_paths[f] = matches[0].resolve()
         ap = _read_aperture_from_readme(gal_dir, gal_short)
+        # NGC 628c: science aperture 4 px when readme not present (LEGUS: inner ring 4 px, sky annulus at 7 px)
+        if ap is None and galaxy_id == "ngc628-c":
+            ap = 4.0
         dmod, ci = _read_dmod_and_ci_from_readme(gal_dir, gal_short)
         readme_path = None
         readmes = list(gal_dir.glob(f"automatic_catalog*_{gal_short}.readme"))
@@ -98,6 +118,7 @@ class GalaxyMetadata:
             galaxy_id=galaxy_id,
             filters=filters,
             zeropoints=zeropoints,
+            exptimes=exptimes,
             instrument=instrument_map,
             fits_paths=fits_paths,
             header_info_path=zp_path if zp_path.exists() else None,

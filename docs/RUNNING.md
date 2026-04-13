@@ -78,6 +78,8 @@ This runs **Phase A** (white-light injection via `scripts/generate_white_cluster
 python scripts/run_pipeline.py --cleanup --nframe 2 --reff_list "1,3,6,10" --run_photometry
 ```
 
+With **`--run_photometry`**, Phase B is always run **single-process** (IRAF/PyRAF is not safe with multiple workers); `--parallel` and `--n_workers` are ignored for Phase B in that case. Without `--run_photometry`, you can use **`--parallel`** so Phase B runs (frame × reff) jobs in parallel; optionally set **`--n_workers N`** to cap the number of processes.
+
 Requires per-filter science FITS and BAOlab. Matched clusters are injected onto 5-filter images, then aperture photometry and CI cut are run; final detection labels and catalogue parquet are written.
 
 ### 3. Using pre-defined coordinates (no SLUG sampling)
@@ -88,7 +90,17 @@ python scripts/run_pipeline.py --input_coords path/to/coords.txt --nframe 1 --re
 
 `coords.txt` format: one line per cluster, `x y mag` (optionally `x y mag mass age` for 5 columns). Clusters are injected at these positions with the given white mag.
 
-### 4. Build ML inputs from pipeline outputs
+### 4. Run pipeline + ML in one command
+
+To chain the pipeline with ML (build ML inputs, then train the completeness NN) in a single run:
+
+```bash
+python scripts/run_pipeline.py --nframe 2 --reff_list "1,3,6,10" --run_photometry --run_ml
+```
+
+Optional: `--ml_out_det`, `--ml_out_npz`, `--ml_out_dir`, `--use-white-match` control paths and label source. Defaults: `det_3d.npy` and `allprop.npz` in the project root, NN output under `./nn_sweep_out` with `--save-best`.
+
+### 5. Build ML inputs from pipeline outputs
 
 From the detection labels and physprop `.npy` files, build the 3D detection array and property `.npz` for the NN:
 
@@ -100,7 +112,7 @@ python scripts/build_ml_inputs.py --main-dir . --galaxy ngc628-c --outname test 
 
 Use `--use-white-match` to build labels from white-match detection (detection rate) instead of post–CI labels. The script prints the suggested `scripts/perform_ml_to_learn_completeness.py` command.
 
-### 5. Train the completeness NN
+### 6. Train the completeness NN
 
 ```bash
 python scripts/perform_ml_to_learn_completeness.py \

@@ -2,6 +2,11 @@
 Aperture photometry using IRAF daophot.phot on detected coordinates.
 Photometry is performed on detected positions (matched_coords), not injected.
 All parameters (zeropoint, aperture radii, etc.) come from config/metadata; no hardcoding.
+
+LEGUS-style config (same for all 5 filters):
+- Science aperture (photometric aperture / inner ring): from metadata (e.g. 4 px for NGC 628c).
+- Local sky annulus: inner edge 7 px (fitskypars.annulus=7), width 1 px (fitskypars.dannulu=1).
+- Outer ring (sky annulus location) = 7 px; same science aperture and sky annulus for all filters.
 """
 from __future__ import annotations
 
@@ -52,9 +57,9 @@ def run_aperture_photometry(
         Path to the magnitude table .txt file (grep "*" from .mag, sed INDEF->99.999).
     """
     try:
-        from pyraf.iraf import daophot, digiphot, noao  # load IRAF packages (side effect)
-
-        _ = (daophot, digiphot, noao)
+        from pyraf.iraf import noao
+        noao.digiphot()
+        noao.digiphot.apphot()  # loads datapars, phot, centerpars, fitskypars, photpars
         from pyraf import iraf
     except ImportError:
         raise ImportError("pyraf is required for aperture_photometry") from None
@@ -85,8 +90,8 @@ def run_aperture_photometry(
     iraf.centerpars.maxshift = 1
     iraf.unlearn("fitskypars")
     iraf.fitskypars.salgori = "mode"
-    iraf.fitskypars.annulus = 7.0
-    iraf.fitskypars.dannulu = 1.0
+    iraf.fitskypars.annulus = 7.0   # local sky annulus inner edge (px); outer = annulus + dannulu
+    iraf.fitskypars.dannulu = 1.0   # annulus width (px); same for all 5 filters
     iraf.unlearn("photpars")
     iraf.photpars.apertures = apertures_str
     iraf.photpars.zmag = zeropoint

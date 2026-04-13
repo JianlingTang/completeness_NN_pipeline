@@ -1,6 +1,7 @@
 """
 Cluster library loader: SLUG library FITS. Thin wrapper; returns arrays for sampling.
 """
+from functools import cache
 from pathlib import Path
 
 import numpy as np
@@ -14,17 +15,32 @@ def load_slug_library(
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, list, list]:
     """
     Load SLUG cluster libraries and return concatenated arrays.
-    Uses the built-in slug_reader (no slugpy installation needed).
+    Uses slugpy.read_cluster (slugpy required). Result is cached per (slug_lib_dir, output_lib_dir, filter set, mrmodel).
 
     Returns
     -------
     (cid, actual_mass, target_mass, form_time, eval_time, a_v,
      phot_neb_ex, phot_neb_ex_veg, filter_names, filter_units)
     """
+    allfilters_cam_tuple = tuple(sorted(allfilters_cam, key=lambda x: x[-4:]))
+    return _load_slug_library_cached(slug_lib_dir, output_lib_dir, allfilters_cam_tuple, mrmodel)
+
+
+@cache
+def _load_slug_library_cached(
+    slug_lib_dir: Path,
+    output_lib_dir: Path,
+    allfilters_cam: tuple,
+    mrmodel: str,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, list, list]:
+    """Cached implementation; allfilters_cam must be sorted tuple."""
     import glob
     import itertools
 
-    from .slug_reader import read_cluster
+    try:
+        from slugpy import read_cluster
+    except ImportError:
+        from .slug_reader import read_cluster
 
     if mrmodel == "flat":
         libs = sorted(glob.glob(str(slug_lib_dir / "flat_in_logm_cluster_phot.fits")))

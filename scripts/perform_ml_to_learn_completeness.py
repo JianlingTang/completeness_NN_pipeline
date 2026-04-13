@@ -108,6 +108,8 @@ def drop_frame_from_prop_flat(
         n0 == expected
     ), f"prop['mass'] length mismatch: got {n0}, expected {expected}={n_clusters}*{n_frames}*{n_reff}"
 
+    if drop_frame < 0:
+        return dict(prop_raw), np.ones(n0, dtype=bool)
     if not (0 <= drop_frame < n_frames):
         raise AssertionError(f"drop_frame={drop_frame} out of range [0, {n_frames-1}]")
 
@@ -155,6 +157,8 @@ def drop_frame_from_det_3d(
     """
     assert det_raw.ndim == 3, f"det_raw expected 3D, got shape {det_raw.shape}"
     n_clusters, n_frames, n_reff = det_raw.shape
+    if drop_frame < 0:
+        return det_raw.copy()
     assert 0 <= drop_frame < n_frames, f"drop_frame={drop_frame} out of range [0, {n_frames-1}]"
     det = np.delete(det_raw, drop_frame, axis=1)
     assert det.shape == (n_clusters, n_frames - 1, n_reff)
@@ -369,6 +373,12 @@ def main():
 
     # IMPORTANT: your current allprop flatten is CFR (cluster->frame->reff)
     parser.add_argument("--prop-flatten-order", type=str, default="CFR")
+    parser.add_argument(
+        "--sample-points",
+        type=int,
+        default=None,
+        help="Optional total number of samples for ML fit. If larger than available, sampling is done with replacement.",
+    )
 
     args = parser.parse_args()
 
@@ -383,7 +393,13 @@ def main():
     print("Using device:", device)
 
     # ---- load ----
-    prop_raw = np.load(args.npz_path, allow_pickle=True).item()
+    prop_raw = np.load(args.npz_path, allow_pickle=True)
+    if hasattr(prop_raw, "files"):
+        prop_raw = {k: prop_raw[k] for k in prop_raw.files}
+    elif isinstance(prop_raw, np.ndarray) and prop_raw.dtype == object:
+        prop_raw = prop_raw.item()
+    else:
+        raise TypeError(f"Unsupported npz payload type: {type(prop_raw)}")
     det_raw = np.load(args.det_path)
 
     # ---- assert raw det expected 3D: (clusters, frames, reff) ----
@@ -418,13 +434,18 @@ def main():
 
     # ---- DROP FRAME robustly ----
     # 1) drop from det in its native 3D structure
-    det_3d = drop_frame_from_det_3d(det_raw, drop_frame=args.drop_frame)
-    assert det_3d.shape[1] == args.nframes - 1
+    do_drop = args.drop_frame >= 0 and args.nframes > 1
+    drop_frame = args.drop_frame if do_drop else -1
+    det_3d = drop_frame_from_det_3d(det_raw, drop_frame=drop_frame)
+    if do_drop:
+        assert det_3d.shape[1] == args.nframes - 1
+    else:
+        assert det_3d.shape[1] == args.nframes
 
     # 2) drop from prop using explicit frame_ids that match the prop flatten order
     prop, keep_mask = drop_frame_from_prop_flat(
         prop_raw,
-        drop_frame=args.drop_frame,
+        drop_frame=drop_frame,
         n_clusters=args.clusters_per_frame,
         n_frames=args.nframes,
         n_reff=args.nreff,
@@ -439,16 +460,33 @@ def main():
         f"After dropping, y length {y_flat.shape[0]} != prop length {prop['mass'].shape[0]}"
     )
 
-    print(
-        f"✔ Dropped frame={args.drop_frame}. "
-        f"prop N: {n0} -> {prop['mass'].shape[0]} (dropped {args.clusters_per_frame*args.nreff}). "
-        f"det: {det_raw.shape} -> {det_3d.shape}."
-    )
+    if do_drop:
+        print(
+            f"✔ Dropped frame={drop_frame}. "
+            f"prop N: {n0} -> {prop['mass'].shape[0]} (dropped {args.clusters_per_frame*args.nreff}). "
+            f"det: {det_raw.shape} -> {det_3d.shape}."
+        )
+    else:
+        print(f"✔ Frame drop disabled. prop N: {n0} -> {prop['mass'].shape[0]}. det: {det_raw.shape} -> {det_3d.shape}.")
 
     # ---- build features/labels ----
     x_phys = np.column_stack([prop["mass"], prop["age"], prop["av"]])
     x_phot = prop["phot"]
     y = y_flat.reshape(-1, 1)
+
+    # ---- optional sample cap / expansion for quick tests ----
+    if args.sample_points is not None and args.sample_points > 0:
+        n_all = x_phys.shape[0]
+        n_target = int(args.sample_points)
+        rng = np.random.default_rng(SEED)
+        replace = n_target > n_all
+        idx = rng.choice(n_all, size=n_target, replace=replace)
+        x_phys = x_phys[idx]
+        x_phot = x_phot[idx]
+        y = y[idx]
+        y_flat = y.reshape(-1)
+        mode = "with replacement" if replace else "without replacement"
+        print(f"Using {n_target} samples for ML ({mode}); source pool={n_all}.")
 
     # ---- split ----
     y_int = y_flat.astype(int)
