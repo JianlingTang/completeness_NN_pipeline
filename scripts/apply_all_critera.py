@@ -1,6 +1,7 @@
-import numpy as np
-import os
 import glob
+import os
+
+import numpy as np
 from scipy.spatial import cKDTree
 
 # Constants
@@ -12,6 +13,7 @@ x_white = 500
 thres_coor = 3
 outname = "tset_18Dec"
 validation = False
+framenum = 0  # used only when validation=True in path templates
 
 # Output matrices
 detection_white = np.zeros((x_white, nframe, reff), dtype=np.uint8)
@@ -72,11 +74,6 @@ for re in range(1, reff + 1):
 # print("White detection done:", detection_white.shape)
 # np.save("detection_white_tset_18Dec.npy", detection_white)
 # np.save("DETECTED_INDEX_tset_18Dec.npy", detected_index)
-
-import numpy as np
-import os
-import glob
-from scipy.spatial import cKDTree
 
 filters = ["f275w", "f336w", "f435w", "f555w", "f814w"]
 nf = len(filters)

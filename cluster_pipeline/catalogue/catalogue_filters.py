@@ -39,8 +39,6 @@ def apply_catalogue_filters(
     # Match filter names case-insensitively (photometry may have 'f555w' vs 'F555W')
     df["_fn"] = df["filter_name"].astype(str).str.upper()
     v_upper = vband_filter.upper()
-    b_upper = b_filter.upper()
-    i_upper = i_filter.upper()
     grp = df.groupby(["cluster_id", "galaxy_id", "frame_id", "reff"])
 
     agg = grp.agg(passes_ci=("passes_ci", "max")).reset_index()
@@ -56,8 +54,8 @@ def apply_catalogue_filters(
             v = g[g["_fn"] == v_upper]
             return v["mag"].iloc[0] if len(v) else np.nan
         v_mag = grp.apply(v_mag_from_g).values
-        M_V = v_mag - dmod
-        agg["passes_MV"] = (M_V <= MV_CUT).astype(np.int8)
+        m_v = v_mag - dmod
+        agg["passes_MV"] = (m_v <= MV_CUT).astype(np.int8)
     else:
         agg["passes_MV"] = 1
 

@@ -12,24 +12,11 @@ import argparse
 import sys
 from pathlib import Path
 
-from astropy.visualization.wcsaxes import Quadrangle
-from astropy.coordinates import SkyCoord
-from matplotlib.patches import Circle
-import numpy as np
-from matplotlib.ticker import FormatStrFormatter
-from matplotlib import ticker
-import argparse
 import matplotlib as mpl
-from matplotlib.ticker import AutoMinorLocator
-from matplotlib.ticker import MaxNLocator
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.gridspec as gridspec
-from scipy.stats import binned_statistic_2d
-from scipy.stats import binned_statistic
-from matplotlib.ticker import MaxNLocator
-from matplotlib.ticker import LogLocator
-from matplotlib.patches import Rectangle
+import numpy as np
+from astropy.coordinates import SkyCoord
+
 mpl.rcParams.update({
     "figure.figsize": (5., 5.0),
     "figure.dpi": 200,
@@ -55,7 +42,6 @@ mpl.rcParams.update({
 plt.rc("text", usetex=False)
 plt.rc("font", family="serif")
 plt.rc("mathtext", fontset="cm")   # Computer Modern
-from astropy.coordinates import SkyCoord
 
 try:
     from regions import PolygonSkyRegion
@@ -149,12 +135,12 @@ def main():
     args = parser.parse_args()
 
     try:
+        import matplotlib.pyplot as plt
+        import pandas as pd
+        from astropy.coordinates import SkyCoord
         from astropy.io import fits
         from astropy.wcs import WCS
-        from astropy.coordinates import SkyCoord
-        import matplotlib.pyplot as plt
         from matplotlib.gridspec import GridSpec
-        import pandas as pd
     except ImportError as e:
         print(f"Need astropy, matplotlib, pandas: {e}", file=sys.stderr)
         return 1
@@ -360,13 +346,13 @@ def main():
             (x_0based >= x0) & (x_0based < x1) &
             (y_0based >= y0) & (y_0based < y1)
         )
-        x_plot = x_0based[inside] - x0
-        y_plot = y_0based[inside] - y0
-        rec_plot = recovered[inside]
+        _x_plot = x_0based[inside] - x0
+        _y_plot = y_0based[inside] - y0
+        _rec_plot = recovered[inside]
     else:
-        x_plot = x_0based
-        y_plot = y_0based
-        rec_plot = recovered
+        _x_plot = x_0based
+        _y_plot = y_0based
+        _rec_plot = recovered
 
     ra_lim = dec_lim = None
 
@@ -555,7 +541,7 @@ def main():
             t0 = None
 
     if t0 is not None:
-        im0 = show_im(
+        _im0 = show_im(
             ax0,
             img_white,
             vmin=vmin_global,
@@ -565,7 +551,7 @@ def main():
             mask_invalid=True,
         )
     else:
-        im0 = show_im(ax0, img_white, vmin=vmin_global, vmax=vmax_global, mask_invalid=True)
+        _im0 = show_im(ax0, img_white, vmin=vmin_global, vmax=vmax_global, mask_invalid=True)
 
     t1 = None
     if wcs_full is not None and hasattr(ax1, "get_transform"):
@@ -575,7 +561,7 @@ def main():
             t1 = None
 
     if t1 is not None:
-        im1 = show_im(
+        _im1 = show_im(
             ax1,
             img_synthetic,
             vmin=vmin_global,
@@ -585,7 +571,7 @@ def main():
             mask_invalid=True,
         )
     else:
-        im1 = show_im(ax1, img_synthetic, vmin=vmin_global, vmax=vmax_global, mask_invalid=True)
+        _im1 = show_im(ax1, img_synthetic, vmin=vmin_global, vmax=vmax_global, mask_invalid=True)
 
     lw_circle = 0.6
     lw_circle_bot = 1.2
@@ -637,7 +623,7 @@ def main():
     y_p = yr_all[in_view] - float(bot_py0)
     rec_v = rec_all[in_view]
     nrec_v = ~rec_v
-    
+
     if pixel_region is not None:
         pixel_region.plot(ax=ax0, color="black", lw=3, alpha=1, zorder=100)
         ax0.plot([], [], color="black", lw=3, label="Field of View")
@@ -671,7 +657,7 @@ def main():
             tb = None
 
     if tb is not None:
-        im2 = ax2.imshow(
+        _im2 = ax2.imshow(
             img_bot,
             origin="lower",
             cmap="gray_r",
@@ -725,7 +711,7 @@ def main():
         except (AttributeError, KeyError, IndexError):
             pass
     else:
-        im2 = ax2.imshow(
+        _im2 = ax2.imshow(
             img_bot,
             origin="lower",
             cmap="gray_r",

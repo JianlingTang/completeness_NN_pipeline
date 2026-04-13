@@ -47,6 +47,14 @@ completeness_nn_api = ["checkpoints/*.pt", "checkpoints/*.pkl"]
 target-version = "py310"
 line-length = 120
 exclude = [".venv", ".deps", "__pycache__", "build", "dist", ".git", "*.ipynb", "Save_detections", "Save_detections_training_set"]
+# Legacy / mirror scripts: not refactored to Ruff E/F/N rules; kept for reference and one-off runs.
+extend-exclude = [
+    "scripts/legus_original_pipeline.py",
+    "scripts/original_select_insert_white.py",
+    "scripts/original_photometry_on_5_and_CI.py",
+    "scripts/original_inject_to_5filters.py",
+    "scripts/plot_three_panel_white_synthetic_recovered_saved.py",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "UP"]

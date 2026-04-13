@@ -409,10 +409,10 @@ def run_phase_b(ncl: int = NCL, nframe: int = NFRAME, run_photometry: bool = Fal
         print("Photometry: 5 filters per frame, each ~1–2 min — total can be 10+ min per frame.", flush=True)
     print("", flush=True)
 
+    import os
+
     from cluster_pipeline.config import PipelineConfig
     from cluster_pipeline.pipeline import run_galaxy_pipeline
-
-    import os
     def _path_env(key: str, default: Path) -> Path:
         raw = os.environ.get(key)
         return Path(raw) if raw else default
@@ -1068,8 +1068,8 @@ def plot_completeness_diagnostics(nframe: int = 1, reff_list: list = None):
 
             lim90 = completeness_limit(centers_legus, comp_before_pct, 90)
             lim50 = completeness_limit(centers_legus, comp_before_pct, 50)
-            lim90_CI = completeness_limit(centers_legus, comp_after_pct, 90)
-            lim50_CI = completeness_limit(centers_legus, comp_after_pct, 50)
+            lim90_ci = completeness_limit(centers_legus, comp_after_pct, 90)
+            lim50_ci = completeness_limit(centers_legus, comp_after_pct, 50)
 
             fig_legus, ax_legus = plt.subplots(1, 2, figsize=(9, 5))
             # Left: Total recovery (before CI cut)
@@ -1097,14 +1097,14 @@ def plot_completeness_diagnostics(nframe: int = 1, reff_list: list = None):
             ax_legus[1].set_xlabel("Mag (V apparent, simulated)")
             ax_legus[1].set_ylim(0, 105)
             ax_legus[1].set_xlim(minmag_legus, maxmag_legus)
-            if np.isfinite(lim90_CI):
-                ax_legus[1].plot([minmag_legus, lim90_CI], [90, 90], color="#60BD68", linewidth=2, linestyle="--")
+            if np.isfinite(lim90_ci):
+                ax_legus[1].plot([minmag_legus, lim90_ci], [90, 90], color="#60BD68", linewidth=2, linestyle="--")
                 ax_legus[1].text(minmag_legus + 0.07, 91, "90%", fontweight="bold", color="#60BD68")
-                ax_legus[1].plot([lim90_CI, lim90_CI], [0, 90], color="#60BD68", linewidth=2, linestyle="--")
-            if np.isfinite(lim50_CI):
-                ax_legus[1].plot([minmag_legus, lim50_CI], [50, 50], color="#FAA43A", linewidth=2, linestyle="--")
+                ax_legus[1].plot([lim90_ci, lim90_ci], [0, 90], color="#60BD68", linewidth=2, linestyle="--")
+            if np.isfinite(lim50_ci):
+                ax_legus[1].plot([minmag_legus, lim50_ci], [50, 50], color="#FAA43A", linewidth=2, linestyle="--")
                 ax_legus[1].text(minmag_legus + 0.07, 51, "50%", fontweight="bold", color="#FAA43A")
-                ax_legus[1].plot([lim50_CI, lim50_CI], [0, 50], color="#FAA43A", linewidth=2, linestyle="--")
+                ax_legus[1].plot([lim50_ci, lim50_ci], [0, 50], color="#FAA43A", linewidth=2, linestyle="--")
             ax_legus[1].grid(True, alpha=0.3)
             fig_legus.suptitle(
                 f"LEGUS-style completeness ({GALAXY}, reff={reff_f}, n={n} clusters, {nframe} frames)\n"

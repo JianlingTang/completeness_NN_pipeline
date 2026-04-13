@@ -25,6 +25,7 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -37,6 +38,8 @@ from astropy.io import fits
 from numpy import genfromtxt, where
 from numpy.random import SeedSequence, default_rng
 from scipy.ndimage import gaussian_filter
+
+from cluster_pipeline.utils.fits_arithmetic import fits_add, fits_div
 
 try:
     from slugpy import read_cluster
@@ -55,7 +58,6 @@ def validate_psf_readable(psf_file: str, cam: str, filt: str) -> None:
         raise FileNotFoundError(
             f"Invalid PSF for camera={cam}, filter={filt}: {psf_file}. Reason: {e}"
         ) from e
-from cluster_pipeline.utils.fits_arithmetic import fits_add, fits_div
 
 
 def _as_2d_float_image(arr: Any) -> np.ndarray:
@@ -207,12 +209,12 @@ def load_slug_libraries_original_style(
         lib_all_list.append(lib_read)
         lib_all_list_veg.append(lib_read_vega)
 
-    ncl_MIST = 9950000
+    ncl_mist = 9950000
     cid = []
     actual_mass = []
     form_time = []
     eval_time = []
-    A_V = []
+    a_v = []
     phot_neb_ex = []
     phot_neb_ex_veg = []
     filter_names = lib_all_list[0].filter_names
@@ -223,17 +225,17 @@ def load_slug_libraries_original_style(
         actual_mass.append(lib_all.actual_mass)
         form_time.append(lib_all.form_time)
         eval_time.append(lib_all.time)
-        A_V.append(lib_all.A_V)
+        a_v.append(lib_all.A_V)
         phot_neb_ex.append(lib_all.phot_neb_ex)
         phot_neb_ex_veg.append(lib_all_list_veg[i].phot_neb_ex)
 
-    cid = np.concatenate(cid)[:ncl_MIST]
-    actual_mass = np.concatenate(actual_mass)[:ncl_MIST]
-    form_time = np.concatenate(form_time)[:ncl_MIST]
-    eval_time = np.concatenate(eval_time)[:ncl_MIST]
-    A_V = np.concatenate(A_V)[:ncl_MIST]
-    phot_neb_ex = np.concatenate(phot_neb_ex)[:ncl_MIST, :]
-    phot_neb_ex_veg = np.concatenate(phot_neb_ex_veg)[:ncl_MIST, :]
+    cid = np.concatenate(cid)[:ncl_mist]
+    actual_mass = np.concatenate(actual_mass)[:ncl_mist]
+    form_time = np.concatenate(form_time)[:ncl_mist]
+    eval_time = np.concatenate(eval_time)[:ncl_mist]
+    a_v = np.concatenate(a_v)[:ncl_mist]
+    phot_neb_ex = np.concatenate(phot_neb_ex)[:ncl_mist, :]
+    phot_neb_ex_veg = np.concatenate(phot_neb_ex_veg)[:ncl_mist, :]
     # target_mass not in original; use actual_mass so downstream shape is unchanged
     target_mass = np.array(actual_mass, dtype=float, copy=True)
 
@@ -244,7 +246,7 @@ def load_slug_libraries_original_style(
         target_mass,
         form_time,
         eval_time,
-        A_V,
+        a_v,
         phot_neb_ex,
         phot_neb_ex_veg,
         filter_names,

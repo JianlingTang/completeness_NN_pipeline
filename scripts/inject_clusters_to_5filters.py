@@ -188,9 +188,9 @@ def resolve_existing_testimg(path: str, expected_path: str, gal: str, cam: str, 
 
 def fits_add_images(a_path: str, b_path: str, out_path: str) -> None:
     """Add two FITS images safely pixel-by-pixel."""
-    with fits.open(a_path, memmap=False) as A, fits.open(b_path, memmap=False) as B:
-        data = A[0].data.astype(np.float32) + B[0].data.astype(np.float32)
-        hdr = A[0].header
+    with fits.open(a_path, memmap=False) as hdul_a, fits.open(b_path, memmap=False) as hdul_b:
+        data = hdul_a[0].data.astype(np.float32) + hdul_b[0].data.astype(np.float32)
+        hdr = hdul_a[0].header
     fits.writeto(out_path, data, hdr, overwrite=True)
 
 
@@ -442,7 +442,7 @@ def main(
     reff_angular_pixels = reff_angular_arcsec / pixscale_arcsec
     bao_fhwm = reff_angular_pixels / 1.13
     print("reff (pc) =", reff, " galdist (pc) =", galdist, " pixscale =", pixscale_arcsec)
-    print("reff angular = {:.4f} arcsec = {:.2f} px  bao_fhwm (FWHM px) = {:.4f}".format(reff_angular_arcsec, reff_angular_pixels, bao_fhwm))
+    print(f"reff angular = {reff_angular_arcsec:.4f} arcsec = {reff_angular_pixels:.2f} px  bao_fhwm (FWHM px) = {bao_fhwm:.4f}")
 
     # set aperture correction file
     apcorrfile = f"avg_aperture_correction_{gal}.txt"

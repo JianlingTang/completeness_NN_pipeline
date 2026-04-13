@@ -138,15 +138,14 @@ def load_labels(main_dir: Path, reff: float, nframe: int):
     wl_all = np.concatenate(white_labels).astype(np.uint8)
     ci_all = np.concatenate(ci_flags).astype(np.uint8)
     merr_all = np.concatenate(merr_flags).astype(np.uint8)
-    mv_all = np.concatenate(mv_flags).astype(np.uint8)
     cat_all = np.concatenate(cat_flags).astype(np.uint8)
 
     # Labels for each criterion step (0/1)
-    L_white = wl_all
-    L_ci = wl_all & ci_all
-    L_merr = wl_all & ci_all & merr_all
-    L_cat = cat_all  # already includes CI + merr + MV
-    return L_white, L_ci, L_merr, L_cat
+    l_white = wl_all
+    l_ci = wl_all & ci_all
+    l_merr = wl_all & ci_all & merr_all
+    l_cat = cat_all  # already includes CI + merr + MV
+    return l_white, l_ci, l_merr, l_cat
 
 
 def main():
@@ -161,23 +160,23 @@ def main():
     nframe = args.nframe
 
     mass, age, mag5 = load_physprop(main_dir, reff, nframe)
-    L_white, L_ci, L_merr, L_cat = load_labels(main_dir, reff, nframe)
+    l_white, l_ci, l_merr, l_cat = load_labels(main_dir, reff, nframe)
 
-    if len(mass) != len(L_white):
-        n = min(len(mass), len(L_white))
+    if len(mass) != len(l_white):
+        n = min(len(mass), len(l_white))
         mass = mass[:n]
         age = age[:n]
         mag5 = mag5[:n]
-        L_white = L_white[:n]
-        L_ci = L_ci[:n]
-        L_merr = L_merr[:n]
-        L_cat = L_cat[:n]
+        l_white = l_white[:n]
+        l_ci = l_ci[:n]
+        l_merr = l_merr[:n]
+        l_cat = l_cat[:n]
 
     labels = {
-        "white": L_white,
-        "white+CI": L_ci,
-        "white+CI+4band": L_merr,
-        "full_catalogue": L_cat,
+        "white": l_white,
+        "white+CI": l_ci,
+        "white+CI+4band": l_merr,
+        "full_catalogue": l_cat,
     }
     colors = {
         "white": "C0",
