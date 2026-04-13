@@ -21,7 +21,6 @@ git clone https://github.com/JianlingTang/C-4-Cluster-Completeness-Correction-Ca
 cd cluster-completeness-pipeline
 python -m venv .venv
 source .venv/bin/activate   # or .venv\Scripts\activate on Windows
-pip install -e ".[api]"
 ```
 
 For the full pipeline you also need IRAF/PyRAF, SExtractor, and BAOlab; see your institution’s setup or `docs/DEPLOY_FOR_PAPER.md`.
