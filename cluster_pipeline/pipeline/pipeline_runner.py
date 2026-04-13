@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from ..catalogue.catalogue_filters import B_FILTER, I_FILTER, VBAND_FILTER
 from ..config import PipelineConfig, get_config
 from ..data.models import DetectionResult, MatchResult
 from ..detection import SExtractorRunner
@@ -638,7 +639,6 @@ def _run_photometry_and_catalogue(
     # Aperture corrections per filter (same as original_photometry_on_5_and_CI.py)
     aperture_corrections = _load_aperture_corrections(config, galaxy_id)
     # Canonical 5-band: 275, 336, 435, 555, 814; criteria use V=F555W, B=F435W, I=F814W
-    from ..catalogue.catalogue_filters import VBAND_FILTER, B_FILTER, I_FILTER
     vband_name = VBAND_FILTER if VBAND_FILTER in filters else (next((f for f in filters if "555" in f or "F555" in f), filters[0]) if filters else "F555W")
 
     frame_pattern = f"*_frame{frame_id}_{outname}_reff{reff:.2f}.fits"

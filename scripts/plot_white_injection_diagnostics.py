@@ -26,14 +26,13 @@ import os
 import sys
 from pathlib import Path
 
+import astropy.units as u
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.lines import Line2D
-from matplotlib.patches import Circle
 from astropy.coordinates import SkyCoord
 from astropy.io import fits
 from astropy.wcs import WCS
-import astropy.units as u
+from matplotlib.patches import Circle
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:

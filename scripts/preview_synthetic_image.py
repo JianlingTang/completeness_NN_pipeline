@@ -4,10 +4,11 @@ Quick preview of synthetic (inserted) images: white and one filter (F555W).
 Reads one frame FITS + coord file, shows a cutout and optional overlay of injected positions.
 """
 from pathlib import Path
-import numpy as np
+
 import matplotlib.pyplot as plt
-from matplotlib.colors import LogNorm
+import numpy as np
 from astropy.io import fits
+from matplotlib.colors import LogNorm
 
 ROOT = Path(__file__).resolve().parent.parent
 GAL = "ngc628-c"

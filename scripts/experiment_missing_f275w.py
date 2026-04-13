@@ -43,13 +43,17 @@ Usage (examples)
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 import subprocess
 import sys
 from pathlib import Path
 
+import astropy.units as u
 import numpy as np
 import pandas as pd
+from astropy.coordinates import Distance
+from astropy.io import fits
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
@@ -145,13 +149,6 @@ def _slug_read_filters(main_dir: Path, galaxy: str) -> list[str]:
 
 def _mag_bao_from_phot_neb_ex(phot_neb_ex: np.ndarray, main_dir: Path, galaxy: str, dmod: float) -> np.ndarray:
     """Vector mag_BAO for all clusters (same recipe as sample_slug_white_mag / generate_white_clusters)."""
-    import astropy.units as u
-    import glob
-    from astropy.coordinates import Distance
-    from astropy.io import fits
-
-    from cluster_pipeline.data.slug_reader import read_cluster
-
     gal_filters = np.load(main_dir / "galaxy_filter_dict.npy", allow_pickle=True).item()
     key = galaxy if galaxy in gal_filters else galaxy.split("_")[0]
     filters = sorted(gal_filters[key][0])
